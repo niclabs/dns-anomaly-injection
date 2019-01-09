@@ -7,6 +7,12 @@ try:
 except:
     raise Exception("Install scapy")
 def createResponsePackets(pktList: PacketList,rspnsList: PacketList,sip: str):
+    """
+        Create the response SYN ACK packets for the given ACK packets of the PacketList.
+        :param pktList:PacketList: The SYN packet list 
+        :param rspnsList:PacketList: The response SYN ACK packet list
+        :param sip:str: the attacker source IP 
+    """
     pktFactory = PacketBuilder()
     for i in range(len(pktList)):
         pkt = pktList[i]
@@ -52,7 +58,7 @@ def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList, pa
     j=0
     pkts = PacketList()
     while i<len(packetsOfFile):
-        prob = random.random()
+        prob = random.uniform(0,1)
         if prob<0.4 and j<len(new_packet_list):
             aPacket = new_packet_list[j]
             responsePacket = new_packet_response[j]
