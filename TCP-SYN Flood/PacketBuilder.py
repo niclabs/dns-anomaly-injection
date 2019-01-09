@@ -37,6 +37,14 @@ class PacketBuilder:
         """   
         self.__sport = port
         return self
+    def withDestPort(self,port: int):
+        """
+            Sets the destination port of the package
+            :param self: a reference to the builder
+            :param port:int: the new destiny port
+        """
+        self.__dport = port
+        return self
     def withFlags(self,flags : str):
         """
             Sets the flags used for the tcp package

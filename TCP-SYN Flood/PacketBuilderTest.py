@@ -13,7 +13,7 @@ class PacketBuilderTest(Test):
         self.addVariable("Source Port",5000)
         self.addVariable("Destiny Port",53)
         self.addVariable("Destiny IP","200.7.4.7")
-    def test_basic(self):
+    def test_basic_SYN(self):
         tether = Ether()
         tip = IP(src=self.getVariable("Source IP"),dst=self.getVariable("Destiny IP"))
         ttcp = TCP(sport=self.getVariable("Source Port"),dport=self.getVariable("Destiny Port"),flags='S')
@@ -25,7 +25,18 @@ class PacketBuilderTest(Test):
                   .withFlags("S")\
                   .build()
         assert pktbuilded == pktexpected
-
+    def test_basic_SA(self):
+        tether = Ether()
+        tip = IP(src=self.getVariable("Source IP"),dst=self.getVariable("Destiny IP"))
+        ttcp = TCP(sport=self.getVariable("Source Port"),dport=self.getVariable("Destiny Port"),flags='SA')
+        pktexpected = tether / tip / ttcp
+        pktbuilded = self.getVariable("builder")\
+                  .withSrcIP(self.getVariable("Source IP"))\
+                  .withDestIP(self.getVariable("Destiny IP"))\
+                  .withSrcPort(self.getVariable("Source Port"))\
+                  .withFlags("SA")\
+                  .build()
+        assert pktbuilded == pktexpected
 if __name__=="__main__":
     tester = PacketBuilderTest()
     tester.run()
