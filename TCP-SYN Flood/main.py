@@ -54,12 +54,16 @@ def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList, pa
         :return: a new packet list of for the new file
     """
     responseTime=0.000015
+    t0 = 0.0
+    t1 = 0.0
+    timestamp = random.uniform(0,0.001)
     i=0
     j=0
     pkts = PacketList()
     while i<len(packetsOfFile):
+        delta_insertion=t1-t0
         prob = random.uniform(0,1)
-        if prob<0.4 and j<len(new_packet_list):
+        if (delta_insertion>timestamp or prob <0.2) and j<len(new_packet_list):
             aPacket = new_packet_list[j]
             responsePacket = new_packet_response[j]
             dt = random.uniform(0.00014,0.00016)
@@ -68,12 +72,15 @@ def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList, pa
             if len(pkts)!=0:
                 aPacket.time += packetsOfFile[i].time
                 responsePacket.time +=packetsOfFile[i].time
+            timestamp = random.uniform(0,0.001)
+            t0 = aPacket.time
             pkts.extend(aPacket)
             pkts.extend(responsePacket)
             j+=1
         else:
             packate = packetsOfFile[i]
             packate.time = packetsOfFile[i].time
+            t1 = packate.time
             pkts.extend(packate)
             i+=1
     while j<len(new_packet_list):
