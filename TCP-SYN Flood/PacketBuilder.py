@@ -50,7 +50,8 @@ class PacketBuilder:
             Method that creates a new TCP package
             :param self: the package builder reference
         """
+        ePkt=Ether()
         ipPkt = IP(src=self.__srcip,dst=self.__dip)
         tcpPkt = TCP(sport=self.__sport,dport = self.__dport,flags = self.__flags)
-        pkt = ipPkt / tcpPkt
+        pkt = ePkt/ ipPkt / tcpPkt
         return pkt

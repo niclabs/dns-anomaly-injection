@@ -6,23 +6,35 @@ try:
     from PacketBuilder import *
 except:
     raise Exception("Install scapy")
-
-def insertPacket(aPacket, packetsOfFile):
+def createPackets(pktList: PacketList,sip: str,dip: str,source_port: int,number: int):
+    pktFactory = PacketBuilder()
+    for i in range(number):
+        npkt = pktFactory.withSrcIP(sip)\
+                .withDestIP(dip)\
+                .withSrcPort(source_port)\
+                .withFlags('S')\
+                .build()
+        pktList.append(npkt)
+def insertPacket(new_packet_list, packetsOfFile: PacketList):
     ##TODO insert a list of packets on the packets of the file, not just one
+    ##TODO Refactor in time 
     """
-        insert a packet into the packets of file list where it's belong
-        :param aPacket: the packet to insert
+        insert a list of packet into the packets of file list where it's belong
+        :param new_packet_list: the list of packet to be added
         :param packetsOfFile: the packet of the original file
         :return: a new packet list of for the new file
     """
     pkts = PacketList()
-    length = len(packetsOfFile)
-    for i in range(length):
+    for i in range(len(packetsOfFile)):
         packate = packetsOfFile[i]
         packate.time = packetsOfFile[i].time
         pkts.extend(packate)
-    aPacket.time=packetsOfFile[length-1].time+20
-    pkts.extend(aPacket)
+    for j in range(len(new_packet_list)):
+        length=len(pkts)
+        aPacket = new_packet_list[j]
+        aPacket.time=pkts[length-1].time+20
+        pkts.extend(aPacket)
+    print(pkts.nsummary())
     return pkts
 
 
@@ -40,14 +52,11 @@ def main(args: list):
         sport = random.randint(1024, 65535)
         direction = "input/"+fileName
         file_pkts = rdpcap(direction)
-        pktFactory = PacketBuilder()
+        lpkts = PacketList()
         ##TODO replace for a function to create a bunch of packets and not just one.
-        npkt = pktFactory.withSrcIP(originIP)\
-                .withDestIP(destinyIP)\
-                .withSrcPort(sport)\
-                .withFlags('S')\
-                .build()
-        new_packets = insertPacket(npkt, file_pkts)  # insert at the end
+        createPackets(lpkts,originIP,destinyIP,sport,20)
+        print(lpkts.nsummary())
+        new_packets = insertPacket(lpkts, file_pkts)  # insert at the end
         outName = fileName.split(".pcap")
         output = outName[0]+"-modified.pcap"
         output_direction = "output/"+output
