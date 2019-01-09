@@ -28,15 +28,17 @@ def answerAmplification(p, t):
     n = randint(1500, 1950) #Número de bytes del string r_data
     r_data = urandom(n)
 
-    ar2 = DNSRR(type='TXT', rclass=0x8001, rdata = r_data)
+    ar1 = DNSRR(type='TXT', rclass=0x8001, rdata = r_data)
     ext = DNSRROPT(rclass=4096) #Extensión EDNS0
     ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd)
 
     #Agregar additional records
-    ans[DNS].ar = ar2/ext
+    ans[DNS].ar = ar1/ext
 
     #Agregar answers
-    ans[DNS].an = ar2
+    ans[DNS].an = ar1
+
+    ans.time = p.time + t #Cambiar tiempo paquete respuesta
     return ans
 
 
@@ -48,11 +50,13 @@ def main():
     #sys.argv[5]: Inicio del ataque (ver en que se medirá)
     #sys.argv[6]: Tiempo de demora de la respuesta para cada request
 
+    paquetes = rdpcap(str(sys.argv[1]))
     ip = str(sys.argv[2])
     duracion = int(sys.argv[3])
     c = int(sys.argv[4])
     inicio = sys.argv[5]
     t = sys.argv[6]
 
+    t0 = paquetes[0].time
     serv = '200.7.4.7'
     srcport = 33865 #Cualquier puerto grande
