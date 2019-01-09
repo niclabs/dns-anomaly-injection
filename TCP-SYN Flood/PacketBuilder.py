@@ -37,6 +37,14 @@ class PacketBuilder:
         """   
         self.__sport = port
         return self
+    def withDestPort(self,port: int):
+        """
+            Sets the destination port of the package
+            :param self: a reference to the builder
+            :param port:int: the new destiny port
+        """
+        self.__dport = port
+        return self
     def withFlags(self,flags : str):
         """
             Sets the flags used for the tcp package
@@ -50,7 +58,8 @@ class PacketBuilder:
             Method that creates a new TCP package
             :param self: the package builder reference
         """
+        ePkt=Ether()
         ipPkt = IP(src=self.__srcip,dst=self.__dip)
         tcpPkt = TCP(sport=self.__sport,dport = self.__dport,flags = self.__flags)
-        pkt = ipPkt / tcpPkt
+        pkt = ePkt/ ipPkt / tcpPkt
         return pkt
