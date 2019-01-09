@@ -3,6 +3,8 @@ try:
     from pprint import pprint
     import numpy as np
     import randFloat as rF
+except:
+    raise Exception("Install scapy")
 
 
 paquete= scapy.all.rdpcap('blanco.1506993600.pcap.gz')

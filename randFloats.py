@@ -10,8 +10,19 @@ import random as r
 # Return: an array of float numbers
 ###
 def gen(Seed, Tmin, Tmax, cantidad):
-    i=intervalo(Tmin, Tmax, cantidad)
-    return genIntervaloAleatorio(Seed,  Tmin, Tmax, cantidad, i, i)
+    Tmin=Tmin*1.0
+    Tmax=Tmax*1.0
+    r.seed(Seed)
+    inter=intervalo(Tmin, Tmax, cantidad)
+    intervaloInicial=Tmin
+    intervaloFinal=inter
+    final=[]
+    for i in range(cantidad):
+        num=r.uniform(intervaloInicial,intervaloFinal)
+        final+=[num]
+        intervaloInicial=intervaloFinal
+        intervaloFinal+=inter
+    return final
 
 
 ### Author @Javi801
@@ -48,13 +59,17 @@ def intervalo(Tmin, Tmax, cantidad):
 def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
     Tmin=Tmin*1.0
     Tmax=Tmax*1.0
+    if (InterMin*cantidad)+Tmin>Tmax:
+        InterMin=intervalo(Tmin, Tmax, cantidad)
+    if InterMin>InterMax:
+        InterMin=InterMax
     InterMax=InterMax*1.0
     InterMin=InterMin*1.0
     r.seed(Seed)
     intervaloInicial=Tmin
     intervaloFinal=((r.random()*(InterMax-InterMin))+InterMin*1)+Tmin
     final=[]
-    for i in range(cantidad):
+    for i in range(cantidad): #Falta asegurar que no se pase de Tmax antes de terminar este for
         num=r.uniform(intervaloInicial,intervaloFinal)
         final+=[num]
         intervaloInicial=intervaloFinal
