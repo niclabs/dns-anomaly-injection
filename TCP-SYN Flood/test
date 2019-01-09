@@ -1,0 +1,13 @@
+% Test functions
+# This is based on the UTScapy testing framework
+* This is an UTScapy test for the functions created
+* This not test the main function
++ Simple Test
+= Packet Creation Test
+~packet_creation_test Simple creation test
+sip = "190.54.120.30"
+dip = "200.7.4.7"
+sport = 5000
+dport = 53
+flag = "S"
+ti = IP(src=sip,)
