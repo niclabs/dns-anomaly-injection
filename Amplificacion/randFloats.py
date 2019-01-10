@@ -87,7 +87,7 @@ def genInter(Seed, tmin, tmax, cantidad):
     inter = []
     t0 = tmin
     t1 = tmin + 1
-    for i in range(tmax - tmin):
+    for i in range(int(tmax - tmin)):
         sub_i = gen(Seed, t0, t1, cantidad)
         inter.extend(sub_i)
         t0 += 1

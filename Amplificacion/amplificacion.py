@@ -70,6 +70,13 @@ def main():
     tf = ti + duracion
     serv = '200.7.4.7'
     srcport = 33865 #Cualquier puerto grande
+    qname = 'hola.chao.cl'
 
     new_packages = []
     seed = 20 #Semilla para intervalo aleatorio
+    time = genInter(seed, ti, tf, c)
+    for t in time:
+        p = amplificationBuilder(ip, serv, srcport, qname, t)
+        a = answerAmplification(p, dt)
+        new_packages.append(p)
+        new_packages.append(a)

@@ -83,11 +83,12 @@ def genInter(Seed, tmin, tmax, cantidad):
            tmin -> (float) minimun number
            tmax -> (float) maximal number
            cantidad -> (int) number of queries per second
+    Note: tmax - tmin must be equals or greater than 1
     """
     inter = []
     t0 = tmin
     t1 = tmin + 1
-    for i in range(tmax - tmin):
+    for i in range(int(tmax - tmin)):
         sub_i = gen(Seed, t0, t1, cantidad)
         inter.extend(sub_i)
         t0 += 1
