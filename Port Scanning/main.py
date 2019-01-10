@@ -1,8 +1,12 @@
 import argparse
 from PackagesCreator import*
+import sys
+sys.path.append("..")
+
 
 ############### Main program ###############
 def main():
+    ###### Valores por defecto ######
     nombrePktFin='PortScanningAttack'
     dirPktFin='output/'
     dirPktIni='input/'
@@ -13,27 +17,57 @@ def main():
     PortSrc=80
     Seed=time.time
     puertos=[]
-    durancion=60
+    duracion=60
     autoritativo=1
     numPaquetesAEnviar=500
     interResp=0.006673997
+    #################################
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", help="Mostrar información de depuración", action="store_true")
+    parser.add_argument("-f", "--file", help="Nombre de archivo a procesar")
+    args = parser.parse_args()
+
+    if args.verbose:
+    print "depuración activada!!!"
+
+    if args.file:
+        print "El nombre de archivo a procesar es: ", args.file
 
     if len(puertos)==0:
         puertos=portsGen(0, 1023, 1, [], [], 2, Seed)
     #Assertions for given values
-    assert(duracion>0)
-    assert(Seed>-1)
-    assert()
+    checkValues(nombrePktFin,nombrePktIni, IPsrc, PortSrc, Seed, puertos, duracion, autoritativo, numPaquetesAEnviar, interResp)
     "-sTCP"
-        attack=genIniFin(IPsrc, puertos, tInicial, tInicial+duracion, 1, numPaquetesAEnviar, Seed)
+        attack=PackagesCreator(IPsrc, puertos, tInicial, tInicial+duracion, 1, numPaquetesAEnviar, Seed)
 
 ############################################
 
+def checkValues(nombrePktFin,nombrePktIni, IPsrc, PortSrc, Seed, puertos, duracion, autoritativo, numPaquetesAEnviar, interResp):
+    try:
+        assert(duracion>0)
+    except:
+        raise Exception("La duracion debe ser mayor a 0")
+    try:
+        assert(PortSrc>=0)
+    except:
+        raise Exception("El puerto de origen debe ser mayor a 0")
+    try:
+        assert(PortSrc<=65536)
+    except:
+        raise Exception("El puerto de origen debe ser menor a 65536")
+    try:
+        assert(autoritativo==1 or autoritativo==0)
+    except:
+        raise Exception("El valor para 'autoritativo' solo puede ser 0 o 1")
+    try:
+        assert(numPaquetesAEnviar>=0)
+    except:
+        raise Exception("El numero de paquetes a enviar debe ser positivo")
+
 def TCPinyeccion(nombrePktFin):
-    virus=PacketList(genIniFin("200.27.161,26", 0, 1023, 1, t, t+10, 1, 500, 473))
-    datosReales=rdpcap(nombrePktIni)
-    attack=datosReales+virus
-    wrpcap('output/'+nombrePktFin+'.pcap',attack)
+    t=0
 
 def UDPinyeccion(nombrePktIni, nombrePktFin):
     t=0

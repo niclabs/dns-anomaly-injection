@@ -3,6 +3,7 @@ import sys
 from os import urandom
 from random import randint
 from randFloats import *
+import time
 
 def amplificationBuilder(ip_src,ip_dst, src_port, q_name, t):
     """
@@ -11,7 +12,7 @@ def amplificationBuilder(ip_src,ip_dst, src_port, q_name, t):
            ip_dst -> Destination ip
            src_port -> Source port
            q_name -> Domain name
-           t: Arrival time
+           t -> Arrival time
            return: A packet with EDNS0 extension
     """
     id_IP = int(RandShort())
@@ -49,6 +50,7 @@ def main():
     sys.argv[4]: Amount of packages per second
     sys.argv[5]: Start date TODO: ver en que se medirá (Con respecto al paquete)
     sys.argv[6]: Delay time of each response
+    tiempo promedio 0.006673997294210002
     """
 
     ip = str(sys.argv[2])
@@ -66,7 +68,7 @@ def main():
     qname = 'hola.chao.cl'
 
     new_packages = []
-    seed = 20 #Seed for randomize
+    seed = time.time() #Seed for randomize
     time = genInter(seed, ti, tf, c)
     for t in time:
         p = amplificationBuilder(ip, serv, srcport, qname, t)
@@ -75,5 +77,3 @@ def main():
         new_packages.append(a)
 
     wrpcap("file.pcap", new_packages)
-if __name__ == '__main__':
-    main()
