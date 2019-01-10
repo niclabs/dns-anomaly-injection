@@ -3,15 +3,33 @@ from PackagesCreator import*
 
 ############### Main program ###############
 def main():
-    nombrePktFin=''
-    IPsrc="200.27.161,26" PortSrc, puertoInicial, puertoFinal, intervaloPuertos, tiempoInicial, tiempoFinal, autoritativo, numPaquetesAEnviar, Seed):
+    nombrePktFin='PortScanningAttack'
+    dirPktFin='output/'
+    dirPktIni='input/'
+    nombrePktIni=''
+    paquete= sniff(offline=nombrePktIni, count=1)
+    tInicial=paquete[0].time
+    IPsrc="200.27.161,26"
+    PortSrc=80
+    Seed=time.time
+    puertos=[]
+    durancion=60
+    autoritativo=1
+    numPaquetesAEnviar=500
+    interResp=0.006673997
+
+    if len(puertos)==0:
+        puertos=portsGen(0, 1023, 1, [], [], 2, Seed)
+    #Assertions for given values
+    assert(duracion>0)
+    assert(Seed>-1)
+    assert()
+    "-sTCP"
+        attack=genIniFin(IPsrc, puertos, tInicial, tInicial+duracion, 1, numPaquetesAEnviar, Seed)
 
 ############################################
 
-def TCPinyeccion(nombrePktIni, nombrePktFin):
-    nombrePktIni='input/'+nombrePktIni
-    paquete= sniff(offline=nombrePktIni, count=1)
-    t=paquete[0].time
+def TCPinyeccion(nombrePktFin):
     virus=PacketList(genIniFin("200.27.161,26", 0, 1023, 1, t, t+10, 1, 500, 473))
     datosReales=rdpcap(nombrePktIni)
     attack=datosReales+virus

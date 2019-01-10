@@ -3,7 +3,7 @@ import random as r
 """ Author @Javi801
  Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
  a given seed for randomize numbers. It will gives one number per (Tmax/cantidad).
- Param: Seed -> (int) seed for randomize
+ Param: Seed -> (float) seed for randomize
        Tmin -> (float) minimun number
        Tmax -> (float) maximal number
        cantidad -> (int) total of number required
@@ -48,7 +48,7 @@ def intervalo(Tmin, Tmax, cantidad):
  time is more than maximal time ((InterMin*cantidad)+Tmin>Tmax), then minimun
  interval will be calculated with intervalo() function
 
- Param: Seed -> (int) seed for randomize
+ Param: Seed -> (float) seed for randomize
        Tmin -> (float) minimun number
        Tmax -> (float) maximal number
        cantidad -> (int) total of number required
@@ -80,7 +80,7 @@ def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
 """
 
 Gives an array with "cantidad" of floats per second between Tmin and Tmax.
-Param: Seed -> (int) seed for randomize
+Param: Seed -> (float) seed for randomize
        tmin -> (float) minimun number
        tmax -> (float) maximal number
        cantidad -> (int) number of queries per second
