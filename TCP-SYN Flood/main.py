@@ -48,20 +48,21 @@ def createPackets(pktList: PacketList,sip: str,dip: str,number: int):
         
 
 def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,direction: str,output_direction: str):
-    ##TODO Refactor in time of added
     """
         insert a list of packet into the packets of file list where it's belong
         :param new_packet_list: the list of packet to be added
         :return: a new packet list of for the new file
     """
+    ##TODO modify how many packet per second are inserted
     numPktsIns = len(new_packet_list)
     reader = PcapReader(direction)
-    writer = PcapWriter(output_direction,append=True,sync=True)
+    pkts = PacketList()
+    # writer = PcapWriter(output_direction,append=True,sync=True)
     buffer = []
     primero = reader.read_packet()
     buffer.append(primero)
     ti= primero.time
-    times = rnd.gen(time.time(),ti,ti+5,numPktsIns)
+    times = rnd.gen(time.time(),ti,ti+60,numPktsIns)
     responseTime=0.000015
     waiting = False
     j=0
@@ -77,17 +78,21 @@ def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,dir
             response = new_packet_response[j]
             aPacket.time = times[j]
             response.time = times[j]+responseTime
-            writer.write(aPacket)
-            writer.write(response)
+            #writer.write(aPacket)
+            #writer.write(response)
+            pkts.extend(aPacket)
+            pkts.extend(response)
             j+=1
         else:
-            writer.write(buffer[0])
+            #writer.write(buffer[0])
+            pkts.extend(buffer[0])
             buffer.pop(0)
     while waiting:
-        writer.write(buffer[0])
+        #writer.write(buffer[0])
+        pkts.extend(buffer[0])
         buffer.pop(0)
         waiting = len(buffer)!=0
-
+    wrpcap(output_direction,pkts)
 def main(args: list):
     """
     Main function of the program, generates the output file on the
@@ -104,7 +109,7 @@ def main(args: list):
         output = outName[0]+"-modified.pcap"
         output_direction = "output/"+output
         wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
-        number_packets = random.randint(500,1000)
+        number_packets = random.randint(90000,100000)
         lpkts = PacketList()
         lrspns = PacketList()
         createPackets(lpkts,originIP,destinyIP,number_packets)
