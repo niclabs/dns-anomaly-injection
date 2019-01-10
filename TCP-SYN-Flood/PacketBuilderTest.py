@@ -1,4 +1,6 @@
 try:
+    import sys
+    sys.path.append('..')
     from PacketBuilder import *
     from scapy.all import *
     from Test import *

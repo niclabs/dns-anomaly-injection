@@ -8,7 +8,7 @@ try:
     import time
     from PacketBuilder import *
 except:
-    raise Exception("Install scapy")
+    raise Exception("Get assure that every library is avalaible")
 def createPackets(fileName: str,sip: str,dip: str,number: int):
     """
         Creates a series of packets of information that are going to be added to the pcap file
@@ -44,47 +44,6 @@ def createPackets(fileName: str,sip: str,dip: str,number: int):
                 .build()
         pkts.append((npkt,rpkt))
     return pkts
-
-def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,direction: str,output_direction: str):
-    """
-        insert a list of packet into the packets of file list where it's belong
-        :param new_packet_list: the list of packet to be added
-        :return: a new packet list of for the new file
-    """
-    ##TODO modify how many packet per second are inserted
-    numPktsIns = len(new_packet_list)
-    reader = PcapReader(direction)
-    writer = PcapWriter(output_direction,append=True,sync=True)
-    buffer = []
-    primero = reader.read_packet()
-    buffer.append(primero)
-    ti= primero.time
-    
-    
-    waiting = False
-    j=0
-    while True:
-        pktRead = reader.read_packet()
-        if pktRead == None:
-            if len(buffer)!=0:
-                waiting = True
-            break
-        buffer.append(pktRead)
-        if j< numPktsIns and buffer[0].time > times[j]:
-            aPacket = new_packet_list[j]
-            response = new_packet_response[j]
-            aPacket.time = times[j]
-            response.time = times[j]+responseTime
-            writer.write(aPacket)
-            writer.write(response)
-            j+=1
-        else:
-            writer.write(buffer[0])
-            buffer.pop(0)
-    while waiting:
-        writer.write(buffer[0])
-        buffer.pop(0)
-        waiting = len(buffer)!=0
 def main(args: list):
     """
     Main function of the program, generates the output file on the
@@ -102,8 +61,6 @@ def main(args: list):
         output_direction = "output/"+output
         wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
         number_packets = random.randint(500,1000)
-        lpkts = PacketList()
-        lrspns = PacketList()
         pkts=createPackets(direction,originIP,destinyIP,number_packets)
         print("Paquetes creados: "+str(2*number_packets))
         print("Empezando a ingresar paquetes en pcap")
