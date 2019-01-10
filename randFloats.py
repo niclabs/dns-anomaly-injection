@@ -1,14 +1,14 @@
 import random as r
 
-### Author @Javi801
-# Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
-# a given seed for randomize numbers. It will gives one number per (Tmax/cantidad).
-# Param: Seed -> (int) seed for randomize
-#       Tmin -> (float) minimun number
-#       Tmax -> (float) maximal number
-#       cantidad -> (int) total of number required
-# Return: an array of float numbers
-###
+""" Author @Javi801
+ Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
+ a given seed for randomize numbers. It will gives one number per (Tmax/cantidad).
+ Param: Seed -> (float) seed for randomize
+       Tmin -> (float) minimun number
+       Tmax -> (float) maximal number
+       cantidad -> (int) total of number required
+ Return: an array of float numbers
+"""
 def gen(Seed, Tmin, Tmax, cantidad):
     Tmin=Tmin*1.0
     Tmax=Tmax*1.0
@@ -25,13 +25,13 @@ def gen(Seed, Tmin, Tmax, cantidad):
     return final
 
 
-### Author @Javi801
-# Calcule the interval between Tmin and Tmax, consider "cantidad" of intervals
-# Param: Tmin -> (float) minimun number
-#       Tmax -> (float) maximal number
-#       cantidad -> (int) total of number required
-# Return: inter -> (float) interval calculated
-###
+""" Author @Javi801
+ Calcule the interval between Tmin and Tmax, consider "cantidad" of intervals
+ Param: Tmin -> (float) minimun number
+       Tmax -> (float) maximal number
+       cantidad -> (int) total of number required
+ Return: inter -> (float) interval calculated
+"""
 def intervalo(Tmin, Tmax, cantidad):
     Tmin=Tmin*1.0
     Tmax=Tmax*1.0
@@ -39,23 +39,23 @@ def intervalo(Tmin, Tmax, cantidad):
     return inter
 
 
-### Author @Javi801
-# Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
-# a given seed for randomize numbers. The interval between each package is a
-# random interval picked between InterMin and InterMax.
-#
-# Notice that if minimun interval multiplied by "cantidad" and added to minimun
-# time is more than maximal time ((InterMin*cantidad)+Tmin>Tmax), then minimun
-# interval will be calculated with intervalo() function
-#
-# Param: Seed -> (int) seed for randomize
-#       Tmin -> (float) minimun number
-#       Tmax -> (float) maximal number
-#       cantidad -> (int) total of number required
-#       InterMin -> (float) minimum interval
-#       InterMax -> (float) maximal interval
-# Return: final -> an array with "cantidad" of floats numbers
-###
+""" Author @Javi801
+ Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
+ a given seed for randomize numbers. The interval between each package is a
+ random interval picked between InterMin and InterMax.
+
+ Notice that if minimun interval multiplied by "cantidad" and added to minimun
+ time is more than maximal time ((InterMin*cantidad)+Tmin>Tmax), then minimun
+ interval will be calculated with intervalo() function
+
+ Param: Seed -> (float) seed for randomize
+       Tmin -> (float) minimun number
+       Tmax -> (float) maximal number
+       cantidad -> (int) total of number required
+       InterMin -> (float) minimum interval
+       InterMax -> (float) maximal interval
+ Return: final -> an array with "cantidad" of floats numbers
+"""
 def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
     Tmin=Tmin*1.0
     Tmax=Tmax*1.0
@@ -76,15 +76,17 @@ def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
         intervaloFinal+=(r.random()*(InterMax-InterMin))+InterMin
     return final
 
+
+"""
+
+Gives an array with "cantidad" of floats per second between Tmin and Tmax.
+Param: Seed -> (float) seed for randomize
+       tmin -> (float) minimun number
+       tmax -> (float) maximal number
+       cantidad -> (int) number of queries per second
+Note: tmax - tmin must be equals or greater than 1
+"""
 def genInter(Seed, tmin, tmax, cantidad):
-    """
-    Gives an array with "cantidad" of floats per second between Tmin and Tmax.
-    Param: Seed -> (int) seed for randomize
-           tmin -> (float) minimun number
-           tmax -> (float) maximal number
-           cantidad -> (int) number of queries per second
-    Note: tmax - tmin must be equals or greater than 1
-    """
     inter = []
     t0 = tmin
     t1 = tmin + 1
