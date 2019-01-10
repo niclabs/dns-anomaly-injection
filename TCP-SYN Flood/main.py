@@ -1,8 +1,10 @@
 try:
+    import sys
+    sys.path.append('..')
+    import randFloats as rnd
     from scapy.all import *
     import random
     import time
-    import sys
     from PacketBuilder import *
 except:
     raise Exception("Install scapy")
@@ -45,57 +47,52 @@ def createPackets(pktList: PacketList,sip: str,dip: str,number: int):
         pktList.extend(npkt)
         
 
-def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList, packetsOfFile: PacketList):
-    ##TODO Refactor in time of added
+def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,direction: str,output_direction: str):
     """
         insert a list of packet into the packets of file list where it's belong
         :param new_packet_list: the list of packet to be added
-        :param packetsOfFile: the packet of the original file
         :return: a new packet list of for the new file
     """
-    responseTime=0.000015
-    t0 = 0.0
-    t1 = 0.0
-    timestamp = random.uniform(0,0.001)
-    i=0
-    j=0
+    ##TODO modify how many packet per second are inserted
+    numPktsIns = len(new_packet_list)
+    reader = PcapReader(direction)
     pkts = PacketList()
-    while i<len(packetsOfFile):
-        delta_insertion=t1-t0
-        prob = random.uniform(0,1)
-        if (delta_insertion>timestamp or prob <0.2) and j<len(new_packet_list):
+    # writer = PcapWriter(output_direction,append=True,sync=True)
+    buffer = []
+    primero = reader.read_packet()
+    buffer.append(primero)
+    ti= primero.time
+    times = rnd.gen(time.time(),ti,ti+60,numPktsIns)
+    responseTime=0.000015
+    waiting = False
+    j=0
+    while True:
+        pktRead = reader.read_packet()
+        if pktRead == None:
+            if len(buffer)!=0:
+                waiting = True
+            break
+        buffer.append(pktRead)
+        if j< numPktsIns and buffer[0].time > times[j]:
             aPacket = new_packet_list[j]
-            responsePacket = new_packet_response[j]
-            dt = random.uniform(0.00014,0.00016)
-            aPacket.time = dt
-            responsePacket.time=dt+responseTime
-            if len(pkts)!=0:
-                aPacket.time += packetsOfFile[i].time
-                responsePacket.time +=packetsOfFile[i].time
-            timestamp = random.uniform(0,0.001)
-            t0 = aPacket.time
+            response = new_packet_response[j]
+            aPacket.time = times[j]
+            response.time = times[j]+responseTime
+            #writer.write(aPacket)
+            #writer.write(response)
             pkts.extend(aPacket)
-            pkts.extend(responsePacket)
+            pkts.extend(response)
             j+=1
         else:
-            packate = packetsOfFile[i]
-            packate.time = packetsOfFile[i].time
-            t1 = packate.time
-            pkts.extend(packate)
-            i+=1
-    while j<len(new_packet_list):
-        dt=random.random()
-        length=len(pkts)
-        aPacket = new_packet_list[j]
-        responsePacket = new_packet_response[j]
-        aPacket.time=pkts[length-1].time+dt
-        responsePacket.time = aPacket.time + responseTime
-        pkts.extend(aPacket)
-        pkts.extend(responsePacket)
-        j+=1
-    return pkts
-
-
+            #writer.write(buffer[0])
+            pkts.extend(buffer[0])
+            buffer.pop(0)
+    while waiting:
+        #writer.write(buffer[0])
+        pkts.extend(buffer[0])
+        buffer.pop(0)
+        waiting = len(buffer)!=0
+    wrpcap(output_direction,pkts)
 def main(args: list):
     """
     Main function of the program, generates the output file on the
@@ -108,23 +105,20 @@ def main(args: list):
         originIP = args[2]
         destinyIP = "200.7.4.7" #Ip of the server
         direction = "input/"+fileName
-        file_pkts = rdpcap(direction)
-        number_packets = random.randint(500,1000)
-        lpkts = PacketList()
-        lrspns = PacketList()
-        ##TODO replace for a function to create a bunch of packets and not just one.
-        createPackets(lpkts,originIP,destinyIP,number_packets)
-        createResponsePackets(lpkts,lrspns,originIP)
-        new_packets = insertPacket(lpkts,lrspns, file_pkts)
         outName = fileName.split(".pcap")
         output = outName[0]+"-modified.pcap"
         output_direction = "output/"+output
-        wrpcap(output_direction, new_packets)
+        wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
+        number_packets = random.randint(90000,100000)
+        lpkts = PacketList()
+        lrspns = PacketList()
+        createPackets(lpkts,originIP,destinyIP,number_packets)
+        createResponsePackets(lpkts,lrspns,originIP)
+        insertPacket(lpkts,lrspns,direction,output_direction)
         return 0
     except FileNotFoundError:
         raise Exception("El archivo no existe o bien no esta en la carpeta input")
 
-##TODO en la tarde generar las respuestas del servidor
 if __name__ == "__main__":
     args = sys.argv
     if len(args) < 2:
