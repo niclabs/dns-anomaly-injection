@@ -75,3 +75,21 @@ def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
         intervaloInicial=intervaloFinal
         intervaloFinal+=(r.random()*(InterMax-InterMin))+InterMin
     return final
+
+def genInter(Seed, tmin, tmax, cantidad):
+    """
+    Gives an array with "cantidad" of floats per second between Tmin and Tmax.
+    Param: Seed -> (int) seed for randomize
+           tmin -> (float) minimun number
+           tmax -> (float) maximal number
+           cantidad -> (int) number of queries per second
+    """
+    inter = []
+    t0 = tmin
+    t1 = tmin + 1
+    for i in range(tmax - tmin):
+        sub_i = gen(Seed, t0, t1, cantidad)
+        inter.extend(sub_i)
+        t0 += 1
+        t1 += 1
+    return inter
