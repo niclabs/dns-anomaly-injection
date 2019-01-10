@@ -47,37 +47,46 @@ def createPackets(pktList: PacketList,sip: str,dip: str,number: int):
         pktList.extend(npkt)
         
 
-def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,direction: str):
+def insertPacket(new_packet_list: PacketList,new_packet_response: PacketList,direction: str,output_direction: str):
     ##TODO Refactor in time of added
     """
         insert a list of packet into the packets of file list where it's belong
         :param new_packet_list: the list of packet to be added
         :return: a new packet list of for the new file
     """
-    packetsOfFile = rdpcap(direction)
-    numPktsFile = len(packetsOfFile)
     numPktsIns = len(new_packet_list)
-    times = rnd.gen(time.time(),packetsOfFile[0].time,packetsOfFile[numPktsFile-1].time,numPktsIns)
+    reader = PcapReader(direction)
+    writer = PcapWriter(output_direction,append=True,sync=True)
+    buffer = []
+    primero = reader.read_packet()
+    buffer.append(primero)
+    ti= primero.time
+    times = rnd.gen(time.time(),ti,ti+5,numPktsIns)
     responseTime=0.000015
-    i=0
+    waiting = False
     j=0
-    pkts = PacketList()
-    while i<numPktsFile:
-        if j<numPktsIns and times[j]<packetsOfFile[i].time:
+    while True:
+        pktRead = reader.read_packet()
+        if pktRead == None:
+            if len(buffer)!=0:
+                waiting = True
+            break
+        buffer.append(pktRead)
+        if j< numPktsIns and buffer[0].time > times[j]:
             aPacket = new_packet_list[j]
-            responsePacket = new_packet_response[j]
-            timeSent = times[j]
-            aPacket.time = timeSent
-            responsePacket.time=timeSent+responseTime
-            pkts.extend(aPacket)
-            pkts.extend(responsePacket)
+            response = new_packet_response[j]
+            aPacket.time = times[j]
+            response.time = times[j]+responseTime
+            writer.write(aPacket)
+            writer.write(response)
             j+=1
         else:
-            packate = packetsOfFile[i]
-            pkts.extend(packate)
-            i+=1
-    return pkts
-
+            writer.write(buffer[0])
+            buffer.pop(0)
+    while waiting:
+        writer.write(buffer[0])
+        buffer.pop(0)
+        waiting = len(buffer)!=0
 
 def main(args: list):
     """
@@ -91,16 +100,16 @@ def main(args: list):
         originIP = args[2]
         destinyIP = "200.7.4.7" #Ip of the server
         direction = "input/"+fileName
+        outName = fileName.split(".pcap")
+        output = outName[0]+"-modified.pcap"
+        output_direction = "output/"+output
+        wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
         number_packets = random.randint(500,1000)
         lpkts = PacketList()
         lrspns = PacketList()
         createPackets(lpkts,originIP,destinyIP,number_packets)
         createResponsePackets(lpkts,lrspns,originIP)
-        new_packets = insertPacket(lpkts,lrspns,direction)
-        outName = fileName.split(".pcap")
-        output = outName[0]+"-modified.pcap"
-        output_direction = "output/"+output
-        wrpcap(output_direction, new_packets)
+        insertPacket(lpkts,lrspns,direction,output_direction)
         return 0
     except FileNotFoundError:
         raise Exception("El archivo no existe o bien no esta en la carpeta input")
