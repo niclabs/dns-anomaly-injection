@@ -6,6 +6,8 @@ except:
     raise Exception("Install scapy")
 
 try:
+    import sys
+    sys.path.append("..")
     import randFloats as rF
 except:
     raise Exception("randFloat error")
@@ -29,7 +31,7 @@ except:
  Return: NuevoSetPaquetesEnviados -> Array of packages, with numPaquetesAEnviar
                                      as length
 """
-def genIniFin(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, autoritativo, numPaquetesAEnviar, Seed, interResp):
+def PackagesCreator(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, autoritativo, numPaquetesAEnviar, Seed, interResp):
     if autoritativo!=0 or autoritativo!=1:
         autoritativo=1
     ###########creacion de los parametros para los paquetes###########
@@ -62,7 +64,6 @@ def genIniFin(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, autoritativo,
          interResp -> (float) interval between query and answer
 
  Return: SetPaquetes -> An ethernet package
-
 """
 def TCPgen(PortSrc, PortDst, open, ip, dns, autoritativo, t, interResp):
     Id=int(RandShort())
@@ -78,7 +79,7 @@ def TCPgen(PortSrc, PortDst, open, ip, dns, autoritativo, t, interResp):
     return SetPaquetes
 
 """ Author @Javi801
- Gives an array of two arrays; first the open ones and, then, the closed
+ Gives an array of two ports arrays; first the open ones and, then, the closed
 
  Param: puertoInicial -> (int) first port
         puertoFinal -> (int) last port
@@ -89,7 +90,7 @@ def TCPgen(PortSrc, PortDst, open, ip, dns, autoritativo, t, interResp):
                 guys, 0=> this guys
         Seed -> (float) seed for randomize
 
- Return: conversation -> array of ether packages
+ Return: list(int) -> list of two port list
 """
 def portsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, type, Seed):
     random.seed(Seed)
@@ -109,7 +110,17 @@ def portsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, t
     if len(abiertos)==0 or len(cerrados)==0:
         return ArrayPorts(abiertos, cerrados, puertos, Seed)
 
+""" Author @Javi801
+ Gives a list with two ports list; first the open ones and, then, the closed.
+ This with a given number of open ports or closed ports
 
+ Params: abiertos -> (int) number of open ports, it can be -1
+         cerrados -> (int) number of closed ports, it can be -1
+         puertos -> (list(int)) ports list
+         Seed -> (float) seed for randomize
+
+ Return: list(int) -> list of two port list
+"""
 def intPorts(abiertos, cerrados, puertos, Seed):
     random.seed(Seed)
     open=[]
@@ -131,7 +142,17 @@ def intPorts(abiertos, cerrados, puertos, Seed):
             open+=[puertos.pop(var)]
         return [open, puertos]
 
+""" Author @Javi801
+ Gives a list with two ports list; first the open ones and, then, the closed.
+ This with a given list of open ports or closed ports
 
+ Params: abiertos -> (list(int)) open ports list, it can be []
+         cerrados -> (list(int)) closed ports list, it can be []
+         puertos -> (list(int)) ports list
+         Seed -> (float) seed for randomize
+
+ Return: list(int) -> list of two port list
+"""
 def ArrayPorts(abiertos, cerrados, puertos, Seed):
     random.seed(Seed)
     op=[]
