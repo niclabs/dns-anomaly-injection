@@ -13,6 +13,7 @@ class PacketBuilder:
         self.__sport = 5000
         self.__dport = 53
         self.__flags = ""
+        self.__time = float(0)
     def withSrcIP(self,ip: str):
         """
             Set the source Ip for the packet that is going to be created
@@ -53,6 +54,10 @@ class PacketBuilder:
         """   
         self.__flags = flags
         return self
+    def withTime(self,time: float):
+
+        self.__time=time
+        return self
     def build(self):
         """
             Method that creates a new TCP package
@@ -62,4 +67,5 @@ class PacketBuilder:
         ipPkt = IP(src=self.__srcip,dst=self.__dip)
         tcpPkt = TCP(sport=self.__sport,dport = self.__dport,flags = self.__flags)
         pkt = ePkt/ ipPkt / tcpPkt
+        pkt.time=self.__time
         return pkt
