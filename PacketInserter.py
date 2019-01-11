@@ -115,7 +115,7 @@ class PacketInserter:
         """
             Insert the packages given to the pcap file mentioned, (if the output
             file exists already, it will be overwritten)
-            from the pcap original file.
+            from the pcap original file. At the end, the list to append will be empty, so be careful.
             :return: True if the file was succesfully generated
         """
         try:
@@ -146,6 +146,7 @@ class PacketInserter:
                     response.time+=self.__delayResponse
                     writer.write(aPacket)
                     writer.write(response)
+                    self.__packetsToAppend.pop(0)
                     j+=1
                     count+=1
                     number+=1
@@ -157,12 +158,14 @@ class PacketInserter:
                 if count == 50000:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
+                    count = 0
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[j][0].time:
                     aPacket = self.__packetsToAppend[j][0]
                     response = self.__packetsToAppend[j][1]
                     response.time+=self.__delayResponse
                     writer.write(aPacket)
                     writer.write(response)
+                    self.__packetsToAppend.pop(0)
                     count+=1
                     j+=1
                     number+=1
@@ -180,6 +183,7 @@ class PacketInserter:
                 response.time+=self.__delayResponse
                 writer.write(aPacket)
                 writer.write(response)
+                self.__packetsToAppend.pop(0)
                 j+=1
                 count+=1
                 number+=1
