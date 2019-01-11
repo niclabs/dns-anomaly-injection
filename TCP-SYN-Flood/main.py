@@ -22,7 +22,7 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
     first = sniff(offline=fileName,count=1)
     ti = first[0].time
     times =rnd.genInter(time.time(),ti,ti+duration,number)
-    responseTime=0.000015
+    responseTime=0.00015
     pktFactory = PacketBuilder()
     pkts = []
     quantity = len(times)
