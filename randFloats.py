@@ -81,7 +81,7 @@ def genIntervaloAleatorio(Seed, Tmin, Tmax, cantidad, InterMin, InterMax):
 
 Gives an array with "cantidad" of floats per second between Tmin and Tmax.
 Param: Seed -> (float) seed for randomize
-       tmin -> (float) minimun number
+       tmin -> (float) minimum number
        tmax -> (float) maximal number
        cantidad -> (int) number of queries per second
 Note: tmax - tmin must be equals or greater than 1
