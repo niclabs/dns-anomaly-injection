@@ -9,22 +9,24 @@ try:
     from PacketBuilder import *
 except:
     raise Exception("Get assure that every library is avalaible")
-def createPackets(fileName: str,sip: str,dip: str,number: int):
+def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
     """
         Creates a series of packets of information that are going to be added to the pcap file
         :param: fileName it's the name of the file which is going to be modified
         :param sip:str: the source IP
         :param dip:str: the destiny IP
-        :param number:int: the number of packets to creates
+        :param number:int: the number per second to create
+        :param duration: the duration of the attack on the file
         :return: a list of the packets to insert
     """
     first = sniff(offline=fileName,count=1)
     ti = first[0].time
-    times =times = rnd.gen(time.time(),ti,ti+5,number)
+    times =rnd.genInter(time.time(),ti,ti+duration,number)
     responseTime=0.000015
     pktFactory = PacketBuilder()
     pkts = []
-    for i in range(number):
+    quantity = len(times)
+    for i in range(quantity):
         sport = random.randint(1024, 65535)
         packetTime = times[i]
         respTime = packetTime + responseTime
@@ -60,9 +62,14 @@ def main(args: list):
         output = outName[0]+"-modified.pcap"
         output_direction = "output/"+output
         wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
-        number_packets = random.randint(500,1000)
-        pkts=createPackets(direction,originIP,destinyIP,number_packets)
-        print("Paquetes creados: "+str(2*number_packets))
+        number_packets_second = random.randint(2000,5000)
+        print("Generating attack of "+str(number_packets_second)+" per second")
+        if len(args) == 4:
+            attackDuration = int(args[3])
+        else:
+            attackDuration = 60
+        pkts=createPackets(direction,originIP,destinyIP,number_packets_second,attackDuration)
+        print("Paquetes creados: "+str(2*len(pkts)))
         print("Empezando a ingresar paquetes en pcap")
         ins = PacketInserter()
         operation = ins.withPackets(pkts)\
@@ -76,10 +83,9 @@ def main(args: list):
             return 0
     except FileNotFoundError:
         raise Exception("El archivo no existe o bien no esta en la carpeta input")
-
 if __name__ == "__main__":
     args = sys.argv
-    if len(args) < 2:
-        print("Numero invalido de argumentos, son de la forma:\n archivo_pcap Ip_Origen")
+    if len(args) < 3:
+        print("Numero invalido de argumentos, son de la forma:\narchivo_pcap Ip_Origen duracion (s)")
     else:
         main(args)

@@ -20,7 +20,8 @@ class MainTest(Test):
     def test_basic(self):
         ##TODO
         pass
-    def test_create_many(self)
-#TODO all tests
+    def test_create_many(self):
+        #TODO all tests
+        pass
 if __name__=="__main__":
     MainTest().run()
