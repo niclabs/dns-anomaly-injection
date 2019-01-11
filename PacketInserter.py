@@ -124,7 +124,7 @@ class PacketInserter:
             outputDirection = self.__outputDir+self.__output
             wrpcap(outputDirection,PacketList()) #Cleans the pcap output file.
             reader = PcapReader(inputDirection)
-            writer = PcapWriter(outputDirection,append=True,)
+            writer = PcapWriter(outputDirection,append=True,sync=True)
             buffer = []
             first = reader.read_packet()
             buffer.append(first)
