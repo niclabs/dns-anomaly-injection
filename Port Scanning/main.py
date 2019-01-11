@@ -12,7 +12,7 @@ def main():
     paquete= sniff(offline=nombrePktIni, count=1)
     tInicial=paquete[0].time
     IPsrc="200.27.161,26"
-    PortSrc=80
+    PortSrc=16365
     Seed=time.time
     puertos=[]
     duracion=60
@@ -20,6 +20,7 @@ def main():
     numPaquetesAEnviar=500
     interResp=0.006673997
     attack=[]
+    domsFile='ultimos-dominios-1m.txt'
     ###########################################
     ###### Manejo de valores por consola ######
     parser = argparse.ArgumentParser()
@@ -38,7 +39,6 @@ def main():
     parser.add_argument("-cpl", "--closed_port_list", help="Lista de puertos cerrados (d: [])")
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: time)")
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)")
-    parser.add_argument("-a", "--autoritative", help="Servidor autoritativo? y/n (d: y)")
     parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)")
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta (d: 0.006673997s)")
     args = parser.parse_args()
@@ -90,17 +90,6 @@ def checkValues(nombrePktFin,nombrePktIni, IPsrc, PortSrc, Seed, puertos, duraci
     except:
         raise Exception("El numero de paquetes a enviar debe ser positivo")
 
-def TCPinyeccion(nombrePktFin):
-    t=0
-
-def UDPinyeccion(nombrePktIni, nombrePktFin):
-    t=0
-
-def inyeccionSort():
-    t=0
-
-def URLinyeccion():
-    t=0
 
 def actualizarDoms():
     url= "https://www.nic.cl/registry/Ultimos.do?t=1m&f=csv"

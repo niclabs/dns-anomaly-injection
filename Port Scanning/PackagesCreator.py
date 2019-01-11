@@ -12,18 +12,140 @@ try:
 except:
     raise Exception("randFloat error")
 
+""" Author @Javi801
+ Creates an array of packages with given values. Each packet contains an
+ Ether pack in its firts layer, an IP pack in its second layer, an TCP or UDP
+ pack in its third layer and a DNS pack in its last layer
+
+ Params: ip -> (IP()) IP pack for second layer
+         PortSrc -> (int) source port
+         datosMultiples -> (list(int) or list(list(int))) values list for
+                            variable param
+         tiempoInicial -> (float) time in which the attack begins
+         tiempoFinal -> (float) time in which the attack ends
+         numPaquetesAEnviar -> (int) number of packages that will be sent
+         Seed -> (float) seed for randomize
+         interResp -> (float) time between a query and its response
+         attackType -> (int) type of Port Scanning attack; 0 represent Static
+                       Port type, 1 represent UDP type and 2 represent TCP SYN
+                       type
+
+ Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
+"""
+def PackagesCreator(ip, PortSrc, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, attackType):
+    random.seed(Seed)
+    datos=datosMultiples[:]
+    if attackType==2:
+        datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
+    copia_seguridad=datos[:]
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, int(numPaquetesAEnviar/2)) #tiempos donde se inyectan los paquetes
+    NuevoSetPaquetesEnviados=[]
+    for i in range(len(tiempos)):
+        if len(datos)==0:
+            datos=copia_seguridad[:]
+        j=0
+        if len(datos)>1:
+            j=random.randint(0,len(datos)-1)
+        datoAInsertar=datos.pop(j)
+        SetPaquetes=[]
+        if attackType==2:
+            SetPaquetes=TCPgen(PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], ip, tiempos[i], interResp)
+        elif attackType:
+            SetPaquetes=UDP_attack()
+        else:
+            open=random.randint(0,1)
+            SetPaquetes=DomainGen(PortSrc, open, datoAInsertar, ip, tiempos[i], interResp)
+        NuevoSetPaquetesEnviados+=[SetPaquetes]
+    return NuevoSetPaquetesEnviados
+
+"""
+Agregar weaitas aquii
+"""
+def UDP_attack():
+    t=0
+
+"""Author @Javi801
+ Port Scanning attack simulator, using Static Port type.
+ Creates an array of packages with given values using PackagesCreator function.
+
+ Params: IPsrc -> (string) source IP adress
+         PortSrc -> (int) source port
+         tiempoInicial -> (float) time in which the attack begins
+         tiempoFinal -> (float) time in which the attack ends
+         numDominios -> (int) number of domains which will be asked
+         Seed -> (float) seed for randomize
+         interResp -> (float) time between a query and its response
+
+ Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
+"""
+def Domain_attack(IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDominios, Seed, interResp):
+    domsFile='ultimos-dominios-1m.txt'
+    ############# creacion de las capas para los paquetes ############
+    ip=IP(src=IPsrc, dst="200.7.4.7", proto='udp')
+    ##################################################################
+    ############### generando los domininios a atacar ################
+    f = open(domsFile, "r")
+    domsList=[]
+    bool=1
+    while(bool):
+        dominio=f.readline().split(',')
+        domsList+=[dominio[0]]
+        if (domsList[-1]=='') or len(domsList)==numDominios:
+            domsList=domsList[:-1]
+            bool=0
+            break
+    f.close()
+    ##################################################################
+    NuevoSetPaquetesEnviados=PackagesCreator(ip, PortSrc, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 0)
+    return NuevoSetPaquetesEnviados
 
 """ Author @Javi801
- Creates an array of packages with given values. Each package contains an
- ethernet pack in its firts layer, an ip pack in its second layer, an tcp pack
- in its third layer and a dns pack in its last layer
+ Creates an array of ethernet packet (query and answer) with especific values for its udp layer, and with
+ given IP packet for query packet
+
+ Params: PortSrc -> (int) Port from where the packet is sent
+         open -> (int) Server's port is open? 1 (y) or 0 (n)
+         dom -> (string) target domain
+         ipQ -> (IP()) packet ip
+         t -> (float) time at the packet is sent
+         interResp -> (float) interval between query and answer
+
+ Return: SetPaquetes -> An ethernet packet
+"""
+def DomainGen(PortSrc, open, dom, ipQ, t, interResp):
+    dom=dom+'.'
+    Id=int(RandShort())
+    ################### Query packet ###################
+    dnsqr=DNSQR(qname=dom)
+    dnsQ=DNS(rd=0, id=Id,opcode='QUERY',qdcount=1,qd=dnsqr, qr=0)
+    udpQ=UDP(sport=PortSrc, dport=53)
+    SetPaquetesQ=Ether(dst='18:66:da:4d:c0:08', src='18:66:da:e6:36:56')/ipQ/udpQ/dnsQ/dnsqr
+    SetPaquetesQ.time=t
+    ################### Answer packet ###################
+    ether=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
+    ether.time=t+interResp
+    if open:
+        ipA=IP(proto='udp', src="200.7.4.7", dst=ipQ.src)
+        udpA=UDP(sport=53, dport=PortSrc)
+        dnsrr=DNSRR(rrname=dom, type='NS')
+        dnsA=DNS(id=Id,rd=0, qr=1,opcode='QUERY',qd=dnsqr, ns=dnsrr)
+        SetPaquetesA=ether/ipA/udpA/dnsA/dnsqr/dnsrr
+    else:
+        icmp=ICMP(type=3, code=3)
+        SetPaquetesA=ether/icmp
+    SetPaquetes=[SetPaquetesQ,SetPaquetesA]
+    return SetPaquetes
+
+
+""" Author @Javi801
+ Port Scan attack simulator, using TCP SYN type.
+ Creates an array of packages with given values using PackagesCreator function.
 
  Params: IPsrc -> (string) source IP adress
          PortSrc -> (int) source port
          puertos -> (list(int)) target ports list
          tiempoInicial -> (float) time in which the attack begins
          tiempoFinal -> (float) time in which the attack ends
-         autoritativo -> (int) Is an autoritative server? 1 (y) or 0 (n)
          numPaquetesAEnviar -> (int) number of packages that will be sent
          Seed -> (float) seed for randomize
          interResp -> (float) time between a query and its response
@@ -31,46 +153,36 @@ except:
  Return: NuevoSetPaquetesEnviados -> Array of packages, with numPaquetesAEnviar
                                      as length
 """
-def PackagesCreator(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, autoritativo, numPaquetesAEnviar, Seed, interResp):
-    if autoritativo!=0 or autoritativo!=1:
-        autoritativo=1
-    ###########creacion de los parametros para los paquetes###########
-    dns=DNS(rd=0)
-    ip=IP(src=IPsrc, dst="200.7.4.7")
+def TCP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+    ############# creacion de la ip para los paquetes ############
+    ip=IP(src=IPsrc, dst="200.7.4.7", proto='tcp')
     ##################################################################
-    totalPuertos=puertos[0]+puertos[1] #puertos abiertos mas puertos cerrados
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos para inyectar paquetes
-    NuevoSetPaquetesEnviados=[]
-    for i in range(len(tiempos)):
-        if len(totalPuertos)==0:
-            totalPuertos=puertos[0]+puertos[1]
-        j=random.randint(0,len(totalPuertos)-1)
-        puertoAInsertar=puertos.pop(j)
-        SetPaquetes=TCPgen(PortSrc, puertoAInsertar, puertoAInsertar in puertos[0], ip, dns, autoritativo, tiempos[i], interResp)
-        NuevoSetPaquetesEnviados+=[SetPaquetes]
-    #pprint([pkt for pkt in NuevoSetPaquetesEnviados])
+    NuevoSetPaquetesEnviados=PackagesCreator(ip, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 2)
     return NuevoSetPaquetesEnviados
 
 """ Author @Javi801
- Creates an array of ethernet package (query and answer) with especific values for its tcp layer, and with
- given packages dns and ip
+ Creates an array of ethernet packet (query and answer) with especific values for its tcp layer, and with
+ given IP packet for query packet
 
- Params: PortSrc -> (int) Port from where the package is sent
-         PortDst -> (int) Port where the package is received
+ Params: PortSrc -> (int) Port from where the packet is sent
+         PortDst -> (int) Port where the packet is received
          open -> (int) Server's port is open? 1 (y) or 0 (n)
-         ip -> (IP()) package ip
-         dns -> (DNS()) package dns
-         t -> (float) time at the package is sent
+         ipQ -> (IP()) packet ip
+         t -> (float) time at the packet is sent
          interResp -> (float) interval between query and answer
 
- Return: SetPaquetes -> An ethernet package
+ Return: SetPaquetes -> An ethernet packet
 """
-def TCPgen(PortSrc, PortDst, open, ip, dns, autoritativo, t, interResp):
+def TCPgen(PortSrc, PortDst, open, ipQ, t, interResp):
     Id=int(RandShort())
-    dns.id=Id
-    SetPaquetesQ=Ether()/ip/TCP(flags='S', sport=PortSrc, dport=PortDst)/dns
+    dnsQ=DNS(rd=0, id=Id)
+    tcpQ=TCP(flags='S', sport=PortSrc, dport=PortDst)
+    SetPaquetesQ=Ether(dst='18:66:da:4d:c0:08', src='18:66:da:e6:36:56')/ipQ/tcpQ/dnsQ
     SetPaquetesQ.time=t
-    SetPaquetesA=Ether()/IP(src=ip.dst, dst=ip.src)/TCP(sport=PortSrc, dport=PortDst)/DNS(id=Id,aa=autoritativo)
+    ipA=IP(proto='tcp', src=ipQ.dst, dst=ipQ.src)
+    tcpA=TCP(sport=PortSrc, dport=PortDst)
+    SetPaquetesA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')/ipA/tcpA/DNS(id=Id,aa=1)
+    SetPaquetesA.time=t+interResp
     if open:
         SetPaquetesA[2].flags='SA'
     else:
@@ -83,11 +195,14 @@ def TCPgen(PortSrc, PortDst, open, ip, dns, autoritativo, t, interResp):
 
  Param: puertoInicial -> (int) first port
         puertoFinal -> (int) last port
-        intervaloPuertos -> (int) interval between ports
-        abiertos ->  (list(int) or int)
-        cerrados -> (list() or int)
-        type -> (int) who is open or closed? 2 => random, 1=> that number of
-                guys, 0=> this guys
+        intervaloPuertos -> (int) interval between each port
+        abiertos ->  (list(int) or int) open port list or number of open ports
+        cerrados -> (list(int) or int) closed port list or number of closed ports
+        type -> (int): 0 => random numbers of open and closed ports
+                       1 => especific number of open OR closed ports (other one
+                            must be -1 or less)
+                       2 => especific list of open OR closed ports (other one
+                            must be empty list)
         Seed -> (float) seed for randomize
 
  Return: list(int) -> list of two port list
@@ -105,7 +220,7 @@ def portsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, t
                 continue
             cerrados+=[puertos[i]]
         return [abiertos,cerrados]
-    if type: #Cantidad dada de puertos abiertos y cerrados, se necesita puertoFinal, puertoInicial, intervaloPuertos, cerrados, abiertos
+    if type==1: #Cantidad dada de puertos abiertos y cerrados, se necesita puertoFinal, puertoInicial, intervaloPuertos, cerrados, abiertos
         return intPorts(abiertos, cerrados, puertos, Seed)
     if len(abiertos)==0 or len(cerrados)==0:
         return ArrayPorts(abiertos, cerrados, puertos, Seed)
@@ -139,7 +254,7 @@ def intPorts(abiertos, cerrados, puertos, Seed):
                 break
             var = random.randint(0,len(puertos)-1)
             ins=puertos.pop(var)
-            open+=[puertos.pop(var)]
+            open+=[ins]
         return [open, puertos]
 
 """ Author @Javi801
@@ -170,6 +285,3 @@ def ArrayPorts(abiertos, cerrados, puertos, Seed):
                 continue
             cl+=[puertos[i]]
     return [op, cl]
-
-def UDPgen():
-    t=0
