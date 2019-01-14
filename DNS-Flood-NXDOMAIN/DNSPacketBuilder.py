@@ -1,7 +1,10 @@
-import sys
-sys.path.append('../TCP-SYN-Flood/')
-from PacketBuilder import *
-from scapy.all import *
+try:
+    import sys
+    sys.path.append('../TCP-SYN-Flood')
+    from PacketBuilder import *
+    from scapy.all import *
+except:
+    raise Exception("You don't have some libraries, pls install")
 class DNSPacketBuilder(PacketBuilder):
     def __init__(self):
         super().__init__()
@@ -18,19 +21,18 @@ class DNSPacketBuilder(PacketBuilder):
         idIP = int(RandShort())
         ether = Ether()
         ip = IP(src=self.getSrcIP(),dst=self.getDestIP(),id=idIP)
-        udp = UDP(sport = self.getSrcPort)
+        udp = UDP(sport = self.getSrcPort,dport= self.getDestPort())
         queryDomain = DNSQR(qname=str(self._domain))
         dns = DNS(rd=0,id=self._idDNS,qd=queryDomain)
         pkt = ether / ip / udp / dns
         pkt.time = self.getTime()
         return pkt
     def _buildResponse(self):
-        
         idIP = int(RandShort())
         ether = Ether()
         ip = IP(src=self.getSrcIP(),dst=self.getDestIP(),id=idIP)
         udp = UDP(sport=self.getSrcPort(),dport=self.getDestPort())
-        dns = DNS() #TODO the fields to make a nxdomain response
+        dns = DNS(id=self._idDNS,an=None,ns=None,ar=None,ancount=0,nscount=0,arcount=0,rcode=3) #TODO the fields to make a nxdomain response
         pkt = ether / ip / udp / dns
         pkt.time = self.getTime() + self._responseDT
         return pkt

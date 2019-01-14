@@ -35,15 +35,29 @@ class Test:
         :return: the variable value
         """
         return self._variables[name]
-    def run(self):
+    def run(self,specific=None):
         """
         Method that runs the tests.
         """
-        tests_to_run = [method for method in dir(self) if callable(getattr(self,method)) if  method.startswith('test') or method.startswith('setUp')]
-        for method in tests_to_run:
-            try:
-                getattr(self,method)()
-                if method.startswith('test'):
-                    print( method+"-- Passed")
-            except AssertionError:
-                print (method+"--Failed")
+        assert specific == None or type(specific)== str
+        before = [method for method in dir(self) if callable(getattr(self,method)) if method.startswith('setUp')]
+        tests_to_run = [method for method in dir(self) if callable(getattr(self,method)) if  method.startswith('test')]
+        for method in before:
+            getattr(self,method)()
+        if specific != None:
+            for method in tests_to_run:
+                if specific == method:
+                    try:
+                        getattr(self,method)()
+                        if method.startswith('test'+specific):
+                            print( method+"-- Passed")
+                    except AssertionError:
+                        print (method+"--Failed")
+        else:
+            for method in tests_to_run:
+                try:
+                    getattr(self,method)()
+                    if method.startswith('test'):
+                        print( method+"-- Passed")
+                except AssertionError:
+                    print (method+"--Failed")
