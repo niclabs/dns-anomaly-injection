@@ -123,7 +123,6 @@ class PacketInserter:
             inputDirection = self.__inputDir+self.__input
             outputDirection = self.__outputDir+self.__output
             count = 0 #Counter, resets the writer in order to not persue a memory failure of writing
-            number = 0
             wrpcap(outputDirection,PacketList()) #Cleans the pcap output file.
             reader = PcapReader(inputDirection)
             writer = PcapWriter(outputDirection,append=True,sync=True)
@@ -140,16 +139,15 @@ class PacketInserter:
                 if pktRead == None:
                     break
                 buffer.append(pktRead)
-                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[j][0].time:
-                    aPacket = self.__packetsToAppend[j][0]
-                    response = self.__packetsToAppend[j][1]
+                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
+                    aPacket = self.__packetsToAppend[0][0]
+                    response = self.__packetsToAppend[0][1]
                     response.time+=self.__delayResponse
                     writer.write(aPacket)
                     writer.write(response)
                     self.__packetsToAppend.pop(0)
                     j+=1
                     count+=1
-                    number+=1
                 else:
                     writer.write(buffer[0])
                     buffer.pop(0)
@@ -159,16 +157,15 @@ class PacketInserter:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0
-                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[j][0].time:
-                    aPacket = self.__packetsToAppend[j][0]
-                    response = self.__packetsToAppend[j][1]
+                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
+                    aPacket = self.__packetsToAppend[0][0]
+                    response = self.__packetsToAppend[0][1]
                     response.time+=self.__delayResponse
                     writer.write(aPacket)
                     writer.write(response)
                     self.__packetsToAppend.pop(0)
                     count+=1
                     j+=1
-                    number+=1
                 else:
                     writer.write(buffer[0])
                     count+=1
@@ -178,15 +175,14 @@ class PacketInserter:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
-                aPacket = self.__packetsToAppend[j][0]
-                response = self.__packetsToAppend[j][1]
+                aPacket = self.__packetsToAppend[0][0]
+                response = self.__packetsToAppend[0][1]
                 response.time+=self.__delayResponse
                 writer.write(aPacket)
                 writer.write(response)
                 self.__packetsToAppend.pop(0)
                 j+=1
                 count+=1
-                number+=1
             while len(buffer)!=0:
                 if count == 50000:
                     del writer
