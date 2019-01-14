@@ -18,10 +18,8 @@ class MainTest(Test):
         self.addVariable("dip","200.7.4.7")
         self.addVariable("file","lol.pcap")
     def test_basic(self):
-        ##TODO
         pass
-    def test_create_many(self):
-        #TODO all tests
-        pass
+    def test_insert1k(self):
+        pass #insert packages of 1 k
 if __name__=="__main__":
     MainTest().run()
