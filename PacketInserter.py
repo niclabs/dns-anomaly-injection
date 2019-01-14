@@ -141,10 +141,11 @@ class PacketInserter:
                 buffer.append(pktRead)
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
                     aPacket = self.__packetsToAppend[0][0]
-                    response = self.__packetsToAppend[0][1]
-                    response.time+=self.__delayResponse
                     writer.write(aPacket)
-                    writer.write(response)
+                    if len(self.__packetsToAppend[0]) == 2:
+                        response = self.__packetsToAppend[0][1]
+                        response.time+=self.__delayResponse
+                        writer.write(response)
                     self.__packetsToAppend.pop(0)
                     j+=1
                     count+=1
@@ -159,13 +160,14 @@ class PacketInserter:
                     count = 0
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
                     aPacket = self.__packetsToAppend[0][0]
-                    response = self.__packetsToAppend[0][1]
-                    response.time+=self.__delayResponse
                     writer.write(aPacket)
-                    writer.write(response)
+                    if len(self.__packetsToAppend[0]) == 2:
+                        response = self.__packetsToAppend[0][1]
+                        response.time+=self.__delayResponse
+                        writer.write(response)
                     self.__packetsToAppend.pop(0)
-                    count+=1
                     j+=1
+                    count+=1
                 else:
                     writer.write(buffer[0])
                     count+=1
@@ -176,10 +178,11 @@ class PacketInserter:
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
                 aPacket = self.__packetsToAppend[0][0]
-                response = self.__packetsToAppend[0][1]
-                response.time+=self.__delayResponse
                 writer.write(aPacket)
-                writer.write(response)
+                if len(self.__packetsToAppend[0]) == 2:
+                    response = self.__packetsToAppend[0][1]
+                    response.time+=self.__delayResponse
+                    writer.write(response)
                 self.__packetsToAppend.pop(0)
                 j+=1
                 count+=1
