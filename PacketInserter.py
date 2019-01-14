@@ -111,6 +111,26 @@ class PacketInserter:
         """   
         self.__delayResponse+=ddelay
         return self
+    def _insertAttackPacket(self,writer: PcapWriter,attacksAdded: int, resetCount: int):
+        """
+        docstring here
+            :param self: 
+            :param writer:PcapWriter: 
+            :param attacksAdded:int: 
+            :param resetCount:int: 
+            :return: 
+        """   
+        aPacket = self.__packetsToAppend[0][0]
+        writer.write(aPacket)
+        if len(self.__packetsToAppend[0]) == 2:
+            response = self.__packetsToAppend[0][1]
+            response.time+=self.__delayResponse
+            writer.write(response)
+        self.__packetsToAppend.pop(0)
+        attacksAdded+=1
+        resetCount+=1
+        return (attacksAdded,resetCount)
+    
     def insert(self):
         """
             Insert the packages given to the pcap file mentioned, (if the output
@@ -140,16 +160,8 @@ class PacketInserter:
                     break
                 buffer.append(pktRead)
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
-                    aPacket = self.__packetsToAppend[0][0]
-                    writer.write(aPacket)
-                    if len(self.__packetsToAppend[0]) == 2:
-                        response = self.__packetsToAppend[0][1]
-                        response.time+=self.__delayResponse
-                        writer.write(response)
-                    self.__packetsToAppend.pop(0)
-                    j+=1
-                    count+=1
-                else:
+                    (j,count) = self._insertAttackPacket(writer,j,count) #writes the attack packets on the file
+                else: #we write the file packet into the new file
                     writer.write(buffer[0])
                     buffer.pop(0)
                     count+=1
@@ -159,15 +171,7 @@ class PacketInserter:
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
-                    aPacket = self.__packetsToAppend[0][0]
-                    writer.write(aPacket)
-                    if len(self.__packetsToAppend[0]) == 2:
-                        response = self.__packetsToAppend[0][1]
-                        response.time+=self.__delayResponse
-                        writer.write(response)
-                    self.__packetsToAppend.pop(0)
-                    j+=1
-                    count+=1
+                    (j,count) = self._insertAttackPacket(writer,j,count)
                 else:
                     writer.write(buffer[0])
                     count+=1
@@ -177,15 +181,7 @@ class PacketInserter:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
-                aPacket = self.__packetsToAppend[0][0]
-                writer.write(aPacket)
-                if len(self.__packetsToAppend[0]) == 2:
-                    response = self.__packetsToAppend[0][1]
-                    response.time+=self.__delayResponse
-                    writer.write(response)
-                self.__packetsToAppend.pop(0)
-                j+=1
-                count+=1
+                (j,count) = self._insertAttackPacket(writer,j,count)
             while len(buffer)!=0:
                 if count == 50000:
                     del writer
