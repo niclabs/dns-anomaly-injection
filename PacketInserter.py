@@ -153,6 +153,7 @@ class PacketInserter:
             while True:
                 pktRead = reader.read_packet()
                 if count == 50000:
+                    writer.close()
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
@@ -178,19 +179,21 @@ class PacketInserter:
                     buffer.pop(0)
             while j<numPktsIns:
                 if count == 50000:
+                    writer.close()
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
                 (j,count) = self._insertAttackPacket(writer,j,count)
             while len(buffer)!=0:
                 if count == 50000:
+                    writer.close()
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
                 writer.write(buffer[0])
                 count+=1
                 buffer.pop(0)
-            
+            writer.close()
             return True
         except FileNotFoundError:
             print("Something went wrong, check the file exists")
