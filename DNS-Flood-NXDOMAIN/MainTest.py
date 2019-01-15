@@ -25,12 +25,12 @@ class MainTest(Test):
         assert ok == 0
 if __name__ == '__main__':
     args = sys.argv
-    #try:
-    if len(args)== 1 or args[1] == 'all':
-        MainTest().run()
-    else:
-        for i in range(1,len(args)):
-            MainTest().run(args[i])
-    #except:
-        #raise Exception("Se utiliza de la forma:\nTest a realizar (all o nada para todos)")
+    try:
+        if len(args)== 1 or args[1] == 'all':
+            MainTest().run()
+        else:
+            for i in range(1,len(args)):
+                MainTest().run(args[i])
+    except:
+        raise Exception("Se utiliza de la forma:\nTest a realizar (all o nada para todos)")
         
