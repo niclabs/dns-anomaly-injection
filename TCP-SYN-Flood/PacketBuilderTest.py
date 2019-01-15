@@ -1,44 +1,40 @@
-try:
-    import sys
-    sys.path.append('..')
-    from PacketBuilder import *
-    from scapy.all import *
-    from Test import *
-except:
-    raise Exception("Missing a module")
-class PacketBuilderTest(Test):
+from PacketBuilder import *
+from scapy.all import *
+import unittest 
+class PacketBuilderTest(unittest.TestCase):
     def __init__(self):
         super().__init__()
     def setUp(self):
-        self.addVariable("builder",PacketBuilder())
-        self.addVariable("Source IP","190.54.120.33")
-        self.addVariable("Source Port",5000)
-        self.addVariable("Destiny Port",53)
-        self.addVariable("Destiny IP","200.7.4.7")
+        self.builder = PacketBuilder()
+        self.srcIp="190.54.120.33"
+        self.srcPort = 5000
+        self.dstPort = 53
+        self.dstIp = "200.7.4.7"
+        self.etherSrc = "18:66:da:4d:c0:08"
+        self.etherDst = "18:66:da:e6:36:56"
     def test_basic_SYN(self):
-        tether = Ether()
-        tip = IP(src=self.getVariable("Source IP"),dst=self.getVariable("Destiny IP"))
-        ttcp = TCP(sport=self.getVariable("Source Port"),dport=self.getVariable("Destiny Port"),flags='S')
+        tether = Ether(src=self.etherSrc,dst=self.etherDst)
+        tip = IP(src=self.srcIp,dst=self.dstIp)
+        ttcp = TCP(sport=self.srcPort,dport=self.dstPort,flags='S')
         pktexpected = tether / tip / ttcp
-        pktbuilded = self.getVariable("builder")\
+        pktbuilded = self.builder\
                   .withSrcIP(self.getVariable("Source IP"))\
                   .withDestIP(self.getVariable("Destiny IP"))\
                   .withSrcPort(self.getVariable("Source Port"))\
                   .withFlags("S")\
                   .build()
-        assert pktbuilded == pktexpected
+        self.assertEqual(pktbuilded,pktexpected)
     def test_basic_SA(self):
-        tether = Ether()
-        tip = IP(src=self.getVariable("Source IP"),dst=self.getVariable("Destiny IP"))
-        ttcp = TCP(sport=self.getVariable("Source Port"),dport=self.getVariable("Destiny Port"),flags='SA')
+        tether = Ether(src=self.etherSrc,dst=self.etherDst)
+        tip = IP(src=self.srcIp,dst=self.dstIp)
+        ttcp = TCP(sport=self.srcPort,dport=self.dstPort,flags='SA')
         pktexpected = tether / tip / ttcp
-        pktbuilded = self.getVariable("builder")\
+        pktbuilded = self.builder\
                   .withSrcIP(self.getVariable("Source IP"))\
                   .withDestIP(self.getVariable("Destiny IP"))\
                   .withSrcPort(self.getVariable("Source Port"))\
                   .withFlags("SA")\
                   .build()
-        assert pktbuilded == pktexpected
+        self.assertEqual(pktbuilded,pktexpected)
 if __name__=="__main__":
-    tester = PacketBuilderTest()
-    tester.run()
+    unittest.main()
