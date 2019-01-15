@@ -210,7 +210,7 @@ def TCP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesA
 
  Params: PortSrc -> (int) Port from where the packet is sent
          PortDst -> (int) Port where the packet is received
-         open -> (int) Server's port is open? 1 (y) or 0 (n)
+         open -> (boolean) Indicates whether the port is open (true) or not (false)
          ipQ -> (IP()) packet ip
          t -> (float) time at the packet is sent
          interResp -> (float) interval between query and answer

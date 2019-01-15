@@ -43,22 +43,23 @@ def intPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados
     puertos=list(range(puertoInicial,puertoFinal+1,intervaloPuertos))
     open=[]
     closed=[]
-    if cerrados>(-1):
+    if abiertos<0:
         for i in range(cerrados):
-            if i>=len(puertos):
+            if 0==len(puertos):
                 break
             var = random.randint(0,len(puertos)-1)
             ins=puertos.pop(var)
             closed+=[ins]
         return [puertos, closed]
-    if abiertos>(-1):
+    if cerrados<0:
         for i in range(abiertos):
-            if i>=len(puertos):
+            if 0==len(puertos):
                 break
             var = random.randint(0,len(puertos)-1)
             ins=puertos.pop(var)
             open+=[ins]
         return [open, puertos]
+
 
 
 """ Author @Javi801
@@ -86,10 +87,11 @@ def arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrad
             if puertos[i] in cerrados:
                 continue
             op+=[puertos[i]]
-    elif len(cerrados)==0: #Array con puertos abiertos dado, cerrados debe ser array vacio
+        return [op, cl]
+    if len(cerrados)==0: #Array con puertos abiertos dado, cerrados debe ser array vacio
         op=abiertos
         for i in range(len(puertos)):
             if puertos[i] in abiertos:
                 continue
             cl+=[puertos[i]]
-    return [op, cl]
+        return [op, cl]

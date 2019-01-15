@@ -1,8 +1,9 @@
 import argparse
-from PackagesCreator import*
+from PackagesCreator import *
 import sys
 sys.path.append("..")
 from PacketInserter import *
+from PortsGenerator import *
 
 ############### Main program ###############
 def main():
