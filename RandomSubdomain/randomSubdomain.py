@@ -57,30 +57,19 @@ def checkArgs(args):
 
 def randomSub():
     """
-    Creates a random string. The size is a random number between 10 and 30
-    The string doesn't contains "."
+    Creates a random string that contains numbers and letters. The size is a random number between 10 and 30
     return: A random subdomain
     """
     crc = str(string.ascii_letters + string.digits)
     n = random.randint(10,30)
     return "".join(random.sample(crc, n))
+
 def genIp():
     """
     Gives a random ip
     """
     ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
     return ip
-
-def getDom(s):
-    """
-    Gives a string that is the domain of the request "s"
-    Param: s: Request, structure: b'text.domain.cl'
-    return: structure string: domain.cl
-    """
-    s.replace("'", "")
-    r = s.split(".")
-    l = len(r)
-    return r[l-2] + "." + r[l-1]
 
 def randomSubBuilder(dom, ip_dst, src_port, t):
     """
@@ -99,17 +88,17 @@ def randomSubBuilder(dom, ip_dst, src_port, t):
     ans.time = t
     return ans
 
-def answerRandSub(p, ip_dom, ip_srv,  t):
+def answerRandSub(p, dom, ip_dom, ip_srv,  t):
     """
     Gives a regular response to packet "p"
     Param: p: request
+           dom: Domain asked
            ip_dom: ip of the domain that was asked
            ip_srv: Domain asked server ip
            t: Response delay time
     return : A response packet that has the EDNS0 extension and an additional record with the answer
     """
     id_IP = int(RandShort())
-    dom = getDom(str(p[DNSQR].qname))
     ar_ans = DNSRR(rrname = dom, rdata = ip_dom)
     ar_ext = DNSRROPT(rclass=4096)
     an_ans = DNSRR(rrname = dom, rdata = ip_srv)
@@ -138,7 +127,7 @@ def randomSubAttack(serv: string, dom : string, dom_ip: string, snd_ip: string, 
     for t in time:
         dt = abs(random.gauss(0.00427404912058, 0.00807278328296))
         p = randomSubBuilder(dom, serv, srcport, t)
-        a = answerRandSub(p, dom_ip, snd_ip, dt)
+        a = answerRandSub(p, dom, dom_ip, snd_ip, dt)
         tuple = []
         tuple.append(p)
         tuple.append(a)
@@ -163,7 +152,7 @@ def main(args):
     p0 = sniff(offline = args[3] + args[1], count = 1)
     t0 = p0[0].time
 
-    new_packets = randomSubAttack(args[5], args[6], genIp(), genIp(), int(args[7]), int(args[8]), float(args[9]) + t0, int(args[10]))
+    new_packets = randomSubAttack(args[5], args[6] + ".", genIp(), genIp(), int(args[7]), int(args[8]), float(args[9]) + t0, int(args[10]))
     inserter =PacketInserter()\
               .withPackets(new_packets)\
               .withPcapInput(args[1])\
