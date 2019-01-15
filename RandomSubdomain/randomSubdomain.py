@@ -18,11 +18,10 @@ def checkArgs(args):
            +args[4]: Relative path to the output file
            args[5]: Server ip
            args[6]: Target domain
-           args[7]: Domain ip
-           +args[8]: Attack extension (seconds)
-           +args[9]:  Amount of packets per second
-           +args[10]: Start date
-           +args[11]: Source port
+           +args[7]: Attack extension (seconds)
+           +args[8]:  Amount of packets per second
+           +args[9]: Start date
+           +args[10]: Source port
     """
     try:
         assert(os.path.exists(str(args[3]) + str(args[1])))
@@ -39,20 +38,20 @@ def checkArgs(args):
     except:
         raise Exception("Invalid output file extension")
     try:
-        assert(int(args[8]) > 0)
+        assert(int(args[7]) > 0)
     except:
         raise Exception("Attack extension must be greater than 0")
     try:
-        assert(int(args[9]) > 0)
+        assert(int(args[8]) > 0)
     except:
         raise Exception("Amoount of packets per second must be greater than 0")
     try:
-        assert(float(args[10]) >= 0)
+        assert(float(args[9]) >= 0)
     except:
         raise Exception("Start date must be greater than or equal to 0")
     try:
-        assert(int(args[11]) >= 0)
-        assert(int(args[11]) <= 65535)
+        assert(int(args[10]) >= 0)
+        assert(int(args[10]) <= 65535)
     except:
         raise Exception("Source port must be between 0 and 65535")
 
@@ -62,7 +61,7 @@ def randomSub():
     The string doesn't contains "."
     return: A random subdomain
     """
-    crc = str(string.ascii_letters + string.digits + string.punctuation).replace(".", "")
+    crc = str(string.ascii_letters + string.digits)
     n = random.randint(10,30)
     return "".join(random.sample(crc, n))
 def genIp():
@@ -100,11 +99,12 @@ def randomSubBuilder(dom, ip_dst, src_port, t):
     ans.time = t
     return ans
 
-def answerRandSub(p, ip_dom, t):
+def answerRandSub(p, ip_dom, ip_srv,  t):
     """
     Gives a regular response to packet "p"
     Param: p: request
            ip_dom: ip of the domain that was asked
+           ip_srv: Domain asked server ip
            t: Response delay time
     return : A response packet that has the EDNS0 extension and an additional record with the answer
     """
@@ -112,16 +112,19 @@ def answerRandSub(p, ip_dom, t):
     dom = getDom(str(p[DNSQR].qname))
     ar_ans = DNSRR(rrname = dom, rdata = ip_dom)
     ar_ext = DNSRROPT(rclass=4096)
-    ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ar= ar_ans/ar_ext)
+    an_ans = DNSRR(rrname = dom, rdata = ip_srv)
+    ns_ans = DNSRR(rrname = dom, type = 2, rdata = dom)
+    ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ns = ns_ans, an = an_ans,ar= ar_ans/ar_ext)
     ans.time = p.time + t
     return ans
 
-def randomSubAttack(serv: string, dom : string, dom_ip: string, duracion: int, c: int, ti: float, srcport : int):
+def randomSubAttack(serv: string, dom : string, dom_ip: string, snd_ip: string, duracion: int, c: int, ti: float, srcport : int):
     """
     Gives an array of tuples that contains request and response
     Param: serv: Server ip
            dom: Target domain
            dom_ip: Domain ip
+           snd_ip: Domain server ip
            duracion: Attack extension (seconds)
            c: Amount of packets per second
            ti: Start date TODO: ver en que se medirá (Con respecto al paquete)
@@ -135,7 +138,7 @@ def randomSubAttack(serv: string, dom : string, dom_ip: string, duracion: int, c
     for t in time:
         dt = abs(random.gauss(0.00427404912058, 0.00807278328296))
         p = randomSubBuilder(dom, serv, srcport, t)
-        a = answerRandSub(p, dom_ip, dt)
+        a = answerRandSub(p, dom_ip, snd_ip, dt)
         tuple = []
         tuple.append(p)
         tuple.append(a)
@@ -152,16 +155,15 @@ def main(args):
            args[4]: Relative path to the output file
            args[5]: Server ip
            args[6]: Target domain
-           args[7]: Domain ip
-           args[8]: Attack extension (seconds)
-           args[9]:  Amount of packets per second
-           args[10]: Start date
-           args[11]: Source port
+           args[7]: Attack extension (seconds)
+           args[8]:  Amount of packets per second
+           args[9]: Start date
+           args[10]: Source port
     """
     p0 = sniff(offline = args[3] + args[1], count = 1)
     t0 = p0[0].time
-    
-    new_packets = randomSubAttack(args[5], args[6], args[7], int(args[8]), int(args[9]), float(args[10]) + t0, int(args[11]))
+
+    new_packets = randomSubAttack(args[5], args[6], genIp(), genIp(), int(args[7]), int(args[8]), float(args[9]) + t0, int(args[10]))
     inserter =PacketInserter()\
               .withPackets(new_packets)\
               .withPcapInput(args[1])\
@@ -171,7 +173,7 @@ def main(args):
               .insert()
 
 if __name__ == '__main__':
-    if(len(sys.argv) == 12):
+    if(len(sys.argv) == 11):
         checkArgs(sys.argv)
         main(sys.argv)
     else:
