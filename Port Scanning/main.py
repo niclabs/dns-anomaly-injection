@@ -30,7 +30,7 @@ def main():
     parser.add_argument("-cpl", "--closed_port_list", help="Lista de puertos cerrados, ejemplo:1 2 3 (d: [])")
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
-    parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar o dominios a atacar (d: 5000)", type=int, default=5000)
+    parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta (d: 0.006673997s)", type=float, default=0.006673997)
     args = parser.parse_args()
 

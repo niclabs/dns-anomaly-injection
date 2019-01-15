@@ -11,7 +11,7 @@ except:
     raise Exception("randFloat error")
 
 """ Author @Javi801
- Creates an array of packages with given values. Each packet contains an
+ Creates an array of two packages (query and response) with given values. Each packet contains an
  Ether pack in its firts layer, an IP pack in its second layer, an TCP or UDP
  pack in its third layer and a DNS pack in its last layer
 
@@ -27,22 +27,23 @@ except:
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def PackagesCreator(IPsrcList, PortSrc, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+def udpFloodAttack(IPsrcList, PortSrc, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
     random.seed(Seed)
     puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, int(numPaquetesAEnviar/2)) #tiempos donde se inyectan los paquetes
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
+    countPacks=numPaquetesAEnviar
     for i in range(len(tiempos)):
         if len(puertos)==0:
             puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:]
-        j=0
-        if len(puertos)>1:
-            j=random.randint(0,len(puertos)-1)
-        puertoTarget=puertos.pop(j)
-        open=puertoTarget in puertosAbiertosCerrados[0]
-        k=random.randint(0,len(IPsrcList)-1)
-        SetPaquetes=UDPgen(PortSrc, puertoTarget, open, IPsrcList[k], tiempos[i], interResp)
+        puertoTarget=select(puertos)
+        puertos.remove(puertoTarget)
+        IPsrc=select(IPsrcList)
+        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
+        countPacks=countPacks-len(SetPaquetes)
+        if countPacks==0:
+            break
     return NuevoSetPaquetesEnviados
 
 
@@ -60,7 +61,7 @@ def PackagesCreator(IPsrcList, PortSrc, puertosAbiertosCerrados, tiempoInicial, 
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def UDPgen(PortSrc, PortDst, open, IPsrc, tiempo, interResp):
+def udpPairGen(PortSrc, PortDst, open, IPsrc, tiempo, interResp):
     ip=IP(src=IPsrc, dst="200.7.4.7", proto='udp')
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
@@ -70,6 +71,22 @@ def UDPgen(PortSrc, PortDst, open, IPsrc, tiempo, interResp):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
         etherA.time=tiempo+interResp
         icmp=ICMP(type=3, code=3)
-        APacket=etherA/icmp
+        APacket=etherA/IP(src="200.7.4.7", dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
+
+
+""" @Javi801
+ Gives an random element in a given list
+
+ Param: lista -> list
+
+ Return: element in the given list
+"""
+def select(lista):
+    if len(lista)==0:
+        return
+    if len(lista)==1:
+        return lista[0]
+    j=random.randint(0,len(lista)-1)
+    return lista[j]

@@ -38,9 +38,10 @@ def PackagesCreator(ip, PortSrc, datosMultiples, tiempoInicial, tiempoFinal, num
     if attackType==0 or attackType==1:
         datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     copia_seguridad=datos[:]
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, int(numPaquetesAEnviar/2)) #tiempos donde se inyectan los paquetes
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
     last_icmpResp=0
+    countPacks=numPaquetesAEnviar
     for i in range(len(tiempos)):
         if len(datos)==0:
             datos=copia_seguridad[:]
@@ -59,6 +60,9 @@ def PackagesCreator(ip, PortSrc, datosMultiples, tiempoInicial, tiempoFinal, num
         else:
             SetPaquetes=DomainGen(PortSrc, datoAInsertar, ip, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
+        countPacks=countPacks-len(SetPaquetes)
+        if countPacks==0:
+            break
     return NuevoSetPaquetesEnviados
 
 """Author @Javi801
@@ -108,7 +112,7 @@ def UDPgen(PortSrc, PortDst, icmpResp, ip, tiempo, interResp):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
         etherA.time=tiempo+interResp
         icmp=ICMP(type=3, code=3)
-        APacket=etherA/icmp
+        APacket=etherA/IP(src="200.7.4.7", dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
 
