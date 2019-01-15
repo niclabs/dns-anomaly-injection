@@ -1,12 +1,16 @@
 from scapy.all import *
 from amplificacion import *
 from randFloats import *
+from random import gauss
+import os
+import argparse
+import socket
 #---------------------#
 #Archivo de prueba
 #---------------------#
 #Ejemplo
-#python3 amplificacion.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 2.7.4.7 8.8.8.8 33865 3 10 1 0.006 hola.cl
-def main():
+#python3 amplificacion.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 2.7.4.7 8.8.8.8 33865 3 10 1 hola.cl
+def main2():
   #paquetes = rdpcap("/home/niclabs/Downloads/lol.pcap")
   inter = genInter(20, 0, 2, 3)
   p0 = sniff(offline = "/home/niclabs/Downloads/lol.pcap", count = 1)
@@ -22,5 +26,15 @@ def main():
 
   new_packages = amplificationAttack(serv, ip, srcport, duracion, c, ti, dt, q_name)
 
+def main():
+    print(socket.gethostbyname(socket.gethostname()))
+    arg1= "/home/niclabs/Downloads/"
+    arg2= "lol.pcap"
+    try:
+        f = arg2.split(".")
+        assert(f[1] == "pcap")
+    except:
+        raise Exception("Wrong output file extension")
+
 if __name__ == '__main__':
-  main()
+    main()
