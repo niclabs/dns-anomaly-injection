@@ -1,7 +1,6 @@
 try:
     from scapy.all import *
-    from pprint import pprint
-    import numpy as np
+    from PortsGenerartor import *
 except:
     raise Exception("Install scapy")
 
@@ -39,9 +38,10 @@ def PackagesCreator(ip, PortSrc, datosMultiples, tiempoInicial, tiempoFinal, num
     if attackType==0 or attackType==1:
         datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     copia_seguridad=datos[:]
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, int(numPaquetesAEnviar/2)) #tiempos donde se inyectan los paquetes
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
     last_icmpResp=0
+    countPacks=numPaquetesAEnviar
     for i in range(len(tiempos)):
         if len(datos)==0:
             datos=copia_seguridad[:]
@@ -60,6 +60,9 @@ def PackagesCreator(ip, PortSrc, datosMultiples, tiempoInicial, tiempoFinal, num
         else:
             SetPaquetes=DomainGen(PortSrc, datoAInsertar, ip, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
+        countPacks=countPacks-len(SetPaquetes)
+        if countPacks==0:
+            break
     return NuevoSetPaquetesEnviados
 
 """Author @Javi801
@@ -109,7 +112,7 @@ def UDPgen(PortSrc, PortDst, icmpResp, ip, tiempo, interResp):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
         etherA.time=tiempo+interResp
         icmp=ICMP(type=3, code=3)
-        APacket=etherA/icmp
+        APacket=etherA/IP(src="200.7.4.7", dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
 
@@ -211,7 +214,7 @@ def TCP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesA
 
  Params: PortSrc -> (int) Port from where the packet is sent
          PortDst -> (int) Port where the packet is received
-         open -> (int) Server's port is open? 1 (y) or 0 (n)
+         open -> (boolean) Indicates whether the port is open (true) or not (false)
          ipQ -> (IP()) packet ip
          t -> (float) time at the packet is sent
          interResp -> (float) interval between query and answer
@@ -234,96 +237,3 @@ def TCPgen(PortSrc, PortDst, open, ipQ, t, interResp):
         SetPaquetesA[2].flags='R'
     SetPaquetes=[SetPaquetesQ,SetPaquetesA]
     return SetPaquetes
-
-""" Author @Javi801
- Gives an array of two ports arrays; first the open ones and, then, the closed.
-
- Param: puertoInicial -> (int) first port
-        puertoFinal -> (int) last port
-        intervaloPuertos -> (int) interval between each port
-        Seed -> (float) seed for randomize
-
- Return: list(int) -> list of two port list
-"""
-def randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed):
-    random.seed(Seed)
-    puertos=list(range(puertoInicial,puertoFinal+1,intervaloPuertos))
-    abiertosList=[]
-    cerradosList=[]
-    for i in range(len(puertos)):
-        var = random.randint(0,1)
-        if var:
-            abiertosList+=[puertos[i]]
-            continue
-        cerradosList+=[puertos[i]]
-    return [abiertosList,cerradosList]
-
-""" Author @Javi801
- Gives a list with two ports list; first the open ones and, then, the closed.
- This with a given number of open ports or closed ports
-
- Params: puertoInicial -> (int) first port
-         puertoFinal -> (int) last port
-         intervaloPuertos -> (int) interval between each port
-         abiertos -> (int) number of open ports, it can be -1
-         cerrados -> (int) number of closed ports, it can be -1
-         puertos -> (list(int)) ports list
-         Seed -> (float) seed for randomize
-
- Return: list(int) -> list of two port list
-"""
-def intPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, Seed):
-    random.seed(Seed)
-    puertos=list(range(puertoInicial,puertoFinal+1,intervaloPuertos))
-    open=[]
-    closed=[]
-    if cerrados>(-1):
-        for i in range(cerrados):
-            if i>=len(puertos):
-                break
-            var = random.randint(0,len(puertos)-1)
-            ins=puertos.pop(var)
-            closed+=[ins]
-        return [puertos, closed]
-    if abiertos>(-1):
-        for i in range(abiertos):
-            if i>=len(puertos):
-                break
-            var = random.randint(0,len(puertos)-1)
-            ins=puertos.pop(var)
-            open+=[ins]
-        return [open, puertos]
-
-
-""" Author @Javi801
- Gives a list with two ports list; first the open ones and, then, the closed.
- Between open and closed is expected an empty list and one with content, in
- another case this function does not make sense.
-
- Params: puertoInicial -> (int) first port
-         puertoFinal -> (int) last port
-         intervaloPuertos -> (int) interval between each port
-         abiertos -> (list(int)) open ports list, it can be []
-         cerrados -> (list(int)) closed ports list, it can be []
-         Seed -> (float) seed for randomize
-
- Return: list(int) -> list of two port list
-"""
-def arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, Seed):
-    random.seed(Seed)
-    puertos=list(range(puertoInicial,puertoFinal+1,intervaloPuertos))
-    op=[]
-    cl=[]
-    if len(abiertos)==0: #Array con puertos cerrados, abiertos debe ser array vacio
-        cl=cerrados
-        for i in range(len(puertos)):
-            if puertos[i] in cerrados:
-                continue
-            op+=[puertos[i]]
-    elif len(cerrados)==0: #Array con puertos abiertos dado, cerrados debe ser array vacio
-        op=abiertos
-        for i in range(len(puertos)):
-            if puertos[i] in abiertos:
-                continue
-            cl+=[puertos[i]]
-    return [op, cl]

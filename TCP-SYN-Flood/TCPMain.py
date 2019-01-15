@@ -34,6 +34,8 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withDestIP(dip)\
                 .withSrcPort(sport)\
                 .withDestPort(53)\
+                .withEtherSrc('18:66:da:4d:c0:08')\
+                .withEtherResp('18:66:da:e6:36:56')\
                 .withFlags('S')\
                 .withTime(packetTime)\
                 .build()
@@ -41,17 +43,21 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withDestIP(sip)\
                 .withSrcPort(53)\
                 .withDestPort(sport)\
+                .withEtherSrc('18:66:da:e6:36:56')\
+                .withEtherResp('18:66:da:4d:c0:08')\
                 .withTime(respTime)\
                 .withFlags('SA')\
                 .build()
         pkts.append((npkt,rpkt))
     return pkts
-def main(args: list):
+def main(args: list,test=""):
     """
     Main function of the program, generates the output file on the
     output folder. 
     :param args:list :  the arguments given by console.
-    :return: 0 if everything goes ok!
+    :param: test: is an extension to the output file name for the test, do not use if
+    not testing 
+    :return: 0 if everything goes ok!, 1 otherwise
     """
     try:
         fileName = args[1]
@@ -59,7 +65,7 @@ def main(args: list):
         destinyIP = "200.7.4.7" #Ip of the server
         direction = "input/"+fileName
         outName = fileName.split(".pcap")
-        output = outName[0]+"-modified.pcap"
+        output = outName[0]+"-modified"+test+".pcap"
         output_direction = "output/"+output
         wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
         number_packets_second = random.randint(2000,5000)
@@ -81,6 +87,7 @@ def main(args: list):
         if operation:
             print("Packets Inserted")
             return 0
+        return 1
     except FileNotFoundError:
         raise Exception("El archivo no existe o bien no esta en la carpeta input")
 if __name__ == "__main__":
