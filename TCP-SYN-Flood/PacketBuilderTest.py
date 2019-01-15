@@ -10,8 +10,10 @@ class PacketBuilderTest(unittest.TestCase):
         self.srcPort = 5000
         self.dstPort = 53
         self.dstIp = "200.7.4.7"
+        self.etherSrc = "18:66:da:4d:c0:08"
+        self.etherDst = "18:66:da:e6:36:56"
     def test_basic_SYN(self):
-        tether = Ether()
+        tether = Ether(src=self.etherSrc,dst=self.etherDst)
         tip = IP(src=self.srcIp,dst=self.dstIp)
         ttcp = TCP(sport=self.srcPort,dport=self.dstPort,flags='S')
         pktexpected = tether / tip / ttcp
@@ -23,7 +25,7 @@ class PacketBuilderTest(unittest.TestCase):
                   .build()
         self.assertEqual(pktbuilded,pktexpected)
     def test_basic_SA(self):
-        tether = Ether()
+        tether = Ether(src=self.etherSrc,dst=self.etherDst)
         tip = IP(src=self.srcIp,dst=self.dstIp)
         ttcp = TCP(sport=self.srcPort,dport=self.dstPort,flags='SA')
         pktexpected = tether / tip / ttcp

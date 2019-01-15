@@ -13,8 +13,8 @@ class PacketBuilder:
         self._sport = 5000
         self._dport = 53
         self._flags = ""
-        self._etherSrc = ""
-        self._etherRsp = ""
+        self._etherSrc = "18:66:da:4d:c0:08"
+        self._etherRsp = "18:66:da:e6:36:56"
         self._time = float(0)
     def getSrcIP(self):
         """
