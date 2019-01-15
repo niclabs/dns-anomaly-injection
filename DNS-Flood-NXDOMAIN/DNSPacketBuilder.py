@@ -21,7 +21,7 @@ class DNSPacketBuilder(PacketBuilder):
         idIP = int(RandShort())
         ether = Ether()
         ip = IP(src=self.getSrcIP(),dst=self.getDestIP(),id=idIP)
-        udp = UDP(sport = self.getSrcPort,dport= self.getDestPort())
+        udp = UDP(sport = self.getSrcPort(),dport= self.getDestPort())
         queryDomain = DNSQR(qname=str(self._domain))
         dns = DNS(rd=0,id=self._idDNS,qd=queryDomain)
         pkt = ether / ip / udp / dns
@@ -30,9 +30,9 @@ class DNSPacketBuilder(PacketBuilder):
     def _buildResponse(self):
         idIP = int(RandShort())
         ether = Ether()
-        ip = IP(src=self.getSrcIP(),dst=self.getDestIP(),id=idIP)
-        udp = UDP(sport=self.getSrcPort(),dport=self.getDestPort())
-        dns = DNS(id=self._idDNS,an=None,ns=None,ar=None,ancount=0,nscount=0,arcount=0,rcode=3) #TODO the fields to make a nxdomain response
+        ip = IP(src=self.getDestIP(),dst=self.getSrcIP(),id=idIP)
+        udp = UDP(sport=self.getDestPort(),dport=self.getSrcPort())
+        dns = DNS(id=self._idDNS,qr=1,an=None,ns=None,ar=None,ancount=0,nscount=0,arcount=0,rcode=3) #TODO the fields to make a nxdomain response
         pkt = ether / ip / udp / dns
         pkt.time = self.getTime() + self._responseDT
         return pkt

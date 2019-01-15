@@ -58,11 +58,11 @@ def main(args,test=""):
     fileComponents = inputFileName.split('.pcap')
     outputFileName = fileComponents[0]+"-modified"+test+".pcap"
     rate = 2000 ##TODO ver estudios de cuantos son por segundo, por ahora 2000 por segundo it's ok
-    first = sniff(offline=inputFileName,count=1)
-    if first == None:
+    first = sniff(offline="input/"+inputFileName,count=1)
+    if len(first)== 0:
         ti = 0
     else:
-        ti=first.time
+        ti=first[0].time
     timeOfInsertion = rnd.genInter(time.time(),ti,ti+atckDuration,rate)
     domainNames = createFalseDomains(len(timeOfInsertion))
     packages = createPackateNXDomain(attackerIP,"200.7.4.7",timeOfInsertion,domainNames)
