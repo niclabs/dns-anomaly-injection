@@ -34,6 +34,8 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withDestIP(dip)\
                 .withSrcPort(sport)\
                 .withDestPort(53)\
+                .withEtherSrc('18:66:da:4d:c0:08')\
+                .withEtherResp('18:66:da:e6:36:56')\
                 .withFlags('S')\
                 .withTime(packetTime)\
                 .build()
@@ -41,6 +43,8 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withDestIP(sip)\
                 .withSrcPort(53)\
                 .withDestPort(sport)\
+                .withEtherSrc('18:66:da:e6:36:56')\
+                .withEtherResp('18:66:da:4d:c0:08')\
                 .withTime(respTime)\
                 .withFlags('SA')\
                 .build()

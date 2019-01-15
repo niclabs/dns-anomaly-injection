@@ -190,6 +190,8 @@ class PacketInserter:
                 writer.write(buffer[0])
                 count+=1
                 buffer.pop(0)
+            
             return True
         except FileNotFoundError:
-            raise Exception("Asegurese que el archivo de input exista")
+            print("Something went wrong, check the file exists")
+            return False

@@ -1,4 +1,3 @@
-#TODO refactor its name, do all
 try:
     import sys
     sys.path.append('..')
@@ -19,7 +18,7 @@ def createFalseDomains(number: int):
     domainNames = []
     for i in range(number):
         falseName = rndSb.randomSub()
-        falseDomain = falseName+".cl"
+        falseDomain = falseName+".cl."
         domainNames.append(falseDomain)
     return domainNames
 def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):

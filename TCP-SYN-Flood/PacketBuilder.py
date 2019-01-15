@@ -13,6 +13,8 @@ class PacketBuilder:
         self._sport = 5000
         self._dport = 53
         self._flags = ""
+        self._etherSrc = ""
+        self._etherRsp = ""
         self._time = float(0)
     def getSrcIP(self):
         """
@@ -84,6 +86,13 @@ class PacketBuilder:
         """   
         self._flags = flags
         return self
+    def withEtherSrc(self,ethersrc: str):
+
+        self._etherSrc = ethersrc
+        return self
+    def withEtherResp(self,etherresp: str):
+        self._etherRsp = etherresp
+        return self
     def withTime(self,time: float):
 
         self._time=time
@@ -94,8 +103,8 @@ class PacketBuilder:
             :param self: the package builder reference
         """
         idIp = int(RandShort())
-        ePkt=Ether()
-        ipPkt = IP(src=self._srcip,dst=self._dip,id=idIp)
+        ePkt=Ether(src=self._etherSrc, dst=self._etherRsp)
+        ipPkt = IP(src=self._srcip,dst=self._dip,id=idIp,proto='tcp')
         tcpPkt = TCP(sport=self._sport,dport = self._dport,flags = self._flags)
         pkt = ePkt/ ipPkt / tcpPkt
         pkt.time=self._time
