@@ -36,5 +36,5 @@ if __name__=="__main__":
         else:
             for i in range(1,len(args)):
                 MainTest().run(args[i])
-    except:
+    except IndexError:
         raise Exception("Se utiliza de la forma:\nTest a realizar (all o nada para todos)")
