@@ -113,12 +113,11 @@ class PacketInserter:
         return self
     def _insertAttackPacket(self,writer: PcapWriter,attacksAdded: int, resetCount: int):
         """
-        docstring here
-            :param self: 
-            :param writer:PcapWriter: 
-            :param attacksAdded:int: 
-            :param resetCount:int: 
-            :return: 
+            Refactor function for inserting attack packets on the pcap file
+            :param writer:PcapWriter: the writer of the file
+            :param attacksAdded:int: the number of attack to added so far
+            :param resetCount:int: the count for reseting the writer on the algorithm
+            :return: tuple of the new counters for packets added 
         """   
         aPacket = self.__packetsToAppend[0][0]
         writer.write(aPacket)
@@ -136,9 +135,10 @@ class PacketInserter:
             Insert the packages given to the pcap file mentioned, (if the output
             file exists already, it will be overwritten)
             from the pcap original file. At the end, the list to append will be empty, so be careful.
-            :return: True if the file was succesfully generated
+            :return: True if the file was succesfully generated, False if a problem happened
         """
         try:
+            #### Preparing variables to insert the packets
             numPktsIns = len(self.__packetsToAppend)
             inputDirection = self.__inputDir+self.__input
             outputDirection = self.__outputDir+self.__output
@@ -149,9 +149,15 @@ class PacketInserter:
             buffer = []
             first = reader.read_packet()
             buffer.append(first)
-            j=0
+            j=0 # counter of how many attack packets have been added
+            
+            #### Loop for the slow reading and writing of the packet
             while True:
+                #### Reading one packet from the original file
                 pktRead = reader.read_packet()
+
+                #### Checking the condition to reset the writer for overflow bug or
+                #### ending the loop
                 if count == 50000:
                     writer.close()
                     del writer
@@ -159,24 +165,38 @@ class PacketInserter:
                     count = 0 
                 if pktRead == None:
                     break
+
+                #### Putting the packet readed to a buffer.
                 buffer.append(pktRead)
-                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
-                    (j,count) = self._insertAttackPacket(writer,j,count) #writes the attack packets on the file
-                else: #we write the file packet into the new file
+
+                #### Inserting packets on the new pcap file in time order.
+                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time: ## Comparing the time
+                    (j,count) = self._insertAttackPacket(writer,j,count) 
+                else: 
                     writer.write(buffer[0])
                     buffer.pop(0)
                     count+=1
+            #### Loop for adding the rest of the packets when the file is all readed
+            #### Ends when all the packets of the buffer are written or all the packets
+            #### Of the attack are written
             while len(buffer)!= 0 and j<numPktsIns:
+                
+                #### Checking the writer restart condition
                 if count == 50000:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0
+
+                #### Comparing and inserting
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
                     (j,count) = self._insertAttackPacket(writer,j,count)
                 else:
                     writer.write(buffer[0])
                     count+=1
                     buffer.pop(0)
+
+            #### These loops are for adding the packets left of one type, attacker or buffer.
+            #### So just one of these loops are going to be executed
             while j<numPktsIns:
                 if count == 50000:
                     writer.close()
@@ -193,8 +213,14 @@ class PacketInserter:
                 writer.write(buffer[0])
                 count+=1
                 buffer.pop(0)
+            #### We close the writer and return true because everything goes as planned
             writer.close()
             return True
         except FileNotFoundError:
-            print("Something went wrong, check the file exists")
+            #### If the file does not exist, we return false because something went wrong
+            print("Error file not found")
+            return False
+        except:
+            #### If something went wrong, we return false
+            print("Something went wrong")
             return False
