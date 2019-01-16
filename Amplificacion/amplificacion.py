@@ -7,9 +7,11 @@ from randFloats import *
 import time as Time
 import string
 from PacketInserter import *
+sys.path.append("../RandomSubdomain")
+from randomSubdomain import checkValidIp
 
 
-def checkArgs(args):
+def checkArgs(args: list):
     """
     Check if the arguments are correct
     Param: args: list of arguments
@@ -17,7 +19,7 @@ def checkArgs(args):
            +args[2]: Name of the new pcap file with extension
            +args[3]: Relative path to the input file, it finishes with '/'
            +args[4]: Relative path to the output file
-           args[5]: Server ip
+           +args[5]: Server ip
            agrs[6]: Target ip
            +args[7]: Source port
            +args[8]: Attack extension (seconds)
@@ -40,6 +42,14 @@ def checkArgs(args):
     except:
         raise Exception("Wrong output file extension")
     try:
+        assert(checkValidIp(args[5]))
+    except:
+        raise Exception("Invalid server ip")
+    try:
+        assert(checkValidIp(args[6]))
+    except:
+        raise Exception("Invalid target ip")
+    try:
         assert(int(args[7]) >= 0)
         assert(int(args[7]) <= 65535)
     except:
@@ -59,7 +69,7 @@ def checkArgs(args):
 
 
 
-def amplificationBuilder(ip_src,ip_dst, src_port, q_name, t):
+def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):
     """
     Amplification attack packet builder
     Param: ip_src: Source ip (target)
@@ -75,11 +85,11 @@ def amplificationBuilder(ip_src,ip_dst, src_port, q_name, t):
     p.time = t
     return p
 
-def answerAmplification(p, t):
+def amplificationResponse(p, dt: float):
     """
     Gives an amplified response to the packet p
     Param: p: request
-           t: Response delay time
+           dt: Response delay time
     return: A response packet that has the EDNS0 extension and the answer section is set up
            - Type: TXT: Contains a large string
     """
@@ -93,7 +103,7 @@ def answerAmplification(p, t):
     ans[DNS].an = DNSRR(type='TXT', rclass=0x8001, rdata = r_data)
 
     #Set the response time
-    ans.time = p.time + t
+    ans.time = p.time + dt
     return ans
 
 def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c: int, ti: float, qname : string):
@@ -113,16 +123,16 @@ def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c:
     seed = Time.time() #Seed for randomize
     time = genInter(seed, ti, tf, c)
     for t in time:
-        dt = abs(random.gauss(0.00427404912058, 0.00807278328296))
+        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         p = amplificationBuilder(ip, serv, srcport, qname, t)
-        a = answerAmplification(p, dt)
+        a = amplificationResponse(p, dt)
         tuple = []
         tuple.append(p)
         tuple.append(a)
         new_packets.append(tuple)
     return new_packets
 
-def main(args):
+def main(args: list):
     """
     Param: args: list of arguments
            args[1]: Name of the source pcap file with extension

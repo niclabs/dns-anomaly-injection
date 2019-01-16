@@ -9,7 +9,7 @@ import random
 #Archivo de prueba
 #---------------------#
 #Ejemplo:
-#python3 randomSubdomain.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 2.7.4.7 hola.cl 200.6.96.47 3 10 0 33865
+#python3 randomSubdomain.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 8.8.8.8 2.7.4.7 hola.cl 3 10 0 33865
 def main2():
     dom = 'chao.cl'
     serv = '2.7.4.7'
@@ -24,7 +24,7 @@ def main2():
     new_packages = randomSubAttack(serv, dom, ip_dom, duracion, c, t0, dt, src_port)
     #wrpcap("file.pcap", new_packages)
 
-def main():
+def main3():
     print(genIp())
     arg1= "/home/niclabs/Downloads/"
     arg2= "lol.pcap"
@@ -34,6 +34,7 @@ def main():
         assert(f[1] == "pcap")
     except:
         raise Exception("Wrong output file extension")
-
+def main():
+    print(checkValidIp("200.7.5"))
 if __name__ == '__main__':
     main()

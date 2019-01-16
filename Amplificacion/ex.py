@@ -5,16 +5,17 @@ from random import gauss
 import os
 import argparse
 import socket
+import sys
 #---------------------#
 #Archivo de prueba
 #---------------------#
 #Ejemplo
 #python3 amplificacion.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 2.7.4.7 8.8.8.8 33865 3 10 1 hola.cl
-def main2():
+def main():
   #paquetes = rdpcap("/home/niclabs/Downloads/lol.pcap")
   inter = genInter(20, 0, 2, 3)
   p0 = sniff(offline = "/home/niclabs/Downloads/lol.pcap", count = 1)
-
+  print(type(p0[0]))
   ti = p0[0].time
   ip = '8.8.8.8'
   serv = '200.7.4.7'
@@ -24,9 +25,9 @@ def main2():
   dt = 0.01
   duracion = 5
 
-  new_packages = amplificationAttack(serv, ip, srcport, duracion, c, ti, dt, q_name)
+  #new_packages = amplificationAttack(serv, ip, srcport, duracion, c, ti, dt, q_name)
 
-def main():
+def main2():
     print(socket.gethostbyname(socket.gethostname()))
     arg1= "/home/niclabs/Downloads/"
     arg2= "lol.pcap"
