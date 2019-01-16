@@ -58,5 +58,11 @@ class PortsGeneratorTest(unittest.TestCase):
 
         self.assertEqual(arrayPortsGen(750, 1023, 13, [763,802,841,906,984,1023], [], 4), [[763, 802, 841, 906, 984, 1023], [750, 776, 789, 815, 828, 854, 867, 880, 893, 919, 932, 945, 958, 971, 997, 1010]])
 
+
+    def test_randomSourcePorts(self):
+        prueba=randomSourcePorts(400, 5)
+        self.assertEqual(len(prueba), 400, 'error en el largo del array\nScript "PortsGenerator", funcion "randomSourcePorts"')
+        
+
 if __name__ == '__main__':
     unittest.main()

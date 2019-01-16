@@ -19,6 +19,8 @@ def main():
     parser.add_argument("-tcp", "--tcp_server_attack", help="Ataque Port Scan tipo TCP SYN al servidor", action="store_true")
     parser.add_argument("-udp", "--udp_server_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-dom", "--domain_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
+    parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
+    parser.add_argument("-tz","--total_of_zombies", help="Cantidad de 'computadores zombies' en el tipo de ataque DDoS (d: 15000)", type=int, default=15000)
     parser.add_argument("-ip", "--ip_src", help="Direccion IP de origen (d: 200.27.161.26)", default='200.27.161.26')
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
     parser.add_argument("-pi", "--iport", help="Puerto menor a atacar (d: 0)", type=int, default=0)
@@ -47,8 +49,17 @@ def main():
     numPaquetesAEnviar=args.num_packages
     interResp=args.int_resp
     IPsrc=args.ip_src
+    totalInfectados=args.total_of_zombies
     PortSrc=args.sport
     ############## Assertions for values ##############
+    try:
+        assert(len(nombrePktFin)>0 and len(nombrePktIni)>0)
+    except:
+        raise Exception('Los nombres de archivo no pueden ser vacio')
+    try:
+        assert('.pcap' in nombrePktIni)
+    except:
+        raise Exception('Se debe incluir el formato de archivo en el nombre del archivo a abrir')
     try:
         assert(duracion>0)
     except:
@@ -57,7 +68,7 @@ def main():
         assert(PortSrc<=65536)
         assert(PortSrc>=0)
     except:
-        raise Exception("El puerto de origen debe ser menor a 65537 y mayor o igual a 0")
+        raise Exception("El puerto de origen debe estar entre 0 y 65536")
     try:
         assert(numPaquetesAEnviar>0)
     except:
@@ -66,6 +77,15 @@ def main():
         assert(interResp>0)
     except:
         raise Exception("El intervalo de respuesta debe ser mayor a 0")
+    try:
+        assert(len(IPsrc)==0)
+    except:
+        raise Exception("La direccion IP no puede ser vacia")
+    try:
+        assert(zombies>0)
+    except:
+        raise Exception('La cantidad de computadores zombies debe ser mayor a 1')
+
     ####################################################
     ########## Creacion de puertos a atacar ############
     if args.udp_server_attack or args.tcp_server_attack:
@@ -73,7 +93,23 @@ def main():
         puertoInicial=args.iport
         puertoFinal=args.fport
         intervaloPuertos=args.inter_port
-
+    ####################################################
+        try:
+            assert(puertoInicial<=65536)
+            assert(puertoInicial>=0)
+            assert(puertoInicial<=65536)
+            assert(puertoInicial>=0)
+        except:
+            raise Exception("Los puertos deben estar entre 0 y 65536")
+        try:
+            assert(puertoInicial<=puertoFinal)
+        except:
+            raise Exception('El puerto menor a atacar debe ser menor que el puerto mayor a atacar')
+        try:
+            assert(intervaloPuertos>0)
+        except:
+            raise Exception('El intervalo entre un puerto y otro debe ser mayor a 0')
+    ####################################################
         if args.open_port or args.closed_port:
             if args.open_port:
                 print("\nAl ingresar el total de puertos abiertos, el total de puertos cerrados no puede ser modificado")
@@ -84,25 +120,34 @@ def main():
                 cerrados=args.closed_port
                 puertos=arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, -1, cerrados, Seed)
         elif args.open_port_list and args.closed_port_list:
-            abiertos=args.open_port_list
-            cerrados=args.closed_port_list
+            abiertos=string2numList(args.open_port_list, ' ')
+            cerrados=string2numList(args.closed_port_list, ' ')
             puertos=[abiertos, cerrados]
         elif args.open_port_list or args.closed_port_list:
             if args.open_port_list:
-                abiertos=args.open_port_list
+                abiertos=string2numList(args.open_port_list, ' ')
                 puertos=arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, [], Seed)
             if args.closed_port_list:
-                cerrados=args.closed_port_list
+                cerrados=string2numList(args.closed_port_list, ' ')
                 puertos=arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, [], cerrados, Seed)
         else:
             puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
 
         if args.udp_server_attack:
-            attack=UDP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            if args.domain_attack:
+                attack=UDP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            else:
+                attack=UDP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         if args.tcp_server_attack:
-            attack=TCP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            if args.domain_attack:
+                attack=TCP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            else:
+                attack=TCP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     else:
-        attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+        if args.domain_attack:
+            attack=Domain_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+        else:
+            attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
 
     ins = PacketInserter()
     operation = ins.withPackets(attack)\
@@ -115,6 +160,22 @@ def main():
         print("Packets Inserted")
 ############################################
 
+""" @Javi801
+ Gives an array of ints with a given string, transforming the string into a int list
 
+ Params: string -> (str) string to transform
+         separador -> (str) string to use as separator between each number
+
+ Return: final -> (list(int)) list of ints in the inicial string
+"""
+def string2numList(string, separador):
+    strList=s.split(separador)
+    final=[]
+    for i in range(len(strList)):
+        if strList[i]=='':
+            continue
+        num=int(strList[i])
+        final+=[num]
+    return final
 
 main()

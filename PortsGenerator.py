@@ -75,8 +75,6 @@ def intPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados
     return [open, closed]
 
 
-
-
 """ Author @Javi801
  Gives a list with two ports list; first the open ones and, then, the closed.
  Between open and closed is expected an empty list and one with content, in
@@ -110,3 +108,20 @@ def arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrad
                 continue
             cl+=[puertos[i]]
         return [op, cl]
+
+""" @Javi801
+ Gives and array of valid ports, with a given numbers of ports. This array
+ doesn't specify open or closed ports, and it could have repeated ports.
+
+Params: total -> (int) total of ports
+        Seed -> (float) seed for randomize
+
+Return: list(int) -> port list
+"""
+def randomSourcePorts(total, Seed):
+    random.seed(Seed)
+    puertos=[]
+    for i in range(total):
+        port=random.randint(0,65536)
+        puertos=[port]
+    return puertos
