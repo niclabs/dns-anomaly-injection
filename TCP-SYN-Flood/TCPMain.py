@@ -19,19 +19,24 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,initialTime=0,dura
         :param duration: the duration of the attack on the file
         :return: a list of the packets to insert
     """
+    #### First we create a list of random times 
     first = sniff(offline=fileName,count=1)
     ti = first[0].time + initialTime
     times =rnd.genInter(time.time(),ti,ti+duration,number)
     responseTime=0.00015
+
+    #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()
     pkts = []
     quantity = len(times)
     for i in range(quantity):
+        #### Create the random parameters for the attack
         qrIpId = int(RandShort())
         rspIpId = int(RandShort())
         sport = random.randint(1024, 65535)
         packetTime = times[i]
         respTime = packetTime + responseTime
+        #### Generate the packages
         npkt = pktFactory.withSrcIP(sip)\
                 .withDestIP(dip)\
                 .withSrcPort(sport)\
@@ -52,6 +57,7 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,initialTime=0,dura
                 .withFlags('SA')\
                 .withIpId(rspIpId)\
                 .build()
+        #### Append the packages of request and response on a tuple
         pkts.append((npkt,rpkt))
     return pkts
 def main(args: list,test=""):
@@ -86,6 +92,7 @@ def main(args: list,test=""):
     number_packets_second = random.randint(2000,5000)
     print("Generating attack of "+str(number_packets_second)+" per second")
     pkts=createPackets(direction,originIP,destinyIP,number_packets_second,initialTime,duration)
+    print("Creating the fake IP's")
     print("Paquetes creados: "+str(2*len(pkts)))
 
     ##### Insertion of the packets generated
