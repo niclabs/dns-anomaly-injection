@@ -17,10 +17,10 @@ def randomIP(total, Seed):
     for i in range(total):
         bool=1
         while(bool):
-            j=random.randint(0,256)
-            k=random.randint(0,256)
-            l=random.randint(0,256)
-            m=random.randint(0,256)
+            j=random.randint(0,255)
+            k=random.randint(0,255)
+            l=random.randint(0,255)
+            m=random.randint(0,255)
             ip=str(j)+'.'+str(k)+'.'+str(l)+'.'+str(m)
             if ip!='200.7.4.7':
                 ips+=[ip]

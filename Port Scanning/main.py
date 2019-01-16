@@ -78,11 +78,11 @@ def main():
     except:
         raise Exception("El intervalo de respuesta debe ser mayor a 0")
     try:
-        assert(len(IPsrc)==0)
+        assert(len(IPsrc)>=0)
     except:
         raise Exception("La direccion IP no puede ser vacia")
     try:
-        assert(zombies>0)
+        assert(totalInfectados>0)
     except:
         raise Exception('La cantidad de computadores zombies debe ser mayor a 1')
 
@@ -134,21 +134,30 @@ def main():
             puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
 
         if args.udp_server_attack:
-            if args.domain_attack:
+            if args.ddos_type:
+                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_UDP_DDoS_attack.pcap'
                 attack=UDP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
+                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_UDP_attack.pcap'
                 attack=UDP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         if args.tcp_server_attack:
-            if args.domain_attack:
+            if args.ddos_type:
+                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_TCP_DDoS_attack.pcap'
                 attack=TCP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
+                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_TCP_attack.pcap'
                 attack=TCP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
-    else:
-        if args.domain_attack:
+    elif args.domain_attack:
+        if args.ddos_type:
+            nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_DDoS_attack.pcap'
             attack=Domain_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         else:
+            nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_attack.pcap'
             attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
-
+    else:
+        print('Debe seleccionar un tipo de ataque, utilice el comando --help para ver las opciones')
+        return
+    print('Paquetes de ataque creados exitosamente')
     ins = PacketInserter()
     operation = ins.withPackets(attack)\
                 .withInputDir("input/")\
@@ -157,7 +166,7 @@ def main():
                 .withPcapOutput(nombrePktFin)\
                 .insert()
     if operation:
-        print("Packets Inserted")
+        print("Paquetes insertados exitosamente")
 ############################################
 
 """ @Javi801

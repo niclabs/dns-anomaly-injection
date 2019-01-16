@@ -123,5 +123,5 @@ def randomSourcePorts(total, Seed):
     puertos=[]
     for i in range(total):
         port=random.randint(0,65536)
-        puertos=[port]
+        puertos+=[port]
     return puertos
