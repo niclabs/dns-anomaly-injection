@@ -27,6 +27,8 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
     pkts = []
     quantity = len(times)
     for i in range(quantity):
+        qrIpId = int(RandShort())
+        rspIpId = int(RandShort())
         sport = random.randint(1024, 65535)
         packetTime = times[i]
         respTime = packetTime + responseTime
@@ -38,6 +40,7 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withEtherResp('18:66:da:e6:36:56')\
                 .withFlags('S')\
                 .withTime(packetTime)\
+                .withIpId(qrIpId)\
                 .build()
         rpkt = pktFactory.withSrcIP(dip)\
                 .withDestIP(sip)\
@@ -47,6 +50,7 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
                 .withEtherResp('18:66:da:4d:c0:08')\
                 .withTime(respTime)\
                 .withFlags('SA')\
+                .withIpId(rspIpId)\
                 .build()
         pkts.append((npkt,rpkt))
     return pkts

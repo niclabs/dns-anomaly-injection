@@ -1,25 +1,17 @@
-from Test import *
+import unittest
 from PacketInserter import *
 from scapy.all import *
-class PacketInserterTest(Test):
-    def __init__(self):
-        super().__init__()
+class PacketInserterTest(unittest.TestCase):
     def setUp(self):
-        self.addVariable("inserter",PacketInserter())
-        self.addVariable("input","lol.pcap")
-        self.addVariable("output","lol-out.pcap")
-        self.addVariable("none-pkts",[])
-        self.addVariable("Input Direction","input/")
-        self.addVariable("Output Direction","output/")
+        self.inserter = PacketInserter()
     def test_basic(self):
-        ins  = self.getVariable("inserter")
-        assert ins.getPacketsToAppend() == []
-        assert ins.getInputName() == ""
-        assert ins.getOutputName() == ""
-        assert ins.getInputDir() == ""
-        assert ins.getOutputDir() == ""
-        assert ins.getDelay() == 0.0
+        ins = self.inserter
+        self.assertEqual([],ins.getPacketsToAppend())
+        self.assertEqual("",ins.getInputName())
+        self.assertEqual("", ins.getOutputName())
+        self.assertEqual("",ins.getInputDir())
+        self.assertEqual("",ins.getOutputDir())
+        self.assertAlmostEqual(0.0,ins.getDelay())
     ##TODO changes tests
 if __name__ == "__main__":
-    test = PacketInserterTest()
-    test.run()
+    unittest.main()

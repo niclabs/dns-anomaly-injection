@@ -35,6 +35,8 @@ def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):
     pkts = []
     for i in range(len(times)):
         idDNS = int(RandShort())
+        idQrIp = int(RandShort())
+        idRspIp = int(RandShort())
         sport = random.randint(1024,65535)
         packetTime = times[i]
         domainName = names[i]
@@ -44,6 +46,8 @@ def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):
             .withDestPort(53)\
             .withTime(packetTime)\
             .withDomain(domainName)\
+            .withQrIpId(idQrIp)\
+            .withRspIpId(idRspIp)\
             .withIdDNS(idDNS)\
             .build()
         pkts.append(z)

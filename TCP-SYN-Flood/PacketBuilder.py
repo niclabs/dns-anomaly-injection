@@ -1,111 +1,57 @@
 try:
     from scapy.all import *
+    from AbstractPacketBuilder import *
 except:
     pass
-class PacketBuilder:
+class PacketBuilder(AbstractPacketBuilder):
     def __init__(self):
         """
-            Creates a new packet builder object
-            :param self: reference to the object
+            Creates a new packet builder object for TCP types of packets
+            :param: flags: the flags that the TCP will have.
+            :param: idIp: the id that the IP layer will have.
         """
-        self._srcip = ""
-        self._dip = ""
-        self._sport = 5000
-        self._dport = 53
         self._flags = ""
-        self._etherSrc = "18:66:da:4d:c0:08"
-        self._etherRsp = "18:66:da:e6:36:56"
-        self._time = float(0)
-    def getSrcIP(self):
-        """
-            Getter method for the source ip field
-        """
-        return self._srcip
-    def getDestIP(self):
-        """
-            Give the destiny ip field
-        """
-        return self._dip
-    def getSrcPort(self):
-        """
-            Give us the source port of the packet
-        """
-        return self._sport
-    def getDestPort(self):
-        """
-            Getter for the destiny port of the packet to build
-        """
-        return self._dport
+        self._idIp = 0
+        super().__init__()
     def getFlags(self):
         """
             Getter method for the flags that are going to be in the packets
         """
         return self._flags
-    def getTime(self):
+    def getIdIp(self):
         """
-            Give us the time of the packate being sent
+            Getter for the id of the Ip layer
         """
-        return self._time
-    def withSrcIP(self,ip: str):
-        """
-            Set the source Ip for the packet that is going to be created
-            :param self: reference of the package builder
-            :param ip:str: the ip of the package that is going to be created
-        """
-        self._srcip = ip
-        return self
-    def withDestIP(self,ip: str):
-        """
-            Sets the destiny Ip of the package that the builder creates
-            :param self: the package builder
-            :param ip:str: the destination Ip of the package
-        """   
-        self._dip = ip
-        return self
-    def withSrcPort(self,port: int):
-        """
-            Sets the source port of the package
-            :param self: the package builder
-            :param port:int: the source port of the package
-        """   
-        self._sport = port
-        return self
-    def withDestPort(self,port: int):
-        """
-            Sets the destination port of the package
-            :param self: a reference to the builder
-            :param port:int: the new destiny port
-        """
-        self._dport = port
-        return self
+        return self._idIp
     def withFlags(self,flags : str):
         """
             Sets the flags used for the tcp package
-            :param self: a reference to the package builder
             :param flags:str: the flags that's going to be on the package
         """   
         self._flags = flags
         return self
-    def withEtherSrc(self,ethersrc: str):
-
-        self._etherSrc = ethersrc
-        return self
-    def withEtherResp(self,etherresp: str):
-        self._etherRsp = etherresp
-        return self
-    def withTime(self,time: float):
-
-        self._time=time
+    def withIpId(self,id: int):
+        """
+            Method that establishes what the id of the ip layer will be.
+        """
+        self._idIp = id
         return self
     def build(self):
         """
-            Method that creates a new TCP package
+            Method that creates a new TCP package given the fields of the builder object
             :param self: the package builder reference
         """
-        idIp = int(RandShort())
-        ePkt=Ether(src=self._etherSrc, dst=self._etherRsp)
-        ipPkt = IP(src=self._srcip,dst=self._dip,id=idIp,proto='tcp')
-        tcpPkt = TCP(sport=self._sport,dport = self._dport,flags = self._flags)
+        srcEther = self.getEtherSrc()
+        dstEther = self.getEtherResp()
+        srcIp = self.getSrcIP()
+        dstIp = self.getDestIP()
+        srcPort = self.getSrcPort()
+        dstPort = self.getDestPort()
+        pktTime = self.getTime()
+        idIp = self._idIp
+        ePkt=Ether(src=srcEther, dst=dstEther)
+        ipPkt = IP(src=srcIp,dst=dstIp,id=idIp,proto='tcp')
+        tcpPkt = TCP(sport = srcPort,dport = dstPort,flags = self._flags)
         pkt = ePkt/ ipPkt / tcpPkt
-        pkt.time=self._time
+        pkt.time=pktTime
         return pkt
