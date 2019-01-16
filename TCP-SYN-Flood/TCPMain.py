@@ -63,41 +63,46 @@ def main(args: list,test=""):
     not testing 
     :return: 0 if everything goes ok!, 1 otherwise
     """
-    try:
-        fileName = args[1]
-        originIP = args[2]
-        destinyIP = "200.7.4.7" #Ip of the server
-        direction = "input/"+fileName
-        outName = fileName.split(".pcap")
-        output = outName[0]+"-modified"+test+".pcap"
-        output_direction = "output/"+output
-        wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
-        number_packets_second = random.randint(2000,5000)
-        print("Generating attack of "+str(number_packets_second)+" per second")
-        if len(args) >= 4:
-            initialTime = int(args[3])
-        else:
-            initialTime = 0
-        if len(args)>=5:
-            duration = int(args[4])
-        else:
-            duration = 60
-        pkts=createPackets(direction,originIP,destinyIP,number_packets_second,initialTime,duration)
-        print("Paquetes creados: "+str(2*len(pkts)))
-        print("Empezando a ingresar paquetes en pcap")
-        ins = PacketInserter()
-        operation = ins.withPackets(pkts)\
-                    .withInputDir("input/")\
-                    .withPcapInput(fileName)\
-                    .withOutputDir("output/")\
-                    .withPcapOutput(output)\
-                    .insert()
-        if operation:
-            print("Packets Inserted")
-            return 0
-        return 1
-    except FileNotFoundError:
-        raise Exception("El archivo no existe o bien no esta en la carpeta input")
+    ##### Reading the inputs from the user
+    fileName = args[1]
+    originIP = args[2]
+    if len(args) >= 4:
+        initialTime = int(args[3])
+    else:
+        initialTime = 0
+    if len(args)>=5:
+        duration = int(args[4])
+    else:
+        duration = 60
+    
+    ##### Generating the files of the output
+    destinyIP = "200.7.4.7" #Ip of the server
+    direction = "input/"+fileName
+    outName = fileName.split(".pcap")
+    output = outName[0]+"-modified"+test+".pcap"
+    output_direction = "output/"+output
+
+    ##### Getting prepared for generating the attack
+    number_packets_second = random.randint(2000,5000)
+    print("Generating attack of "+str(number_packets_second)+" per second")
+    pkts=createPackets(direction,originIP,destinyIP,number_packets_second,initialTime,duration)
+    print("Paquetes creados: "+str(2*len(pkts)))
+
+    ##### Insertion of the packets generated
+    print("Empezando a ingresar paquetes en pcap")
+    ins = PacketInserter()
+    operation = ins.withPackets(pkts)\
+                .withInputDir("input/")\
+                .withPcapInput(fileName)\
+                .withOutputDir("output/")\
+                .withPcapOutput(output)\
+                .insert()
+    
+    ##### Seeing that everything is ok
+    if operation:
+        print("Packets Inserted")
+        return 0
+    return 1
 if __name__ == "__main__":
     args = sys.argv
     if len(args) < 3:
