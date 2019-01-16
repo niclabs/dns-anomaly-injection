@@ -1,25 +1,35 @@
-from Test import *
+import unittest
 from PacketInserter import *
 from scapy.all import *
-class PacketInserterTest(Test):
-    def __init__(self):
-        super().__init__()
+class PacketInserterTest(unittest.TestCase):
     def setUp(self):
-        self.addVariable("inserter",PacketInserter())
-        self.addVariable("input","lol.pcap")
-        self.addVariable("output","lol-out.pcap")
-        self.addVariable("none-pkts",[])
-        self.addVariable("Input Direction","input/")
-        self.addVariable("Output Direction","output/")
-    def test_basic(self):
-        ins  = self.getVariable("inserter")
-        assert ins.getPacketsToAppend() == []
-        assert ins.getInputName() == ""
-        assert ins.getOutputName() == ""
-        assert ins.getInputDir() == ""
-        assert ins.getOutputDir() == ""
-        assert ins.getDelay() == 0.0
-    ##TODO changes tests
+        self.inserter = PacketInserter()
+    def test_well_construct_test(self):
+        ins = self.inserter
+        self.assertEqual([],ins.getPacketsToAppend())
+        self.assertEqual("",ins.getInputName())
+        self.assertEqual("", ins.getOutputName())
+        self.assertEqual("",ins.getInputDir())
+        self.assertEqual("",ins.getOutputDir())
+        self.assertAlmostEqual(0.0,ins.getDelay())
+    def test_setter_getter(self):
+        ins = self.inserter
+        dullPacket = Ether()/IP()
+        ins.withPackets([dullPacket])
+        self.assertEqual([dullPacket],ins.getPacketsToAppend())
+        ins.withPcapInput("lol.pcap")
+        self.assertEqual("lol.pcap",ins.getInputName())
+        ins.withInputDir("input/")
+        self.assertEqual("input/",ins.getInputDir())
+        ins.withPcapOutput("lol-modified.pcap")
+        self.assertEqual("lol-modified.pcap",ins.getOutputName())
+        ins.withDelay(0.008)
+        self.assertAlmostEqual(0.008,ins.getDelay())
+    def test_insertion_light(self):
+        pass
+    def test_insertion_full(self):
+        pass
+    ##TODO changes tests, generate more test
+
 if __name__ == "__main__":
-    test = PacketInserterTest()
-    test.run()
+    unittest.main()

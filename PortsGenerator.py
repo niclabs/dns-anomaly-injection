@@ -59,7 +59,20 @@ def intPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados
             ins=puertos.pop(var)
             open+=[ins]
         return [open, puertos]
-
+    if len(puertos)<(abiertos+cerrados):
+        puertos=list(range(0,65535))
+    for i in range(abiertos+cerrados):
+        var = random.randint(0,len(puertos)-1)
+        ins=puertos.pop(var)
+        num=random.randint(0,abiertos+cerrados)
+        prob=num<abiertos
+        if len(closed)==cerrados or prob:
+            open+=[ins]
+        elif len(open)==abiertos or not(prob):
+            closed+=[ins]
+        elif len(open)==0 and len(closed)==0:
+            return [open, closed]
+    return [open, closed]
 
 
 """ Author @Javi801
@@ -95,3 +108,20 @@ def arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrad
                 continue
             cl+=[puertos[i]]
         return [op, cl]
+
+""" @Javi801
+ Gives and array of valid ports, with a given numbers of ports. This array
+ doesn't specify open or closed ports, and it could have repeated ports.
+
+Params: total -> (int) total of ports
+        Seed -> (float) seed for randomize
+
+Return: list(int) -> port list
+"""
+def randomSourcePorts(total, Seed):
+    random.seed(Seed)
+    puertos=[]
+    for i in range(total):
+        port=random.randint(0,65536)
+        puertos+=[port]
+    return puertos
