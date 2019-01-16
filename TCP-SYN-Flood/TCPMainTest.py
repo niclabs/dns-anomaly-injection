@@ -7,8 +7,8 @@ Object that test the functions of the TCPMain.py file
 """
 class TCPMainTest(unittest.TestCase):
     def setUp(self):
-        self.basicArgs = ["main.py","test1k.pcap","190.54.120.40","1"]
-        self.sixSecondsArgs = ["main.py","test1k.pcap","190.54.120.40","6"]
+        self.basicArgs = ["main.py","test1k.pcap","190.54.120.40","2","1"]
+        self.sixSecondsArgs = ["main.py","test1k.pcap","190.54.120.40","0","6"]
     def test_basic(self):
         ok = m.main(self.basicArgs,"--test_basic")
         self.assertEqual(0,ok)

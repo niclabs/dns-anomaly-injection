@@ -3,7 +3,7 @@ try:
     from AbstractPacketBuilder import *
 except:
     pass
-class PacketBuilder(AbstractPacketBuilder):
+class TCPPacketBuilder(AbstractPacketBuilder):
     def __init__(self):
         """
             Creates a new packet builder object for TCP types of packets
@@ -16,11 +16,13 @@ class PacketBuilder(AbstractPacketBuilder):
     def getFlags(self):
         """
             Getter method for the flags that are going to be in the packets
+            :return: the flags that the packet will have
         """
         return self._flags
     def getIdIp(self):
         """
             Getter for the id of the Ip layer
+            :return: the id of the IP layer
         """
         return self._idIp
     def withFlags(self,flags : str):
@@ -39,7 +41,7 @@ class PacketBuilder(AbstractPacketBuilder):
     def build(self):
         """
             Method that creates a new TCP package given the fields of the builder object
-            :param self: the package builder reference
+            :return: the TCP package created.
         """
         srcEther = self.getEtherSrc()
         dstEther = self.getEtherResp()

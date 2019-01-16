@@ -6,10 +6,10 @@ try:
     from scapy.all import *
     import random
     import time
-    from PacketBuilder import *
+    from TCPPacketBuilder import *
 except:
     raise Exception("Get assure that every library is avalaible")
-def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
+def createPackets(fileName: str,sip: str,dip: str,number: int,initialTime=0,duration = 60):
     """
         Creates a series of packets of information that are going to be added to the pcap file
         :param: fileName it's the name of the file which is going to be modified
@@ -20,10 +20,10 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,duration = 60):
         :return: a list of the packets to insert
     """
     first = sniff(offline=fileName,count=1)
-    ti = first[0].time
+    ti = first[0].time + initialTime
     times =rnd.genInter(time.time(),ti,ti+duration,number)
     responseTime=0.00015
-    pktFactory = PacketBuilder()
+    pktFactory = TCPPacketBuilder()
     pkts = []
     quantity = len(times)
     for i in range(quantity):
@@ -74,11 +74,15 @@ def main(args: list,test=""):
         wrpcap(output_direction,PacketList()) #Limpio el archivo anterior
         number_packets_second = random.randint(2000,5000)
         print("Generating attack of "+str(number_packets_second)+" per second")
-        if len(args) == 4:
-            attackDuration = int(args[3])
+        if len(args) >= 4:
+            initialTime = int(args[3])
         else:
-            attackDuration = 60
-        pkts=createPackets(direction,originIP,destinyIP,number_packets_second,attackDuration)
+            initialTime = 0
+        if len(args)>=5:
+            duration = int(args[4])
+        else:
+            duration = 60
+        pkts=createPackets(direction,originIP,destinyIP,number_packets_second,initialTime,duration)
         print("Paquetes creados: "+str(2*len(pkts)))
         print("Empezando a ingresar paquetes en pcap")
         ins = PacketInserter()
@@ -97,6 +101,6 @@ def main(args: list,test=""):
 if __name__ == "__main__":
     args = sys.argv
     if len(args) < 3:
-        print("Numero invalido de argumentos, son de la forma:\narchivo_pcap Ip_Origen duracion (s)")
+        print("Numero invalido de argumentos, son de la forma:\n<archivo_pcap> <Ip_Origen> <tiempo inicial>(opcional,s) <duracion> (opcional,s)")
     else:
         main(args)

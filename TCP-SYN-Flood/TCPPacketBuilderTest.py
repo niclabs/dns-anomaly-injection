@@ -1,10 +1,10 @@
-from PacketBuilder import *
+from TCPPacketBuilder import *
 from scapy.all import *
 import unittest 
 import random
-class PacketBuilderTest(unittest.TestCase):
+class TCPPacketBuilderTest(unittest.TestCase):
     def setUp(self):
-        self.builder = PacketBuilder()
+        self.builder = TCPPacketBuilder()
         self.srcIp="190.54.120.33"
         self.srcPort = 5000
         self.dstPort = 53
