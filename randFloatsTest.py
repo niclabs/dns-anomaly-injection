@@ -19,8 +19,21 @@ class randFloatsTest(unittest.TestCase):
 
 
     def test_genInter(self):
-        t=0
-
+        seed = 10
+        tmin = 12
+        tmax = 20
+        c = 100
+        prueba= genInter(seed, tmin, tmax, c)
+        self.assertEqual(len(prueba), (tmax - tmin) * c, "Wrong amount of generated times")
+        i = 0
+        t0 = tmin
+        t1 = tmin + 1
+        for j in range(int(tmax - tmin)):
+            sub_j = gen(seed, t0, t1, c)
+            self.assertEqual(sub_j, prueba[i: i+c], "Wrong generated interval")
+            i += c
+            t0 += 1
+            t1 += 1
 
 if __name__ == '__main__':
     unittest.main()

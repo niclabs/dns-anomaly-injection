@@ -79,6 +79,7 @@ class responseTest(unittest.TestCase):
         self.assertEqual(self.response[DNS].id, self.request[DNS].id, "Wrong response DNS id")
         self.assertEqual(self.response[DNS].qr, 1, "Isn't a response")
         self.assertEqual(self.response[DNS].qd, self.request[DNS].qd, "Is answering a different question")
+        self.assertEqual(self.response[DNS].rcode, 0, "DNS rcode must be 0")
 
     def test_UDP_layer(self):
         self.assertEqual(self.response[UDP].sport, 53, "Wrong response source port")
