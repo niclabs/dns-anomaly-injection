@@ -21,7 +21,8 @@ class PacketInserter:
         self.__output=""
         self.__inputDir=""
         self.__outputDir=""
-        self.__delayResponse=float(0)
+        self.__serverIp = "200.7.4.7"
+        self.__responseDt= 0.0006
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -47,11 +48,17 @@ class PacketInserter:
             Getter for the output file path
         """   
         return self.__outputDir
-    def getDelay(self):
+    def getResponseDt(self):
         """
             Getter for delay of the response number
         """   
-        return self.__delayResponse
+        return self.__responseDt
+    def getServerIp(self):
+        """
+            Get the server Ip to see what packets are response one's
+            :return: the ip of the server set
+        """
+        return self.__serverIp
     def withPackets(self,packets: list):
         """
             Sets the list to packets to be inserted in the pcap file,
@@ -94,24 +101,24 @@ class PacketInserter:
         """   
         self.__outputDir=outputDir
         return self
-    def withDelay(self,delay: float):
-        """
-            Gives a delay to the server responses, for now only to the
-            packets created
-            :param delay:float: the delay time of the server
-            :return: the inserter 
-        """   
-        self.__delayResponse=delay
+    def withServerIp(self,ip: str):
+
+        self.__serverIp = ip
         return self
-    def addDelay(self,ddelay: float):
+    def withResponseDt(self,dt: float):
         """
-            add a finite number to the delay parameter to the server response for the queries
-            :param ddelay:float: the amount to add to the delay
-            :return: a packet inserter reference
-        """   
-        self.__delayResponse+=ddelay
+            Setter for the request response dt, base it calculation for the delay time
+        """
+        self.__responseDt = dt
         return self
-    def _insertAttackPacket(self,writer: PcapWriter,attacksAdded: int, resetCount: int):
+    def _calculateDelay(self,porcentage: float):
+        """
+            Calculates the time to add for the delay given the response dt.
+            :return: the time of delay of the packet
+        """
+        delay = self.__responseDt * porcentage
+        return delay
+    def _insertAttackPacket(self,writer: PcapWriter,bufferAttackResponse: list,bufferFileResponse: list,attacksAdded: int, resetCount: int,delay: float):
         """
             Refactor function for inserting attack packets on the pcap file
             :param writer:PcapWriter: the writer of the file
@@ -119,17 +126,70 @@ class PacketInserter:
             :param resetCount:int: the count for reseting the writer on the algorithm
             :return: tuple of the new counters for packets added 
         """   
-        aPacket = self.__packetsToAppend[0][0]
-        writer.write(aPacket)
-        if len(self.__packetsToAppend[0]) == 2:
-            response = self.__packetsToAppend[0][1]
-            response.time+=self.__delayResponse
-            writer.write(response)
-        self.__packetsToAppend.pop(0)
-        attacksAdded+=1
-        resetCount+=1
-        return (attacksAdded,resetCount)
-    
+        queriePacket = self.__packetsToAppend[0][0]
+        responseBuffer = self._minTimeList(bufferFileResponse,bufferAttackResponse)
+        if responseBuffer == None:
+            writer.write(queriePacket)
+            if len(self.__packetsToAppend[0]) == 2:
+                response = self.__packetsToAppend[0][1]
+                response.time += delay
+                bufferAttackResponse.append(response)
+            self.__packetsToAppend.pop(0)
+            attacksAdded+=1
+            resetCount+=1
+            return (attacksAdded,resetCount)
+        if queriePacket.time < responseBuffer[0].time:
+            writer.write(queriePacket)
+            if len(self.__packetsToAppend[0]) == 0:
+                response = self.__packetsToAppend[0][1]
+                response.time +=delay
+                bufferAttackResponse.append(response)
+            self.__packetsToAppend.pop(0)
+            attacksAdded+=1
+            resetCount+=1
+            return (attacksAdded,resetCount)
+        else:
+            writer.write(responseBuffer[0])
+            responseBuffer.pop(0)
+            resetCount+=1
+            return (attacksAdded,resetCount)
+    def _minTimeList(self,bufferFileResponse: list, bufferAttackResponse: list):
+
+        if len(bufferFileResponse)==0 and len(bufferAttackResponse)==0:
+            return None
+        if len(bufferFileResponse)==0:
+            return bufferAttackResponse
+        if len(bufferAttackResponse)==0:
+            return bufferFileResponse
+        else:
+            if bufferFileResponse[0].time < bufferAttackResponse[0].time:
+                return bufferFileResponse
+            else:
+                return bufferAttackResponse
+    def _delayInsert(self,writer: PcapWriter,bufferToAppend: list,bufferFileResponse: list,bufferAttackResponse:list,count: int,delay: float):
+        pktToInsert=bufferToAppend[0]
+        if filePacket.getlayer(IP).src == self.__serverIp: ## Soy respuesta del servidor
+            filePacket.time += delay
+            bufferResponseFile.append(filePacket)
+            buffer.pop(0)
+            return count
+        ### If the pkt to insert is a querie
+        bufferResponse = self._minTimeList(bufferFileResponse,bufferAttackResponse):
+        if bufferResponse == None:
+            writer.write(bufferToAppend[0])
+            bufferToAppend.pop(0)
+            return count+1
+            
+        else:
+            if pktToInsert.time < bufferResponse[0].time:
+                writer.write(bufferToAppend[0])
+                bufferToAppend.pop(0)
+                return count+1
+            else:
+                writer.write(bufferResponse[0])
+                bufferResponse.pop(0)
+                return count + 1
+                
     def insert(self):
         """
             Insert the packages given to the pcap file mentioned, (if the output
@@ -138,6 +198,13 @@ class PacketInserter:
             :return: True if the file was succesfully generated, False if a problem happened
         """
         try:
+            #### Preparing the buffers for insertion
+            buffer = [] # normal buffer for the reader of the file
+            bufferResponseFile = [] # buffer for the server responses of the file with the delay added
+            bufferAttackResponse = [] # buffer for the server responses of the attack with the delay added
+            
+            #### Preparing the delay variables
+            delayPorcentage = float(0)
             #### Preparing variables to insert the packets
             numPktsIns = len(self.__packetsToAppend)
             inputDirection = self.__inputDir+self.__input
@@ -146,7 +213,6 @@ class PacketInserter:
             wrpcap(outputDirection,PacketList()) #Cleans the pcap output file.
             reader = PcapReader(inputDirection)
             writer = PcapWriter(outputDirection,append=True,sync=True)
-            buffer = []
             first = reader.read_packet()
             buffer.append(first)
             j=0 # counter of how many attack packets have been added
@@ -170,12 +236,12 @@ class PacketInserter:
                 buffer.append(pktRead)
 
                 #### Inserting packets on the new pcap file in time order.
-                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time: ## Comparing the time
+                if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time: ## Comparing the time of the buffer of the file with the buffer of the attack
                     (j,count) = self._insertAttackPacket(writer,j,count) 
-                else: 
-                    writer.write(buffer[0])
-                    buffer.pop(0)
-                    count+=1
+                else:
+                    ### Changed
+                    count = self._delayInsert(writer,buffer,bufferFileResponse,bufferAttackResponse,count)
+
             #### Loop for adding the rest of the packets when the file is all readed
             #### Ends when all the packets of the buffer are written or all the packets
             #### Of the attack are written
@@ -191,9 +257,7 @@ class PacketInserter:
                 if j < numPktsIns and buffer[0].time>self.__packetsToAppend[0][0].time:
                     (j,count) = self._insertAttackPacket(writer,j,count)
                 else:
-                    writer.write(buffer[0])
-                    count+=1
-                    buffer.pop(0)
+                    count = self._delayInsert(writer,buffer,bufferFileResponse,bufferAttackResponse,count)
 
             #### These loops are for adding the packets left of one type, attacker or buffer.
             #### So just one of these loops are going to be executed
@@ -210,9 +274,7 @@ class PacketInserter:
                     del writer
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
-                writer.write(buffer[0])
-                count+=1
-                buffer.pop(0)
+                count = self._delayInsert(writer,buffer,bufferFileResponse,bufferAttackResponse,count)
             #### We close the writer and return true because everything goes as planned
             writer.close()
             return True
