@@ -78,7 +78,7 @@ class responseTest(unittest.TestCase):
     def test_DNS_layer(self):
         self.assertEqual(self.response[DNS].id, self.request[DNS].id, "Wrong response DNS id")
         self.assertEqual(self.response[DNS].qr, 1, "Isn't a response")
-        #Falta testear contenido de la respuesta
+        self.assertEqual(self.response[DNS].qd, self.request[DNS].qd, "Is answering a different question")
 
     def test_UDP_layer(self):
         self.assertEqual(self.response[UDP].sport, 53, "Wrong response source port")
