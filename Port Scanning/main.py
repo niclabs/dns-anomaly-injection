@@ -5,16 +5,16 @@ sys.path.append("..")
 from PacketInserter import *
 from PortsGenerator import *
 
-############### Main program ###############
+
 def main():
-    ########### Valores por defecto ###########
+    ########################### Valores por defecto ###########################
     Seed=time.time
     attack=[]
     domsFile='ultimos-dominios-1m.txt'
-    ###########################################
-    ###### Manejo de valores por consola ######
+    ###########################################################################
+    ###################### Manejo de valores por consola ######################
     parser = argparse.ArgumentParser(description='Port Scanning attack simulator')
-    parser.add_argument("-ff", "--final_file", help="Nombre del archivo donde guardar el ataque", default='PortScanningAttack.pcap')
+    parser.add_argument("-ff", "--final_file", help="Sufijo para el nombre del archivo donde guardar el ataque", default='PortScanningAttack')
     parser.add_argument("-f", "--file", help="Nombre del archivo a procesar, ejemplo: ej.pcap")
     parser.add_argument("-tcp", "--tcp_server_attack", help="Ataque Port Scan tipo TCP SYN al servidor", action="store_true")
     parser.add_argument("-udp", "--udp_server_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
@@ -36,13 +36,21 @@ def main():
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
     args = parser.parse_args()
 
+    #################### Manejo de los nombres de archivos ####################
     nombrePktFin=args.final_file
-    if nombrePktFin[-5:]!='.pcap':
-        nombrePktFin+='.pcap'
+    if nombrePktFin[-5:]=='.pcap':
+        nombrePktFin==nombrePktFin[-5:]
     nombrePktIni=args.file
     print("El nombre de archivo a procesar es: ", nombrePktIni)
+    index=nombrePktIni.find('.pcap')
+    if index==-1:
+        print('\nEl nombre del archivo a procesar debe tener una extension valida')
+        return
+    nombrePktFin=nombrePktIni[:index]+'_'+'nombrePktFin'
+    ###########################################################################
+
     paquete= sniff(offline='input/'+nombrePktIni, count=1)
-    tInicial=paquete[0].time
+    tInicial=paquete[0].time #Tiempo de inicio del ataque
     if args.seed:
         Seed=args.seed
     duracion=args.duration
@@ -51,7 +59,7 @@ def main():
     IPsrc=args.ip_src
     totalInfectados=args.total_of_zombies
     PortSrc=args.sport
-    ############## Assertions for values ##############
+    #################### Verificacion de valores ingresados ####################
     try:
         assert(len(nombrePktFin)>0 and len(nombrePktIni)>0)
     except:
@@ -65,10 +73,10 @@ def main():
     except:
         raise Exception('La duracion del ataque debe ser mayor a 0')
     try:
-        assert(PortSrc<=49151)
+        assert(PortSrc<=65535)
         assert(PortSrc>=0)
     except:
-        raise Exception("El puerto de origen debe estar entre 0 y 49151")
+        raise Exception("El puerto de origen debe estar entre 0 y 65535")
     try:
         assert(numPaquetesAEnviar>0)
     except:
@@ -86,21 +94,22 @@ def main():
     except:
         raise Exception('La cantidad de computadores zombies debe ser mayor a 1')
 
-    ####################################################
-    ########## Creacion de puertos a atacar ############
+    ############################################################################
+    ####################### Creacion de puertos a atacar #######################
     if args.udp_server_attack or args.tcp_server_attack:
 
         puertoInicial=args.iport
         puertoFinal=args.fport
         intervaloPuertos=args.inter_port
-    ####################################################
+
+    #################### Verificacion de valores ingresados ####################
         try:
             assert(puertoInicial<=65536)
             assert(puertoInicial>=0)
             assert(puertoInicial<=65536)
             assert(puertoInicial>=0)
         except:
-            raise Exception("Los puertos deben estar entre 0 y 65536")
+            raise Exception("Los puertos deben estar entre 0 y 65535")
         try:
             assert(puertoInicial<=puertoFinal)
         except:
@@ -109,7 +118,7 @@ def main():
             assert(intervaloPuertos>0)
         except:
             raise Exception('El intervalo entre un puerto y otro debe ser mayor a 0')
-    ####################################################
+    ############################################################################
         if args.open_port or args.closed_port:
             if args.open_port:
                 print("\nAl ingresar el total de puertos abiertos, el total de puertos cerrados no puede ser modificado")
@@ -132,27 +141,28 @@ def main():
                 puertos=arrayPortsGen(puertoInicial, puertoFinal, intervaloPuertos, [], cerrados, Seed)
         else:
             puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
+    ############################################################################
 
         if args.udp_server_attack:
             if args.ddos_type:
-                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_UDP_DDoS_attack.pcap'
+                nombrePktFin=nombrePktFin+'_UDP_DDoS_attack.pcap'
                 attack=UDP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
-                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_UDP_attack.pcap'
+                nombrePktFin=nombrePktFin+'_UDP_attack.pcap'
                 attack=UDP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         if args.tcp_server_attack:
             if args.ddos_type:
-                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_TCP_DDoS_attack.pcap'
+                nombrePktFin=nombrePktFin+'_TCP_DDoS_attack.pcap'
                 attack=TCP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
-                nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_TCP_attack.pcap'
+                nombrePktFin=nombrePktFin+'_TCP_attack.pcap'
                 attack=TCP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     elif args.domain_attack:
         if args.ddos_type:
-            nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_DDoS_attack.pcap'
+            nombrePktFin=nombrePktFin+'_Domain_DDoS_attack.pcap'
             attack=Domain_DDoS_attack(totalInfectados, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         else:
-            nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_attack.pcap'
+            nombrePktFin=nombrePktFin+'_Domain_attack.pcap'
             attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     else:
         print('Debe seleccionar un tipo de ataque, utilice el comando --help para ver las opciones')
@@ -167,7 +177,7 @@ def main():
                 .insert()
     if operation:
         print("Paquetes insertados exitosamente")
-############################################
+    ############################################################################
 
 """ @Javi801
  Gives an array of ints with a given string, transforming the string into a int list

@@ -60,7 +60,7 @@ def intPortsGen(puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados
             open+=[ins]
         return [open, puertos]
     if len(puertos)<(abiertos+cerrados):
-        puertos=list(range(0,49151))
+        puertos=list(range(0,65535))
     for i in range(abiertos+cerrados):
         var = random.randint(0,len(puertos)-1)
         ins=puertos.pop(var)
