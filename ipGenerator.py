@@ -10,16 +10,20 @@ import random
 """
 def randomIP(total, Seed):
     random.seed(Seed)
+    if total>256:
+        ('Se creara una botnet con prefijo IP /16')
     if total<1:
         print('Se intenta generar un numero 0 o negativo de IP')
         return ['']
     ips=[]
+    j=random.randint(0,255)
+    k=random.randint(0,255)
+    l=random.randint(0,255)
     for i in range(total):
         bool=1
         while(bool):
-            j=random.randint(0,255)
-            k=random.randint(0,255)
-            l=random.randint(0,255)
+            if total>256:
+                l=random.randint(0,255)
             m=random.randint(0,255)
             ip=str(j)+'.'+str(k)+'.'+str(l)+'.'+str(m)
             if ip!='200.7.4.7':

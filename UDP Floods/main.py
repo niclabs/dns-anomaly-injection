@@ -27,7 +27,7 @@ def main():
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
-    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.006673997s)", type=float, default=0.006673997)
+    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
     args = parser.parse_args()
 
     nombrePktFin=args.final_file
@@ -101,7 +101,7 @@ def main():
         puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
 
     attack=udpFloodAttack(IPsrcList, PortSrc, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
-
+    print('Paquetes de ataque creados exitosamente')
     ins = PacketInserter()
     operation = ins.withPackets(attack)\
                 .withInputDir("input/")\
@@ -110,7 +110,7 @@ def main():
                 .withPcapOutput(nombrePktFin)\
                 .insert()
     if operation:
-        print("Finish")
+        print("Paquetes insertados exitosamente")
 ############################################
 
 

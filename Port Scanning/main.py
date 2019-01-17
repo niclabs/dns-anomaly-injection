@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-udp", "--udp_server_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-dom", "--domain_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
-    parser.add_argument("-tz","--total_of_zombies", help="Cantidad de 'computadores zombies' en el tipo de ataque DDoS (d: 15000)", type=int, default=15000)
+    parser.add_argument("-tz","--total_of_zombies", help="Cantidad de computadores en la botnet para el ataque DDoS (d: 15000)", type=int, default=256)
     parser.add_argument("-ip", "--ip_src", help="Direccion IP de origen (d: 200.27.161.26)", default='200.27.161.26')
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
     parser.add_argument("-pi", "--iport", help="Puerto menor a atacar (d: 0)", type=int, default=0)
@@ -33,7 +33,7 @@ def main():
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
-    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta (d: 0.006673997s)", type=float, default=0.006673997)
+    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
     args = parser.parse_args()
 
     nombrePktFin=args.final_file
@@ -65,10 +65,10 @@ def main():
     except:
         raise Exception('La duracion del ataque debe ser mayor a 0')
     try:
-        assert(PortSrc<=65536)
+        assert(PortSrc<=49151)
         assert(PortSrc>=0)
     except:
-        raise Exception("El puerto de origen debe estar entre 0 y 65536")
+        raise Exception("El puerto de origen debe estar entre 0 y 49151")
     try:
         assert(numPaquetesAEnviar>0)
     except:
@@ -82,7 +82,7 @@ def main():
     except:
         raise Exception("La direccion IP no puede ser vacia")
     try:
-        assert(totalInfectados>0)
+        assert(totalInfectados>1)
     except:
         raise Exception('La cantidad de computadores zombies debe ser mayor a 1')
 
@@ -150,7 +150,7 @@ def main():
     elif args.domain_attack:
         if args.ddos_type:
             nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_DDoS_attack.pcap'
-            attack=Domain_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            attack=Domain_DDoS_attack(totalInfectados, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         else:
             nombrePktFin=nombrePktFin[:len(nombrePktFin)-5]+'_Domain_attack.pcap'
             attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)

@@ -33,7 +33,7 @@ except:
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def PackagesCreator(IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, attackType):
+def PacketCreator(IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, attackType):
     random.seed(Seed)
     datos=datosMultiples[:]
     if attackType==0 or attackType==1:
@@ -91,7 +91,7 @@ def PackagesCreator(IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFi
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
 def UDP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
-    return PackagesCreator([IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
+    return PacketCreator([IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
 
 """Author @Javi801
  DDoS Port Scan attack simulator, using UDP type.
@@ -111,13 +111,7 @@ def UDP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesA
 def UDP_DDoS_attack(totalIPs, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
     IPsrcList=randomIP(totalIPs, Seed)
     PortSrcList=randomSourcePorts(totalIPs, Seed)
-    ############# creacion de las capas ip para los paquetes ############
-    iplist=[]
-    for i in range(totalIPs):
-        ip=IP(src=IPsrcList[i], dst="200.7.4.7", proto='udp')
-        iplist+=[ip]
-    #####################################################################
-    return PackagesCreator(IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
+    return PacketCreator(IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
 
 
 """Author @Javi801
@@ -226,7 +220,7 @@ def Domain_DDoS_attack(totalIPs, tiempoInicial, tiempoFinal, numDominios, Seed, 
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def DomainGen(PortSrc, dom, ipQ, t, interResp):
+def DomainGen(PortSrc, dom, IPsrc, t, interResp):
     dom=dom+'.'
     Id=int(RandShort())
     ################### Query packet ###################
@@ -266,7 +260,7 @@ def DomainGen(PortSrc, dom, ipQ, t, interResp):
                                      as length
 """
 def TCP_attack(IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
-    NuevoSetPaquetesEnviados=PackagesCreator([IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0)
+    NuevoSetPaquetesEnviados=PacketCreator([IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0)
     return NuevoSetPaquetesEnviados
 
 """ Author @Javi801

@@ -62,7 +62,11 @@ class PortsGeneratorTest(unittest.TestCase):
     def test_randomSourcePorts(self):
         prueba=randomSourcePorts(400, 5)
         self.assertEqual(len(prueba), 400, 'error en el largo del array\nScript "PortsGenerator", funcion "randomSourcePorts"')
-        
+
+        pequenio=randomSourcePorts(20, 5)
+        for i in range(20):
+            self.assertTrue(pequenio[i]<=49151 and pequenio[i]>=1024, 'error en los valores de los puertos\nScript "PortsGenerator", funcion "randomSourcePorts"')
+
 
 if __name__ == '__main__':
     unittest.main()
