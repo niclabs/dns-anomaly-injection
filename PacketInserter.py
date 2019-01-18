@@ -130,88 +130,7 @@ class PacketInserter:
         if pktsPerSecond >= 5000:
             porcentage = 2.3
         delay = self.__responseDt * porcentage
-        return delay
-    def _insertAttackPacket(self,writer: PcapWriter,bufferAttackResponse: list,bufferFileResponse: list,attacksAdded: int, resetCount: int,delay: float,numberOfQueries: int,actualTime: float):
-        """
-            Refactor function for inserting attack packets on the pcap file
-            :param writer:PcapWriter: the writer of the file
-            :param attacksAdded:int: the number of attack to added so far
-            :param resetCount:int: the count for reseting the writer on the algorithm
-            :return: tuple of the new counters for packets added 
-        """
-        queriePacket = self.__packetsToAppend[0][0]
-        responseBuffer = self._minTimeList(bufferFileResponse,bufferAttackResponse)
-        if responseBuffer == None:
-            actualTime = queriePacket.time
-            writer.write(queriePacket)
-            if len(self.__packetsToAppend[0]) == 2:
-                response = self.__packetsToAppend[0][1]
-                response.time += delay
-                bufferAttackResponse.append(response)
-            self.__packetsToAppend.pop(0)
-            attacksAdded+=1
-            resetCount+=1
-            numberOfQueries+=1
-            return (attacksAdded,resetCount,numberOfQueries,actualTime)
-        if queriePacket.time < responseBuffer[0].time:
-            actualTime = queriePacket.time
-            writer.write(queriePacket)
-            if len(self.__packetsToAppend[0]) == 0:
-                response = self.__packetsToAppend[0][1]
-                response.time +=delay
-                bufferAttackResponse.append(response)
-            self.__packetsToAppend.pop(0)
-            attacksAdded+=1
-            resetCount+=1
-            numberOfQueries+=1
-            return (attacksAdded,resetCount,numberOfQueries,actualTime)
-        else:
-            actualTime = responseBuffer[0].time
-            writer.write(responseBuffer[0])
-            responseBuffer.pop(0)
-            resetCount+=1
-            return (attacksAdded,resetCount,numberOfQueries,actualTime)
-    def _minTimeList(self,bufferFileResponse: list, bufferAttackResponse: list):
-
-        if len(bufferFileResponse)==0 and len(bufferAttackResponse)==0:
-            return None
-        if len(bufferFileResponse)==0:
-            return bufferAttackResponse
-        if len(bufferAttackResponse)==0:
-            return bufferFileResponse
-        else:
-            if bufferFileResponse[0].time < bufferAttackResponse[0].time:
-                return bufferFileResponse
-            else:
-                return bufferAttackResponse
-    def _delayInsert(self,writer: PcapWriter,bufferToAppend: list,bufferFileResponse: list,bufferAttackResponse:list,count: int,delay: float,numberOfQueries: int, actualTime: float):
-        pktToInsert=bufferToAppend[0]
-        if pktToInsert.getlayer(IP).src == self.__serverIp: ## Soy respuesta del servidor
-            actualTime = pktToInsert.time
-            pktToInsert.time += delay
-            bufferFileResponse.append(pktToInsert)
-            bufferToAppend.pop(0)
-            return (count,numberOfQueries,actualTime)
-        ### If the pkt to insert is a querie
-        bufferResponse = self._minTimeList(bufferFileResponse,bufferAttackResponse)
-        if bufferResponse == None:
-            actualTime = bufferToAppend[0].time
-            writer.write(bufferToAppend[0])
-            bufferToAppend.pop(0)
-            return (count+1,numberOfQueries+1,actualTime)
-        else:
-            if pktToInsert.time < bufferResponse[0].time:
-                actualTime = bufferToAppend[0].time
-                writer.write(bufferToAppend[0])
-                bufferToAppend.pop(0)
-                return (count+1,numberOfQueries+1,actualTime)
-            else:
-                
-                actualTime = bufferResponse[0].time
-                writer.write(bufferResponse[0])
-                bufferResponse.pop(0)
-                return (count + 1,numberOfQueries,actualTime)
-                
+        return delay 
     def insert(self):
         """
             Insert the packages given to the pcap file mentioned, (if the output
@@ -265,14 +184,12 @@ class PacketInserter:
                 #### Putting the packet readed to a buffer for the file
                 buffer.append(pktRead)
                 ### Algoritmo de descarte he insercion, podemos hacer refactor con state pattern
-                if buffer[0].time <= self.__packetsToAppend[0][0].time: ### if we have to put the pcap packet on some buffer
+                if len(self.__packetsToAppend)==0 or buffer[0].time <= self.__packetsToAppend[0][0].time: ### if we have to put the pcap packet on some buffer
                     ta = buffer[0].time
                     if buffer[0].getlayer(IP).src == self.__serverIp:
                         buffer[0].time += delay
                         if (not buffer[0].haslayer(DNS)) or (buffer[0].getlayer(DNS).id not in noResponse):
                             bufferResponse.append(buffer[0])
-                        if buffer[0].haslayer(DNS) and buffer[0].getlayer(DNS).id in noResponse:
-                            print("eliminado")
                         buffer.pop(0)
                     else:
                         if len(bufferQueries) == 0:
@@ -308,7 +225,7 @@ class PacketInserter:
                             bufferQueries.append(buffer[0])
                             buffer.pop(0)
                         queries+=1
-                else:
+                elif len(self.__packetsToAppend)!=0:
                     ta = self.__packetsToAppend[0][0].time
                     if self.__packetsToAppend[0][0].haslayer(DNS): ## veo si el servidor lo acepta o ignora de la misma manera que antes
                         if len(bufferQueries) == 0:
@@ -318,7 +235,7 @@ class PacketInserter:
                         else:
                             t0 = bufferQueries[0].time
                             dtInsert = ta-t0
-                            while dtInsert >=timestamp:
+                            while dtInsert >=timestamp and len(bufferQueries)!= 0:
                                 t0 = bufferQueries[0].time
                                 dtInsert = ta-t0
                                 if count == 50000:
@@ -508,7 +425,7 @@ class PacketInserter:
                     else:
                         t0 = bufferQueries[0].time
                         dtInsert = ta-t0
-                        while dtInsert >=timestamp:
+                        while dtInsert >=timestamp and len(bufferQueries)!= 0:
                             t0 = bufferQueries[0].time
                             dtInsert = ta-t0
                             if count == 50000:
@@ -586,7 +503,7 @@ class PacketInserter:
             #### If the file does not exist, we return false because something went wrong
             print("Error file not found")
             return False
-        except:
+        """except:
             #### If something went wrong, we return false
             print("Something went wrong")
-            return False
+            return False"""
