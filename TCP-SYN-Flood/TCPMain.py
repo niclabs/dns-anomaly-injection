@@ -23,7 +23,7 @@ def createPackets(fileName: str,sip: str,dip: str,number: int,initialTime=0,dura
     first = sniff(offline=fileName,count=1)
     ti = first[0].time + initialTime
     times =rnd.genInter(time.time(),ti,ti+duration,number)
-    responseTime=0.00015
+    responseTime=0.0006
 
     #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()
@@ -103,6 +103,8 @@ def main(args: list,test=""):
                 .withPcapInput(fileName)\
                 .withOutputDir("output/")\
                 .withPcapOutput(output)\
+                .withServerIp("200.7.4.7")\
+                .withResponseDt(0.0006)\
                 .insert()
     
     ##### Seeing that everything is ok
