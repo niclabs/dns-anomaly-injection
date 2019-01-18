@@ -229,6 +229,7 @@ class PacketInserter:
             ti = 0 #Number of second passed from the first querie readed
             ta = ti #Time of the last package received
             queries = 0 # number of queries without response
+            
             #### Preparing variables to insert the packets
             numPktsIns = len(self.__packetsToAppend)
             inputDirection = self.__inputDir+self.__input
@@ -320,6 +321,9 @@ class PacketInserter:
                     writer = PcapWriter(outputDirection,append=True,sync=True)
                     count = 0 
                 (count,queries,ta) = self._delayInsert(writer,buffer,bufferResponseFile,bufferAttackResponse,count,delay,queries,ta)
+            
+            
+            ### Loop for the responses if they are not empty.
             while len(bufferResponseFile)!=0 and len(bufferAttackResponse)!=0:
                 if count == 50000:
                     writer.close()
@@ -355,7 +359,6 @@ class PacketInserter:
             #### We close the writer and return true because everything goes as planned
             writer.close()
             return True
-        ## TODO falta una pasada por los buffer de responses
         except FileNotFoundError:
             #### If the file does not exist, we return false because something went wrong
             print("Error file not found")
