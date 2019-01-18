@@ -16,8 +16,8 @@ def randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed):
     abiertosList=[]
     cerradosList=[]
     for i in range(len(puertos)):
-        var = random.randint(0,1)
-        if var:
+        var = random.randint(0,3)
+        if var==3:
             abiertosList+=[puertos[i]]
             continue
         cerradosList+=[puertos[i]]

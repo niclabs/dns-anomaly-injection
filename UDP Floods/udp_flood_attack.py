@@ -15,7 +15,8 @@ except:
  Ether pack in its firts layer, an IP pack in its second layer, an TCP or UDP
  pack in its third layer and a DNS pack in its last layer
 
- Params: IPsrcList -> (list(string)) List of source IP addresses
+ Params: IPservidor -> (str) server IP address
+         IPsrcList -> (list(str)) List of source IP addresses
          PortSrc -> (int) source port
          puertosAbiertosCerrados -> (list(list(int))) list of open and closed
                                     ports list
@@ -27,23 +28,27 @@ except:
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def udpFloodAttack(IPsrcList, PortSrc, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+def udpFloodAttack(IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
     random.seed(Seed)
     puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
-    countPacks=numPaquetesAEnviar
     for i in range(len(tiempos)):
         if len(puertos)==0:
             puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:]
-        puertoTarget=select(puertos)
-        puertos.remove(puertoTarget)
-        IPsrc=select(IPsrcList)
-        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, tiempos[i], interResp)
+        puertoTarget=puertos.pop(0)
+        if len(puertos)>1:
+            j=random.randint(0,len(puertos)-1)
+            puertoTarget=puertos.pop(j)
+        IPsrc=IPsrcList[0]
+        PortSrc=PortSrcList[0]
+        if len(IPsrcList)>1:
+            j=random.randint(0,len(IPsrcList)-1)
+            IPsrc=IPsrcList[j]
+            if len(PortSrc)>1:
+                PortSrc=PortSrcList[j]
+        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
-        countPacks=countPacks-len(SetPaquetes)
-        if countPacks==0:
-            break
     return NuevoSetPaquetesEnviados
 
 
@@ -55,38 +60,25 @@ def udpFloodAttack(IPsrcList, PortSrc, puertosAbiertosCerrados, tiempoInicial, t
  Params: PortSrc -> (int) Port from where the packet is sent
          PortDst -> (int) Port where the packet is received
          open -> (boolean) Indicates whether the port is open (true) or not (false)
-         IPsrc -> (string) Source IP address
+         IPsrc -> (str) Source IP address
+         IPservidor -> (str) Server IP address
          tiempo -> (float) time at the packet is sent
          interResp -> (float) interval between query and answer
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def udpPairGen(PortSrc, PortDst, open, IPsrc, tiempo, interResp):
-    ip=IP(src=IPsrc, dst="200.7.4.7", proto='udp')
+def udpPairGen(PortSrc, PortDst, open, IPsrc, IPservidor, tiempo, interResp):
+    #dnsqr=DNSQR(qname='')
+    #dns_qd
+    ip=IP(src=IPsrc, dst=IPservidor, proto='udp')
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
     udpQ=UDP(sport=PortSrc, dport=PortDst)
     QPacket=etherQ/ip/udpQ
-    if open:
+    if not(open):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
         etherA.time=tiempo+interResp
         icmp=ICMP(type=3, code=3)
-        APacket=etherA/IP(src="200.7.4.7", dst=IPsrc)/icmp
+        APacket=etherA/IP(src=IPservidor, dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
-
-
-""" @Javi801
- Gives an random element in a given list
-
- Param: lista -> list
-
- Return: element in the given list
-"""
-def select(lista):
-    if len(lista)==0:
-        return
-    if len(lista)==1:
-        return lista[0]
-    j=random.randint(0,len(lista)-1)
-    return lista[j]

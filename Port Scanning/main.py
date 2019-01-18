@@ -22,6 +22,7 @@ def main():
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
     parser.add_argument("-tz","--total_of_zombies", help="Cantidad de computadores en la botnet para el ataque DDoS (d: 15000)", type=int, default=256)
     parser.add_argument("-ip", "--ip_src", help="Direccion IP de origen (d: 200.27.161.26)", default='200.27.161.26')
+    parser.add_argument("-sip","--server_ip", help="Direccion IP del servidor atacado (d: 200.7.4.7)", default='200.7.4.7')
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
     parser.add_argument("-pi", "--iport", help="Puerto menor a atacar (d: 0)", type=int, default=0)
     parser.add_argument("-pf", "--fport", help="Puerto mayor a atacar (d: 1023)", type=int, default=1023)
@@ -56,6 +57,7 @@ def main():
     duracion=args.duration
     numPaquetesAEnviar=args.num_packages
     interResp=args.int_resp
+    IPservidor=args.server_ip
     IPsrc=args.ip_src
     totalInfectados=args.total_of_zombies
     PortSrc=args.sport
@@ -146,24 +148,24 @@ def main():
         if args.udp_server_attack:
             if args.ddos_type:
                 nombrePktFin=nombrePktFin+'_UDP_DDoS_attack.pcap'
-                attack=UDP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=UDP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
                 nombrePktFin=nombrePktFin+'_UDP_attack.pcap'
-                attack=UDP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         if args.tcp_server_attack:
             if args.ddos_type:
                 nombrePktFin=nombrePktFin+'_TCP_DDoS_attack.pcap'
-                attack=TCP_DDoS_attack(totalInfectados, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=TCP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
                 nombrePktFin=nombrePktFin+'_TCP_attack.pcap'
-                attack=TCP_attack(IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=TCP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     elif args.domain_attack:
         if args.ddos_type:
             nombrePktFin=nombrePktFin+'_Domain_DDoS_attack.pcap'
-            attack=Domain_DDoS_attack(totalInfectados, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            attack=Domain_DDoS_attack(totalInfectados, IPservidor, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         else:
             nombrePktFin=nombrePktFin+'_Domain_attack.pcap'
-            attack=Domain_attack(IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+            attack=Domain_attack(IPservidor, IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     else:
         print('Debe seleccionar un tipo de ataque, utilice el comando --help para ver las opciones')
         return

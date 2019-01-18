@@ -15,9 +15,10 @@ def main():
     ###########################################################################
     ###################### Manejo de valores por consola ######################
     parser = argparse.ArgumentParser(description='UDP Flood attack simulator')
-    parser.add_argument("-ff", "--final_file", help="Nombre del archivo donde guardar el ataque", default='UDPFloodAttack.pcap')
+    parser.add_argument("-ff", "--final_file", help="Sufijo para el nombre del archivo donde guardar el ataque", default='UDPFloodAttack.pcap')
     parser.add_argument("-f", "--file", help="Nombre del archivo a procesar, ejemplo: ej.pcap")
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
+    parser.add_argument("-sip","--server_ip", help="Direccion IP del servidor atacado (d: 200.7.4.7)", default='200.7.4.7')
     parser.add_argument("-tip", "--total_ips_src", help="Total de direcciones IP de origen (d: 30)", default=30, type=int)
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
     parser.add_argument("-pi", "--iport", help="Puerto menor a atacar (d: 1023)", type=int, default=1023)
@@ -33,15 +34,15 @@ def main():
 
     #################### Manejo de los nombres de archivos ####################
     nombrePktFin=args.final_file
-    if nombrePktFin[-5:]=='.pcap':
-        nombrePktFin==nombrePktFin[-5:]
+    if nombrePktFin[-5:]!='.pcap':
+        nombrePktFin==nombrePktFin+'.pcap'
     nombrePktIni=args.file
     print("El nombre de archivo a procesar es: ", nombrePktIni)
     index=nombrePktIni.find('.pcap')
     if index==-1:
         print('\nEl nombre del archivo a procesar debe tener una extension valida')
         return
-    nombrePktFin=nombrePktIni[:index]+'_'+'nombrePktFin'
+    nombrePktFin=nombrePktIni[:index]+'_'+nombrePktFin
     ###########################################################################
 
     paquete= sniff(offline='input/'+nombrePktIni, count=1)
@@ -51,7 +52,10 @@ def main():
     duracion=args.duration
     numPaquetesAEnviar=args.num_packages
     interResp=args.int_resp
-    PortSrc=args.sport
+    IPservidor=args.server_ip
+    PortSrcList=[args.sport]
+    if args.ddos_type:
+        PortSrcList=randomSourcePorts(totalIPs, Seed)
     totalIPs=args.total_ips_src
     IPsrcList=randomIP(totalIPs,Seed,args.ddos_type)
     puertoInicial=args.iport
@@ -108,7 +112,8 @@ def main():
     else:
         puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
 
-    attack=udpFloodAttack(IPsrcList, PortSrc, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+
+    attack=udpFloodAttack(IPservidor, IPsrcList, PortSrc, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     print('Paquetes de ataque creados exitosamente')
     ins = PacketInserter()
     operation = ins.withPackets(attack)\
