@@ -116,7 +116,7 @@ def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int,
     ans.time = t
     return ans
 
-def responseRandSub(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
+def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     """
     Gives a regular response to packet "p"
     Param: p: request
@@ -156,45 +156,10 @@ def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, 
     for t in time:
         dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         p = randomSubBuilder(dom, src_ip, serv, srcport, t, Time.time())
-        a = responseRandSub(p, dom, dom_ip, snd_ip, dt)
+        a = regularResponse(p, dom, dom_ip, snd_ip, dt)
         tuple = []
         tuple.append(p)
         tuple.append(a)
         new_packets.append(tuple)
 
     return new_packets
-
-def main(args: list):
-    """
-    Param: args: list of arguments
-           args[1]: Name of the source pcap file with extension
-           args[2]: Name of the new pcap file with extension
-           args[3]: Relative path to the input file, it finishes with '/'
-           args[4]: Relative path to the output file
-           args[5]: Source ip
-           args[6]: Server ip
-           args[7]: Target domain
-           args[8]: Attack extension (seconds)
-           args[9]:  Amount of packets per second
-           args[10]: Start date
-           args[11]: Source port
-    """
-    p0 = sniff(offline = args[3] + args[1], count = 1)
-    t0 = p0[0].time
-
-    new_packets = randomSubAttack(args[5], args[6], args[7] + ".", genIp(), genIp(), int(args[8]), int(args[9]), float(args[10]) + t0, int(args[11]))
-    inserter =PacketInserter()\
-              .withPackets(new_packets)\
-              .withPcapInput(args[1])\
-              .withPcapOutput(args[2])\
-              .withInputDir(args[3])\
-              .withOutputDir(args[4])\
-              .insert()
-
-if __name__ == '__main__':
-    if(len(sys.argv) == 12):
-        checkArgs(sys.argv)
-        main(sys.argv)
-    else:
-        print("Invalid arguments")
-        print("input_file output_file input_path output_path source_ip server_ip target_domain attack_extension packets start_date source_port")

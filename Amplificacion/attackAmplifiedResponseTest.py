@@ -10,7 +10,7 @@ class attackTest(unittest.TestCase):
         self.c = 100
         self.ti = 10
         self.q_name = "hola.cl"
-        self.packets = amplificationAttack(self.serv_ip, self.target_ip, self.src_port, self.d, self.c, self.ti, self.q_name)
+        self.packets = amplificationAttack(self.serv_ip, self.target_ip, self.src_port, self.d, self.c, self.ti, self.q_name, 1)
 
     def test_attack_number_generated_packets(self):
         self.assertEqual(len(self.packets), self.d * self.c, "Wrong number of generated tuples")
@@ -50,6 +50,8 @@ class attackTest(unittest.TestCase):
             req = t[0]
             res = t[1]
             self.assertTrue(len(res) > 3000, "Small packet size")
+            self.assertTrue(len(res)/len(req) > 37, "Small amplification factor")
+            print(len(res)/len(req))
 
             self.assertEqual(res[DNS].id, req[DNS].id, "Wrong response DNS id")
             self.assertEqual(str(req[DNSQR].qname), "b'" + self.q_name + "'")
@@ -63,9 +65,6 @@ class attackTest(unittest.TestCase):
             self.assertEqual(req[IP].dst, self.serv_ip, "Wrong request destination ip")
             self.assertEqual(res[IP].src, req[IP].dst, "Wrong response source ip")
             self.assertEqual(res[IP].dst, req[IP].src, "Wrong response destination ip")
-
-
-
-
+            
 if __name__ == '__main__':
     unittest.main()

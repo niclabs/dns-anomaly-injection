@@ -55,6 +55,7 @@ class responseTest(unittest.TestCase):
 
     def test_general(self):
         self.assertTrue(len(self.response) > 3000, "Small response")
+        self.assertTrue(len(self.response)/len(self.request) > 37, "Small amplification factor")
         self.assertEqual(self.response.time, self.ti + self.dt, "Wrong response arrival time")
 
 if __name__ == '__main__':

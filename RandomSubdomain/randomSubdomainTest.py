@@ -73,7 +73,7 @@ class responseTest(unittest.TestCase):
         self.dt = 0.0001868
         self.seed = 5
         self.request = randomSubBuilder(self.dom, self.src_ip, self.dst_ip, self.src_port, self.t, self.seed)
-        self.response = responseRandSub(self.request, self.dom, self.dom_ip, self.dom_srv_ip, self.dt)
+        self.response = regularResponse(self.request, self.dom, self.dom_ip, self.dom_srv_ip, self.dt)
 
     def test_DNS_layer(self):
         self.assertEqual(self.response[DNS].id, self.request[DNS].id, "Wrong response DNS id")
