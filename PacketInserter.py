@@ -34,6 +34,15 @@ class PacketInserter:
         self.__state = OkState.ReadOkState(self)
         self.__timestamp = 0.001
         self.__serverTolerance = 30
+    def getTimestamp(self):
+        
+        return self.__timestamp
+    def getServerTolerance(self):
+
+        return self.__serverTolerance
+    def changeState(self,anotherState):
+
+        self.__state = anotherState
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -121,6 +130,14 @@ class PacketInserter:
             Setter for the request response dt, base it calculation for the delay time
         """
         self.__responseDt = dt
+        return self
+    def withTimestamp(self, timestamp: float):
+
+        self.__timestamp = timestamp
+        return self
+    def withServerTolerance(self, tolerance: int):
+        
+        self.__serverTolerance = tolerance
         return self
     def _calculateDelay(self,pktsPerSecond: float):
         """
