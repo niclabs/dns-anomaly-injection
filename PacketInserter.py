@@ -2,9 +2,7 @@ from scapy.all import *
 import math
 import sys
 import states.InserterState as state
-import states.ReadOkState as OkState
-import states.ReadNOkState as NOkState
-import states.FileInsertState as InsState
+
   
 
 """
@@ -31,7 +29,7 @@ class PacketInserter:
         self.__outputDir=""
         self.__serverIp = "200.7.4.7"
         self.__responseDt= 0.0006
-        self.__state = OkState.ReadOkState(self)
+        self.__state = state.ReadOkState(self)
         self.__timestamp = 0.001
         self.__serverTolerance = 30
     def getTimestamp(self):
@@ -170,16 +168,12 @@ class PacketInserter:
             bufferResponse = [] # buffer for the responses
             bufferQueries = [] # buffer for the queries
             noResponse = {} # dictionary for the queries with no responses
-            ### TODO cambiar esto a que sea del inserter mismo
-            timestamp = 0.01
-            serverManagement = 10
             #### Preparing the delay variables
             ti = 0 #Number of second passed from the first querie readed
             ta = ti #Time of the last package received
             queries = 0 # number of queries without response
             
-            #### Preparing variables to insert the packets
-            numPktsIns = len(self.__packetsToAppend)
+            #### Preparing variables to insert the packets  
             inputDirection = self.__inputDir+self.__input
             outputDirection = self.__outputDir+self.__output
             count = 0 #Counter, resets the writer in order to not persue a memory failure of writing
@@ -208,318 +202,61 @@ class PacketInserter:
 
                 #### Putting the packet readed to a buffer for the file
                 buffer.append(pktRead)
-                ### Algoritmo de descarte he insercion, podemos hacer refactor con state pattern
-                if len(self.__packetsToAppend)==0 or buffer[0].time <= self.__packetsToAppend[0][0].time: ### if we have to put the pcap packet on some buffer
-                    ta = buffer[0].time
-                    if buffer[0].getlayer(IP).src == self.__serverIp:
-                        buffer[0].time += delay
-                        if (not buffer[0].haslayer(DNS)) or (buffer[0].getlayer(DNS).id not in noResponse):
-                            bufferResponse.append(buffer[0])
-                        buffer.pop(0)
-                    else:
-                        if len(bufferQueries) == 0:
-                            bufferQueries.append(buffer[0])
-                            buffer.pop(0)
-                        else:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta-t0 ## veo la diferencia de tiempos
-                            while dtInsert >= timestamp and len(bufferQueries) != 0:
-                                t0 = bufferQueries[0].time
-                                dtInsert = ta-t0
-                                if count == 50000:
-                                    writer.close()
-                                    del writer
-                                    writer = PcapWriter(outputDirection,append=True,sync=True)
-                                    count = 0
-                                if len(bufferResponse) == 0:
-                                    pkt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    if bufferQueries[0].time < bufferResponse[0].time:
-                                        pkt = bufferQueries[0]
-                                        writer.write(pkt)
-                                        bufferQueries.pop(0)
-                                    else:
-                                        pkt = bufferResponse[0]
-                                        writer.write(pkt)
-                                        bufferResponse.pop(0) 
-                                count+=1
-                            if len(bufferQueries) > serverManagement and buffer[0].haslayer(DNS):
-                                noResponse[buffer[0].getlayer(DNS).id] = buffer[0].time
-                            bufferQueries.append(buffer[0])
-                            buffer.pop(0)
-                        queries+=1
-                elif len(self.__packetsToAppend)!=0:
-                    ta = self.__packetsToAppend[0][0].time
-                    if self.__packetsToAppend[0][0].haslayer(DNS): ## veo si el servidor lo acepta o ignora de la misma manera que antes
-                        if len(bufferQueries) == 0:
-                            bufferQueries.append(self.__packetsToAppend[0][0])
-                            bufferResponse.append(self.__packetsToAppend[0][1])
-                            self.__packetsToAppend.pop(0)
-                        else:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta-t0
-                            while dtInsert >=timestamp and len(bufferQueries)!= 0:
-                                t0 = bufferQueries[0].time
-                                dtInsert = ta-t0
-                                if count == 50000:
-                                    writer.close()
-                                    del writer
-                                    writer = PcapWriter(outputDirection,append=True,sync=True)
-                                    count = 0
-                                if len(bufferResponse) == 0:
-                                    pkt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    if bufferQueries[0].time < bufferResponse[0].time:
-                                        pkt = bufferQueries[0]
-                                        writer.write(pkt)
-                                        bufferQueries.pop(0)
-                                    else:
-                                        pkt = bufferResponse[0]
-                                        writer.write(pkt)
-                                        bufferResponse.pop(0) 
-                                count+=1
-                            bufferQueries.append(self.__packetsToAppend[0][0])
-                            if len(bufferQueries) < serverManagement and len(self.__packetsToAppend[0]) == 2:
-                                res = self.__packetsToAppend[0][1]
-                                res.time += delay
-                                bufferResponse.append(res)
-                            self.__packetsToAppend.pop(0)
-                            
-                    else: ### Si es no tiene DNS lo dejamos pasar.   
-                        bufferQueries.append(self.__packetsToAppend[0][0])
-                        if len(self.__packetsToAppend[0]) == 2:
-                            bufferResponse.append(self.__packetsToAppend[0][1])
-                        self.__packetsToAppend.pop(0)
-                    queries+=1
-            #######################################
-            while len(buffer) != 0 and len(self.__packetsToAppend)!= 0: ## Leo lo que resta del archivo
-                #### Calculating the delay of the response
+                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            
+            while len(buffer) != 0 and len(self.__packetsToAppend) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
-                pps = queries/dt
+                pps = queries / dt
                 delay = self._calculateDelay(pps)
-                if buffer[0].time <= self.__packetsToAppend[0][0].time:
-                    ta = buffer[0].time
-                    if buffer[0].getlayer(IP).src == self.__serverIp:
-                        buffer[0].time+=delay
-                        if (not buffer[0].haslayer(DNS)) or (buffer[0].getlayer(DNS).id not in noResponse):
-                            bufferResponse.append(buffer[0])
-                        buffer.pop(0)
-                    else:
-                        if len(bufferQueries) == 0:
-                            bufferQueries.append(buffer[0])
-                            buffer.pop(0)
-                        else:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta - t0
-                            while dtInsert >= timestamp and len(bufferQueries)!=0:
-                                t0 = bufferQueries[0].time
-                                dtInsert = ta - t0
-                                if count == 50000:
-                                    writer.close()
-                                    del writer
-                                    writer = PcapWriter(outputDirection,append=True,sync=True)
-                                    count = 0
-                                if len(bufferResponse) == 0:
-                                    pkt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    if bufferQueries[0].time < bufferResponse[0].time:
-                                        pkt = bufferQueries[0]
-                                        writer.write(pkt)
-                                        bufferQueries.pop(0)
-                                    else:
-                                        pkt = bufferResponse[0]
-                                        writer.write(pkt)
-                                        bufferResponse.pop(0)
-                                count += 1
-                            if len(bufferQueries) > serverManagement and buffer[0].haslayer(DNS):
-                                noResponse[buffer[0].getlayer(DNS).id] = buffer[0].time
-                            bufferQueries.append(buffer[0])
-                            buffer.pop(0)
-                        queries+=1
-                else:
-                    ta = self.__packetsToAppend[0][0].time
-                    if self.__packetsToAppend[0][0].haslayer(DNS): ## veo si el servidor lo acepta o ignora de la misma manera que antes
-                        if len(bufferQueries) == 0:
-                            bufferQueries.append(self.__packetsToAppend[0][0])
-                            bufferResponse.append(self.__packetsToAppend[0][1])
-                            self.__packetsToAppend.pop(0)
-                        else:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta-t0
-                            while dtInsert >=timestamp and len(bufferQueries)!=0:
-                                t0 = bufferQueries[0].time
-                                dtInsert = ta-t0
-                                if count == 50000:
-                                    writer.close()
-                                    del writer
-                                    writer = PcapWriter(outputDirection,append=True,sync=True)
-                                    count = 0
-                                if len(bufferResponse) == 0:
-                                    pkt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    if bufferQueries[0].time < bufferResponse[0].time:
-                                        pkt = bufferQueries[0]
-                                        writer.write(pkt)
-                                        bufferQueries.pop(0)
-                                    else:
-                                        pkt = bufferResponse[0]
-                                        writer.write(pkt)
-                                        bufferResponse.pop(0) 
-                                count+=1
-                            bufferQueries.append(self.__packetsToAppend[0][0])
-                            if len(bufferQueries) < serverManagement and len(self.__packetsToAppend[0]) == 2:
-                                res = self.__packetsToAppend[0][1]
-                                res.time += delay
-                                bufferResponse.append(res)
-                            self.__packetsToAppend.pop(0)
-                            
-                    else: ### Si es no tiene DNS lo dejamos pasar.   
-                        bufferQueries.append(self.__packetsToAppend[0][0])
-                        if len(self.__packetsToAppend[0]) == 2:
-                            bufferResponse.append(self.__packetsToAppend[0][1])
-                        self.__packetsToAppend.pop(0)
-                    queries+=1
-            print("hola1")
-            ## TODO esto va a hacer cambiado cuando tenga varios archivos
-            while len(buffer)!=0:
-                #### Calculating the delay of the response
+                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            while len(buffer) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
-                pps = queries/dt
+                pps = queries / dt
                 delay = self._calculateDelay(pps)
-                ta = buffer[0].time
-                if buffer[0].getlayer(IP).src == self.__serverIp:
-                    buffer[0].time+=delay
-                    if (not buffer[0].haslayer(DNS)) or (buffer[0].getlayer(DNS).id not in noResponse):
-                        bufferResponse.append(buffer[0])
-                    buffer.pop(0)
-                else:
-                    if len(bufferQueries) == 0:
-                        bufferQueries.append(buffer[0])
-                        buffer.pop(0)
-                    else:
-                        t0 = bufferQueries[0].time
-                        dtInsert = ta - t0
-                        while dtInsert >= timestamp and len(bufferQueries)!= 0:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta - t0
-                            if count == 50000:
-                                writer.close()
-                                del writer
-                                writer = PcapWriter(outputDirection,append=True,sync=True)
-                                count = 0
-                            if len(bufferResponse) == 0:
-                                pkt = bufferQueries[0]
-                                writer.write(pkt)
-                                bufferQueries.pop(0)
-                            else:
-                                if bufferQueries[0].time < bufferResponse[0].time:
-                                    pskt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    pkt = bufferResponse[0]
-                                    writer.write(pkt)
-                                    bufferResponse.pop(0)
-                            count += 1
-                        if len(bufferQueries) > serverManagement and buffer[0].haslayer(DNS):
-                            noResponse[buffer[0].getlayer(DNS).id] = buffer[0].time
-                        bufferQueries.append(buffer[0])
-                        buffer.pop(0)
-                    queries+=1
-            print("hola2")
-            ### TODO esto va a hacer cambiado cuando tenga varios archivos.
-            while len(self.__packetsToAppend)!= 0:
-                ta = self.__packetsToAppend[0][0].time
-                if self.__packetsToAppend[0][0].haslayer(DNS): ## veo si el servidor lo acepta o ignora de la misma manera que antes
-                    if len(bufferQueries) == 0:
-                        bufferQueries.append(self.__packetsToAppend[0][0])
-                        bufferResponse.append(self.__packetsToAppend[0][1])
-                        self.__packetsToAppend.pop(0)
-                    else:
-                        t0 = bufferQueries[0].time
-                        dtInsert = ta-t0
-                        while dtInsert >=timestamp and len(bufferQueries)!= 0:
-                            t0 = bufferQueries[0].time
-                            dtInsert = ta-t0
-                            if count == 50000:
-                                writer.close()
-                                del writer
-                                writer = PcapWriter(outputDirection,append=True,sync=True)
-                                count = 0
-                            if len(bufferResponse) == 0:
-                                pkt = bufferQueries[0]
-                                writer.write(pkt)
-                                bufferQueries.pop(0)
-                            else:
-                                if bufferQueries[0].time < bufferResponse[0].time:
-                                    pkt = bufferQueries[0]
-                                    writer.write(pkt)
-                                    bufferQueries.pop(0)
-                                else:
-                                    pkt = bufferResponse[0]
-                                    writer.write(pkt)
-                                    bufferResponse.pop(0) 
-                            count+=1
-                        bufferQueries.append(self.__packetsToAppend[0][0])
-                        if len(bufferQueries) < serverManagement and len(self.__packetsToAppend[0]) == 2:
-                            res = self.__packetsToAppend[0][1]
-                            res.time += delay
-                            bufferResponse.append(res)
-                        self.__packetsToAppend.pop(0)
-                        
-                else: ### Si es no tiene DNS lo dejamos pasar.   
-                    bufferQueries.append(self.__packetsToAppend[0][0])
-                    if len(self.__packetsToAppend[0]) == 2:
-                        bufferResponse.append(self.__packetsToAppend[0][1])
-                    self.__packetsToAppend.pop(0)
-                queries+=1
-            print("hola3")
-            while len(bufferQueries)!=0 and len(bufferResponse)!=0:
+                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            while len(self.__packetsToAppend) != 0:
+                dt = math.ceil(ta-ti)
+                if dt == 0:
+                    dt = 1
+                pps = queries / dt
+                delay = self._calculateDelay(pps)
+                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            while len(bufferQueries) != 0 and len(bufferResponse) != 0:
                 if count == 50000:
                     writer.close()
                     del writer
-                    writer = PcapWriter(outputDirection,append=True,sync=True)
-                    count = 0
+                    writer = PcapWriter(outputDirection,append = True, sync = True)
+                    count = 0 
                 if bufferQueries[0].time < bufferResponse[0].time:
                     writer.write(bufferQueries[0])
                     bufferQueries.pop(0)
-                    count+=1
+                    count +=1
                 else:
                     writer.write(bufferResponse[0])
                     bufferResponse.pop(0)
-                    count+=1
-            print("hola4")
-            while len(bufferQueries)!=0:
+                    count +=1
+            while len(bufferQueries) != 0:
                 if count == 50000:
                     writer.close()
                     del writer
-                    writer = PcapWriter(outputDirection,append=True,sync=True)
+                    writer = PcapWriter(outputDirection,append = True, sync = True)
                     count = 0
                 writer.write(bufferQueries[0])
                 bufferQueries.pop(0)
                 count+=1
-            print("hola5")
             while len(bufferResponse) != 0:
                 if count == 50000:
-                    wrriter.close()
+                    writer.close()
                     del writer
-                    writer = PcapWriter(outputDirection,append=True,sync=True)
+                    writer = PcapWriter(outputDirection,append = True,sync = True)
                     count = 0
                 writer.write(bufferResponse[0])
                 bufferResponse.pop(0)
-                count+=1
+                count += 1
             
             #### We close the writer and return true because everything goes as planned
             writer.close()

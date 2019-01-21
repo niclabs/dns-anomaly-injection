@@ -105,6 +105,8 @@ def main(args: list,test=""):
                 .withPcapOutput(output)\
                 .withServerIp("200.7.4.7")\
                 .withResponseDt(0.0006)\
+                .withTimestamp(0.01)\
+                .withServerTolerance(10)\
                 .insert()
     
     ##### Seeing that everything is ok
