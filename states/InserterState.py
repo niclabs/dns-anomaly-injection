@@ -44,6 +44,8 @@ class ReadOkState(InserterState):
             t0 = queryList[0].time
         elif len(responseList) != 0:
             t0 = responseList[0].time
+        else: 
+            t0 = ta
         dtInsert = ta - t0
         if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
@@ -53,7 +55,6 @@ class ReadNOkState(InserterState):
     def __init__(self,inserter: PacketInserter):
         super().__init__(inserter)
     def processData(self,bufferFile: list, bufferAttack: list,queryList: list, responseList: list, noResponse: dict,delay: float,data: list,writer: PcapWriter):
-        print("not ok ")
         count = data[0]
         queries = data[1]
         outputDirection = data[2]
@@ -79,6 +80,8 @@ class ReadNOkState(InserterState):
             t0 = queryList[0].time
         elif len(responseList) != 0:
             t0 = responseList[0].time
+        else:
+            t0 = ta
         dtInsert = ta - t0
         if dtInsert >= self.getInserter().getTimestamp(): 
             self.getInserter().changeState(FileInsertState(self.getInserter()))
@@ -90,7 +93,6 @@ class FileInsertState(InserterState):
     def __init__(self,inserter : PacketInserter):
         super().__init__(inserter) 
     def processData(self,bufferFile: list, bufferAttack: list, queryList: list, responseList: list, noResponse: dict, delay: float,data: list,writer: PcapWriter):
-        print("inserting")
         t0 = queryList[0].time
         count = data[0]
         queries = data[1]
@@ -107,11 +109,11 @@ class FileInsertState(InserterState):
         while dtInsert >= self.getInserter().getTimestamp() and len(queryList) != 0:
             t0 = queryList[0].time
             dtInsert = ta - t0
-            if count == 50000: ## TODO de donde sale el count
-                writer.close() ## TODO de donde sale el writer
+            if count == 50000:
                 del writer
-                writer = PcapWriter(outputDirection,append = True,sync=True) ## TODO de donde sale el outputDirection
+                writer = PcapWriter(outputDirection,append = True,sync=True) 
                 count = 0
+                continue
             if len(responseList) == 0:
                 pkt = queryList[0]
                 writer.write(pkt)
