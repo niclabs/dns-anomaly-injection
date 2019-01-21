@@ -5,11 +5,13 @@ from randomSubdomain import *
 import time
 from randFloats import *
 import random
+import sys
+import argparse
 #---------------------#
 #Archivo de prueba
 #---------------------#
 #Ejemplo:
-#python3 randomSubdomain.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 8.8.8.8 2.7.4.7 hola.cl 3 10 0 33865
+#python3 mainDoSRandomSubdomain.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srcip 8.8.8.8 -srv 2.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0 -sport 33865
 def main2():
     dom = 'chao.cl'
     serv = '2.7.4.7'
@@ -35,6 +37,10 @@ def main3():
     except:
         raise Exception("Wrong output file extension")
 def main():
-    print(checkValidIp("200.7.5"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-hi", "--hola", help = "print",type= int)
+    args = parser.parse_args()
+    print(args.hola)
+
 if __name__ == '__main__':
     main()

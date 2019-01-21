@@ -13,80 +13,83 @@ from randomSubdomain import genIp
 from randomSubdomain import regularResponse
 
 
-def checkArgs(args: list):
+def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets):
     """
     Check if the arguments are correct
-    Param: args: list of arguments
-           +args[1]: Name of the source pcap file with extension
-           +args[2]: Name of the new pcap file with extension
-           +args[3]: Relative path to the input file, it finishes with '/'
-           +args[4]: Relative path to the output file
-           +args[5]: Server ip
-           agrs[6]: Target ip
-           +args[7]: Source port
-           +args[8]: Attack extension (seconds)
-           +args[9]: Amount of packets per second
-           +args[10]: Start date
-           args[11]: Asked domain
-           +args[12]: Response type
-                    - 1: the response is amplified
-                    - 0: the response isn't amplified
-           Only needed if args[12] == 0
-           +args[13]: Asked domain ip
-           +agrs[14]: Asked domain server ip
+    Param: +src_file: Name of the source pcap file with extension
+           +dst_file: Name of the new pcap file with extension
+           +src_path: Relative path to the input file, it finishes with '/'
+           +dst_path: Relative path to the output file it finishes with '/'
+           +srv_ip: Server ip
+           +target_ip: Target ip
+           +src_port: Source port
+           +ext: Attack extension (seconds)
+           +packets: Amount of packets per second
+           +ti: Start date
+           domain: Asked domain
+           +dom_ip: Asked domain ip
+           +snd_ip: Asked domain server ip
+           +number_botnets: Number of botnets
     """
     try:
-        assert(os.path.exists(str(args[3]) + str(args[1])))
+        assert(src_path[len(src_path) - 1] == "/")
+    except:
+        raise Exception("Relative path to the input file, it finishes with '/'")
+    try:
+        assert(os.path.exists(str(src_path) + str(src_file)))
     except:
         raise Exception("Invalid source path")
     try:
-        assert(os.path.exists(str(args[4])))
+        assert(dst_path[len(dst_path) -1] == "/")
+    except:
+        raise Exception("Relative path to the output file it finishes with '/'")
+    try:
+        assert(os.path.exists(str(dst_path)))
     except:
         raise Exception("Invalid output file path")
     try:
-        f = args[2].split(".")
+        f = dst_file.split(".")
         assert(len(f) == 2)
         assert(f[1] == "pcap")
     except:
         raise Exception("Wrong output file extension")
     try:
-        assert(checkValidIp(args[5]))
+        assert(checkValidIp(srv_ip))
     except:
         raise Exception("Invalid server ip")
     try:
-        assert(checkValidIp(args[6]))
+        assert(checkValidIp(target_ip))
     except:
         raise Exception("Invalid target ip")
     try:
-        assert(int(args[7]) >= 0)
-        assert(int(args[7]) <= 65535)
+        assert(int(src_port) >= 0)
+        assert(int(src_port) <= 65535)
     except:
         raise Exception("Source port must be between 0 and 65535")
     try:
-        assert(float(args[8]) > 0)
+        assert(float(ext) > 0)
     except:
         raise Exception("Extension of the attack must be greater than 0")
     try:
-        assert(int(args[9]) > 0)
+        assert(int(packets) > 0)
     except:
         raise Exception("Amount of packets per second must be greater than 0")
     try:
-        assert(float(args[10])>= 0)
+        assert(float(ti)>= 0)
     except:
         raise Exception("Start date must be greater than or equal to 0")
     try:
-        assert(int(args[12]) == 0 or int(args[12]) == 1)
+        assert(checkValidIp(dom_ip))
     except:
-        raise Exception("Response type must be 0 or 1")
-    if(int(args[12]) == 0):
-        try:
-            assert(checkValidIp(args[13]))
-        except:
-            raise Exception("Invalid domain ip")
-        try:
-            assert(checkValidIp(args[14]))
-        except:
-            raise Exception("Invalid domain server ip")
+        raise Exception("Invalid domain ip")
+    try:
+        assert(checkValidIp(snd_ip))
+    except:
+        raise Exception("Invalid domain server ip")
+    try:
+        assert(number_botnets > 0)
+    except:
+        raise Exception("Number of botnets must be greater than 0")
 
 
 def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):

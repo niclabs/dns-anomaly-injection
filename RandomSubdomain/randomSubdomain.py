@@ -23,59 +23,66 @@ def checkValidIp(ip : string):
                 return False
     return True
 
-def checkArgs(args: list):
+def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, packets, ti, src_port):
     """
     Check if the arguments are correct
-    Param: args: list of arguments
-           +args[1]: Name of the source pcap file with extension
-           +args[2]: Name of the new pcap file with extension
-           +args[3]: Relative path to the input file, it finishes with '/'
-           +args[4]: Relative path to the output file
-           +args[5]: Source ip
-           +args[6]: Server ip
-           args[7]: Target domain
-           +args[8]: Attack extension (seconds)
-           +args[9]:  Amount of packets per second
-           +args[10]: Start date
-           +args[11]: Source port
+    Param: +src_file: Name of the source pcap file with extension
+           +dst_file: Name of the new pcap file with extension
+           +src_path: Relative path to the input file, it finishes with '/'
+           +dst_path: Relative path to the output file, it finishes with '/'
+           +src_ip: Source ip
+           +srv_ip: Server ip
+           dom: Target domain
+           +ext: Attack extension (seconds)
+           +packets:  Amount of packets per second
+           +ti: Start date
+           +src_port: Source port
     """
     try:
-        assert(os.path.exists(str(args[3]) + str(args[1])))
+        assert(src_path[len(src_path) - 1] == "/")
+    except:
+        raise Exception("Relative path to the input file, it finishes with '/'")
+    try:
+        assert(os.path.exists(str(src_path) + str(src_file)))
     except:
         raise Exception("Invalid source path")
     try:
-        assert(os.path.exists(str(args[4])))
+        assert(dst_path[len(dst_path) - 1] == "/")
+    except:
+        raise Exception("Relative path to the output file, it finishes with '/'")
+    try:
+        assert(os.path.exists(str(dst_path)))
     except:
         raise Exception("Invalid output file path")
     try:
-        f = args[2].split(".")
+        f = dst_file.split(".")
         assert(len(f) == 2)
         assert(f[1] == "pcap")
     except:
         raise Exception("Invalid output file extension")
     try:
-        assert(checkValidIp(args[5]))
+        assert(checkValidIp(src_ip))
     except:
         raise Exception("Invalid source ip")
     try:
-        assert(checkValidIp(args[6]))
+        assert(checkValidIp(srv_ip))
     except:
         raise Exception("Invalid server ip")
     try:
-        assert(int(args[8]) > 0)
+        assert(int(ext) > 0)
     except:
         raise Exception("Attack extension must be greater than 0")
     try:
-        assert(int(args[9]) > 0)
+        assert(int(packets) > 0)
     except:
         raise Exception("Amoount of packets per second must be greater than 0")
     try:
-        assert(float(args[10]) >= 0)
+        assert(float(ti) >= 0)
     except:
         raise Exception("Start date must be greater than or equal to 0")
     try:
-        assert(int(args[11]) >= 0)
-        assert(int(args[11]) <= 65535)
+        assert(int(src_port) >= 0)
+        assert(int(src_port) <= 65535)
     except:
         raise Exception("Source port must be between 0 and 65535")
 
