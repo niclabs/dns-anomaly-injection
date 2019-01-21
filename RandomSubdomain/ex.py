@@ -11,7 +11,10 @@ import argparse
 #Archivo de prueba
 #---------------------#
 #Ejemplo:
-#python3 mainDoSRandomSubdomain.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srcip 8.8.8.8 -srv 2.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0 -sport 33865
+#DoS
+#python3 mainDoSRandomSubdomain.py -servtol 30 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srcip 8.8.8.8 -srv 2.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0 -sport 33865
+#DDoS
+#
 def main2():
     dom = 'chao.cl'
     serv = '2.7.4.7'

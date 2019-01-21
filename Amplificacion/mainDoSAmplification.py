@@ -34,6 +34,7 @@ def mainDoS(src_file, src_path, srv_ip, target_ip, src_port, ext, packets, ti, d
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "Amplification attack")
+    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets that the server can answer in 0.1 sec", type=int)
     parser.add_argument("-sf", "--src_file", help="Name of the source pcap file with extension")
     parser.add_argument("-df", "--dst_file", help="Name of the new pcap file with extension")
     parser.add_argument("-sp", "--src_path", help="Relative path to the input file, it finishes with '/'")
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     parser.add_argument("-nbot", "--number_botnets", help="Number of botnets", type=int, default = 1)
     args = parser.parse_args()
 
-    checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets, args.initial_time, args.domain, args.domain_ip, args.server_dom_ip, args.number_botnets)
+    checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets, args.initial_time, args.domain, args.domain_ip, args.server_dom_ip, args.number_botnets, args.server_tolerance)
 
     new_packets = []
     packets = mainDoS(args.src_file, args.src_path, args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets * args.number_botnets, args.initial_time, args.domain, args.response_type, args.domain_ip, args.server_dom_ip)
@@ -64,4 +65,6 @@ if __name__ == '__main__':
             .withInputDir(args.src_path)\
             .withOutputDir(args.dst_path)\
             .withServerIp(args.server_ip)\
+            .withTimestamp(0.1)\
+            .withServerTolerance(args.server_tolerance)\
             .insert()

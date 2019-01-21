@@ -104,6 +104,18 @@ def genIp():
     ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
     return ip
 
+def gen_n_ip(n: int):
+    """
+    Gives an array of n random ip
+    Param: n: Number of ip
+    return: Array
+    """
+    ans=[]
+    for i in range(n):
+        ans.append(genIp())
+    return ans
+
+
 def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int, t: float, seed: float):
     """
     Random Subdomain attack packet builder
@@ -142,6 +154,24 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ans.time = p.time + dt
     return ans
 
+def newTuple(dom: string, src_ip:string, serv:string, srcport:int, t:float, seed:float, dom_ip:string, snd_ip:string, dt:float):
+    """
+    Gives an array that contains a request and response
+    Param: dom: Target domain
+           src_ip: Source ip
+           serv: Server ip
+           srcport: Source port
+           t: Request arrival time
+           seed: Seed for randomize
+           dom_ip: Asked domain ip
+           snd_ip: Asked domain server ip
+           dt: Response delay time
+    return: An array (request, response)
+    """
+    req = randomSubBuilder(dom, src_ip, serv, srcport, t, seed)
+    res = regularResponse(req, dom, dom_ip, snd_ip, dt)
+    return [req, res]
+
 def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, snd_ip: string, duracion: int, c: int, ti: float, srcport : int):
     """
     Gives an array of tuples that contains request and response
@@ -164,9 +194,7 @@ def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, 
         dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         p = randomSubBuilder(dom, src_ip, serv, srcport, t, Time.time())
         a = regularResponse(p, dom, dom_ip, snd_ip, dt)
-        tuple = []
-        tuple.append(p)
-        tuple.append(a)
+        tuple = newTuple(dom, src_ip, serv, srcport, t, Time.time(), dom_ip, snd_ip, dt)
         new_packets.append(tuple)
 
     return new_packets

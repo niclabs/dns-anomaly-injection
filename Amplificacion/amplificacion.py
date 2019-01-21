@@ -13,7 +13,7 @@ from randomSubdomain import genIp
 from randomSubdomain import regularResponse
 
 
-def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets):
+def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets, server_tolerance):
     """
     Check if the arguments are correct
     Param: +src_file: Name of the source pcap file with extension
@@ -30,6 +30,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
            +dom_ip: Asked domain ip
            +snd_ip: Asked domain server ip
            +number_botnets: Number of botnets
+           +server_tolerance: Amount of packets that the server can answer in 0.1 sec
     """
     try:
         assert(src_path[len(src_path) - 1] == "/")
@@ -90,6 +91,10 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
         assert(number_botnets > 0)
     except:
         raise Exception("Number of botnets must be greater than 0")
+    try:
+        assert(server_tolerance > 0)
+    except:
+        raise Exception("Server tolerance must be greater than 0")
 
 
 def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):
