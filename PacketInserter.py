@@ -1,6 +1,12 @@
 from scapy.all import *
 import math
 import sys
+import states.InserterState as state
+import states.ReadOkState as OkState
+import states.ReadNOkState as NOkState
+import states.FileInsertState as InsState
+  
+
 """
 Packet inserter, inserts packets for the attack simulation
 and creates a new pcap file with the attacks given
@@ -25,6 +31,9 @@ class PacketInserter:
         self.__outputDir=""
         self.__serverIp = "200.7.4.7"
         self.__responseDt= 0.0006
+        self.__state = OkState.ReadOkState(self)
+        self.__timestamp = 0.001
+        self.__serverTolerance = 30
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -164,7 +173,6 @@ class PacketInserter:
             ti = first.time
             ta = ti
             buffer.append(first)
-            j=0 # counter of how many attack packets have been added
             #### Loop for the slow reading and writing of the packet
             while True:
                 #### Calculating the delay of the response
