@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-udp", "--udp_server_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-dom", "--domain_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
-    parser.add_argument("-tz","--total_of_zombies", help="Cantidad de computadores en la botnet para el ataque DDoS (d: 15000)", type=int, default=256)
+    parser.add_argument("-tz","--total_of_zombies", help="Cantidad de computadores en la botnet para el ataque DDoS (d: 15000)", type=int, default=255)
     parser.add_argument("-ip", "--ip_src", help="Direccion IP de origen (d: 200.27.161.26)", default='200.27.161.26')
     parser.add_argument("-sip","--server_ip", help="Direccion IP del servidor atacado (d: 200.7.4.7)", default='200.7.4.7')
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
@@ -35,6 +35,7 @@ def main():
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
+    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por decima de segundo que acepta el servidor (d: 350)', type=int, default=35)
     args = parser.parse_args()
 
     #################### Manejo de los nombres de archivos ####################
@@ -61,6 +62,7 @@ def main():
     IPsrc=args.ip_src
     totalInfectados=args.total_of_zombies
     PortSrc=args.sport
+    tolerancia=args.server_tolerance
     #################### Verificacion de valores ingresados ####################
     try:
         assert(len(nombrePktFin)>0 and len(nombrePktIni)>0)
@@ -176,6 +178,9 @@ def main():
                 .withPcapInput(nombrePktIni)\
                 .withOutputDir("output/")\
                 .withPcapOutput(nombrePktFin)\
+                .withServerIp(IPservidor)\
+                .withTimestamp(0.1)\
+                .withServerTolerance(tolerancia)\
                 .insert()
     if operation:
         print("Paquetes insertados exitosamente")

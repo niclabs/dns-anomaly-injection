@@ -11,7 +11,7 @@ class udp_flood_attackTest(unittest.TestCase):
         for i in range(len(ataque)):
             numPkts+=len(ataque[i])
             self.assertTrue(len(ataque[i])==1 or len(ataque[i])==2, '\nerror en la cantidad de paquetes pregunta y respuesta\nScript "udp_flood_attack", funcion "udpFloodAttack"')
-            self.assertTrue( ataque[i][0].time<=10 and ataque[i][0].time>=0, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertTrue( ataque[i][0].time<=10-0.1 and ataque[i][0].time>=0, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
             self.assertTrue( (ataque[i][0][2].dport in puertos[0]) or (ataque[i][0][2].dport in puertos[1]), '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
             self.assertEqual(ataque[i][0][2].sport, 567, '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
 

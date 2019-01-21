@@ -44,7 +44,7 @@ class ReadOkState(InserterState):
             t0 = queryList[0].time
         elif len(responseList) != 0:
             t0 = responseList[0].time
-        else: 
+        else:
             t0 = ta
         dtInsert = ta - t0
         if dtInsert >= self.getInserter().getTimestamp():
@@ -83,15 +83,15 @@ class ReadNOkState(InserterState):
         else:
             t0 = ta
         dtInsert = ta - t0
-        if dtInsert >= self.getInserter().getTimestamp(): 
+        if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
         if len(queryList) < self.getInserter().getServerTolerance():
-            self.getInserter().changeState(ReadOkState(self.getInserter()))      
+            self.getInserter().changeState(ReadOkState(self.getInserter()))
         return (count,queries,ta)
 
 class FileInsertState(InserterState):
     def __init__(self,inserter : PacketInserter):
-        super().__init__(inserter) 
+        super().__init__(inserter)
     def processData(self,bufferFile: list, bufferAttack: list, queryList: list, responseList: list, noResponse: dict, delay: float,data: list,writer: PcapWriter):
         t0 = queryList[0].time
         count = data[0]
@@ -103,7 +103,7 @@ class FileInsertState(InserterState):
             ta = bufferAttack[0].time
         elif len(bufferAttack) == 0:
             ta = bufferFile[0].time
-        elif len(bufferFile)!= 0 and len(bufferAttack)!= 0: 
+        elif len(bufferFile)!= 0 and len(bufferAttack)!= 0:
             ta = min(bufferFile[0].time,bufferAttack[0][0].time)
         dtInsert = ta - t0
         while dtInsert >= self.getInserter().getTimestamp() and len(queryList) != 0:
@@ -111,7 +111,7 @@ class FileInsertState(InserterState):
             dtInsert = ta - t0
             if count == 50000:
                 del writer
-                writer = PcapWriter(outputDirection,append = True,sync=True) 
+                writer = PcapWriter(outputDirection,append = True,sync=True)
                 count = 0
                 continue
             if len(responseList) == 0:
