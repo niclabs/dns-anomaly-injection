@@ -27,7 +27,7 @@ def createFalseDomains(number: int):
     """
     domainNames = []
     for i in range(number):
-        falseName = rndSb.randomSub()
+        falseName = rndSb.randomSub(time.time())
         falseDomain = falseName+".cl."
         domainNames.append(falseDomain)
     return domainNames
@@ -92,15 +92,17 @@ def main(args,test=""):
         ti=first[0].time + initialTime
     timeOfInsertion = rnd.genInter(time.time(),ti,ti+atckDuration,rate)
     domainNames = createFalseDomains(len(timeOfInsertion))
-
+    
     ##### Creating the packages and generation it's insertion
     packages = createPackateNXDomain(attackerIP,"200.7.4.7",timeOfInsertion,domainNames)
     inserter = PacketInserter()
+    print("Empezando a ingresar "+str(len(packages)))
     operation = inserter.withPackets(packages)\
                 .withInputDir("input/")\
                 .withPcapInput(inputFileName)\
                 .withOutputDir("output/")\
                 .withPcapOutput(outputFileName)\
+                .withResponseDt(0.006)\
                 .insert()
 
     ##### Checking if everything goes ok

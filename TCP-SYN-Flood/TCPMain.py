@@ -1,14 +1,14 @@
-try:
-    import sys
-    sys.path.append('..')
-    import randFloats as rnd
-    from PacketInserter import *
-    from scapy.all import *
-    import random
-    import time
-    from TCPPacketBuilder import *
-except:
-    raise Exception("Get assure that every library is avalaible")
+#try:
+import sys
+sys.path.append('..')
+import randFloats as rnd
+from PacketInserter import *
+from scapy.all import *
+import random
+import time
+from TCPPacketBuilder import *
+#except:
+    #raise Exception("Get assure that every library is avalaible")
 def createPackets(fileName: str,sip: str,dip: str,number: int,initialTime=0,duration = 60):
     """
         Creates a series of packets of information that are going to be added to the pcap file
@@ -105,6 +105,8 @@ def main(args: list,test=""):
                 .withPcapOutput(output)\
                 .withServerIp("200.7.4.7")\
                 .withResponseDt(0.0006)\
+                .withTimestamp(0.01)\
+                .withServerTolerance(10)\
                 .insert()
     
     ##### Seeing that everything is ok

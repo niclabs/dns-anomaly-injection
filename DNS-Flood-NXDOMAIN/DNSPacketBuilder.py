@@ -17,7 +17,7 @@ class DNSPacketBuilder(AbstractPacketBuilder):
         """
         self._domain = ""
         self._idDNS = 0
-        self._responseDT = 0.00015
+        self._responseDT = 0.0006
         self._qrIpId = 0
         self._rspIpId = 0
         super().__init__()
