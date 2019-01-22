@@ -94,6 +94,11 @@ class ReadOkState(InserterState):
         if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
         return (count,queries,ta,writer)
+    def __eq__(self,obj):
+        if isinstance(obj,ReadOkState):
+            return self.getInserter() == obj.getInserter()
+        return False
+
 """
     ReadNOkState is an state of simulation of a not response generated server.
     @author Joaquin Cruz
@@ -149,6 +154,11 @@ class ReadNOkState(InserterState):
         if len(queryList) < self.getInserter().getServerTolerance():
             self.getInserter().changeState(ReadOkState(self.getInserter()))      
         return (count,queries,ta,writer)
+
+    def __eq__(self,obj):
+        if isinstance(obj,ReadNOkState):
+            return self.getInserter() == obj.getInserter()
+        return False
 """
     The FileInsertState is an subclass of the InserterState that represents the state of the inserter
     when he have to insert packets on the pcap file. At the end of this execution (inserting the packets) this
@@ -183,7 +193,7 @@ class FileInsertState(InserterState):
         if len(bufferFile) == 0 and len(bufferAttack) == 0:
             return 
         if len(bufferFile) == 0:
-            ta = bufferAttack[0].time
+            ta = bufferAttack[0][0].time
         elif len(bufferAttack) == 0:
             ta = bufferFile[0].time
         elif len(bufferFile)!= 0 and len(bufferAttack)!= 0:
@@ -222,3 +232,7 @@ class FileInsertState(InserterState):
         else:
             self.getInserter().changeState(ReadOkState(self.getInserter()))
         return (count,queries,ta,writerAux)
+    def __eq__(self,obj):
+        if isinstance(obj,FileInsertState):
+            return self.getInserter() == obj.getInserter()
+        return False

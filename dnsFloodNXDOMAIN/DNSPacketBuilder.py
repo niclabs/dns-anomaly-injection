@@ -1,6 +1,6 @@
 try:
     import sys
-    sys.path.append('../TCP-SYN-Flood')
+    sys.path.append('../tcpSynFlood')
     from AbstractPacketBuilder import *
     from scapy.all import *
 except:
