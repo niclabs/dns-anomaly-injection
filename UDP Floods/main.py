@@ -40,7 +40,7 @@ def main():
     if args.ddos_type:
         nombrePktFin+='_DDoS'
     nombrePktIni=args.file
-    print("El nombre de archivo a procesar es: ", nombrePktIni)
+    print("El nombre de archivo a procesar es:", nombrePktIni)
     index=nombrePktIni.find('.pcap')
     if index==-1:
         print('\nEl nombre del archivo a procesar debe tener una extension valida')

@@ -19,25 +19,33 @@ class udp_flood_attackTest(unittest.TestCase):
         self.assertEqual(len(ataque), 140, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
 
 
-    def test_udpPairGen(self):
+    def test_udpPairGen_query(self):
         packUDP_openPort=udpPairGen(300, 700, 1, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
         packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
-        self.assertEqual(packUDP_openPort[0], packUDP_closePort[0], '\nproblemas entre el paquete de pregunta de puerto abierto y cerrado\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertFalse(packUDP_openPort[0]==packUDP_closePort[0], '\nproblemas entre el paquete de pregunta de puerto abierto y cerrado\nScript "udp_flood_attack", funcion "udpPairGen"')
+        ask=packUDP_openPort[0]
 
-        self.assertEqual(packUDP_closePort[0].time, 12.6, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1].time, 12.7, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0].src, '18:66:da:e6:36:56', '\nerror en la direccion del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0].dst, '18:66:da:4d:c0:08', '\nerror en la direccion del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1].dst, '18:66:da:e6:36:56', '\nerror en la direccion del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1].src, '18:66:da:4d:c0:08', '\nerror en la direccion del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0][1].src, '200.7.4.7', '\nerror en la direccion del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0][1].dst, '190.34.123.200', '\nerror en la direccion del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0][2].sport, 300, '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[0][2].dport, 700, '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1][1].dst, '200.7.4.7', '\nerror en la direccion del paqueteIP\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1][1].src, '190.34.123.200', '\nerror en la direccion del paqueteIP\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1][2].type, 3, '\nerror en el paquete ICMP\nScript "udp_flood_attack", funcion "udpPairGen"')
-        self.assertEqual(packUDP_closePort[1][2].code, 3, '\nerror en el paquete ICMP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask.time, 12.6, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask.src, '18:66:da:e6:36:56', '\nerror en la direccion de origen del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask.dst, '18:66:da:4d:c0:08', '\nerror en la direccion de destino del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask[1].src, '200.7.4.7', '\nerror en la direccion de origen del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask[1].dst, '190.34.123.200', '\nerror en la direccion de destino del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask[2].sport, 300, '\nerror en el puerto de origen del paquete UDP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ask[2].dport, 700, '\nerror en el puerto de destino del paquete UDP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(len(ask[3].load), 1458,'\nerror en los datos del paquete UDP\nScript "udp_flood_attack", funcion "udpPairGen"')
+
+
+    def test_udpPairGen_response(self):
+        packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
+        ans=packUDP_closePort[1]
+
+        self.assertEqual(ans.time, 12.7, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans.dst, '18:66:da:e6:36:56', '\nerror en la direccion de destino del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans.src, '18:66:da:4d:c0:08', '\nerror en la direccion de origen del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans[1].dst, '200.7.4.7', '\nerror en la direccion de destino del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans[1].src, '190.34.123.200', '\nerror en la direccion de origen del paquete IP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans[2].type, 3, '\nerror en el paquete ICMP\nScript "udp_flood_attack", funcion "udpPairGen"')
+        self.assertEqual(ans[2].code, 3, '\nerror en el paquete ICMP\nScript "udp_flood_attack", funcion "udpPairGen"')
 
 
 

@@ -1,4 +1,6 @@
 try:
+    import string
+    import random
     from scapy.all import *
 except:
     raise Exception("Install scapy")
@@ -49,6 +51,8 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
                 PortSrc=PortSrcList[j]
         SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
+        if (len(NuevoSetPaquetesEnviados)%1000)==0:
+            print('\n'+str(len(NuevoSetPaquetesEnviados)))
     return NuevoSetPaquetesEnviados
 
 
@@ -68,13 +72,12 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
 def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, tiempo: float, interResp: float):
-    #dnsqr=DNSQR(qname='')
-    #dns_qd
     ip=IP(src=IPsrc, dst=IPservidor, proto='udp')
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
     udpQ=UDP(sport=PortSrc, dport=PortDst)
-    QPacket=etherQ/ip/udpQ
+    datos=Raw(load=''.join(random.choice(string.ascii_letters) for i in range(1458))) #Datos de peso
+    QPacket=etherQ/ip/udpQ/datos
     if not(open):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
         etherA.time=tiempo+interResp
