@@ -6,24 +6,24 @@ import os
 import argparse
 import socket
 import sys
+import gzip
 #---------------------#
 #Archivo de prueba
 #---------------------#
 #Ejemplo
 #DoS amplified response
-#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
+#python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
 #DoS regular response
-#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4
+#python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4
 #DDoS amplified response
-#python3 mainDoSAmplification.py -servtol 50 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype -nbot 30
+#python3 mainAmplification.py -servtol 50 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype -nbot 30
 #DDoS regular response
-#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4 -nbot 30
+#python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4 -nbot 30
 
 def main():
   #paquetes = rdpcap("/home/niclabs/Downloads/lol.pcap")
   inter = genInter(20, 0, 2, 3)
   p0 = sniff(offline = "/home/niclabs/Downloads/lol.pcap", count = 1)
-  print(type(p0[0]))
   ti = p0[0].time
   ip = '8.8.8.8'
   serv = '200.7.4.7'
