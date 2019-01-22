@@ -10,7 +10,15 @@ import sys
 #Archivo de prueba
 #---------------------#
 #Ejemplo
-#python3 amplificacion.py lol.pcap new.pcap /home/niclabs/Downloads/ /home/niclabs/Downloads/ 2.7.4.7 8.8.8.8 33865 3 10 1 hola.cl
+#DoS amplified response
+#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
+#DoS regular response
+#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4
+#DDoS amplified response
+#python3 mainDoSAmplification.py -servtol 50 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype -nbot 30
+#DDoS regular response
+#python3 mainDoSAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4 -nbot 30
+
 def main():
   #paquetes = rdpcap("/home/niclabs/Downloads/lol.pcap")
   inter = genInter(20, 0, 2, 3)

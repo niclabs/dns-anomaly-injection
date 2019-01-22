@@ -28,10 +28,10 @@ except:
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def udpFloodAttack(IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosAbiertosCerrados: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float):
     random.seed(Seed)
     puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
     for i in range(len(tiempos)):
         if len(puertos)==0:
@@ -45,7 +45,7 @@ def udpFloodAttack(IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados, 
         if len(IPsrcList)>1:
             j=random.randint(0,len(IPsrcList)-1)
             IPsrc=IPsrcList[j]
-            if len(PortSrc)>1:
+            if len(PortSrcList)>1:
                 PortSrc=PortSrcList[j]
         SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
@@ -67,7 +67,7 @@ def udpFloodAttack(IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados, 
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def udpPairGen(PortSrc, PortDst, open, IPsrc, IPservidor, tiempo, interResp):
+def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, tiempo: float, interResp: float):
     #dnsqr=DNSQR(qname='')
     #dns_qd
     ip=IP(src=IPsrc, dst=IPservidor, proto='udp')

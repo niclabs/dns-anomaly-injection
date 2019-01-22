@@ -23,59 +23,66 @@ def checkValidIp(ip : string):
                 return False
     return True
 
-def checkArgs(args: list):
+def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, packets, ti, src_port):
     """
     Check if the arguments are correct
-    Param: args: list of arguments
-           +args[1]: Name of the source pcap file with extension
-           +args[2]: Name of the new pcap file with extension
-           +args[3]: Relative path to the input file, it finishes with '/'
-           +args[4]: Relative path to the output file
-           +args[5]: Source ip
-           +args[6]: Server ip
-           args[7]: Target domain
-           +args[8]: Attack extension (seconds)
-           +args[9]:  Amount of packets per second
-           +args[10]: Start date
-           +args[11]: Source port
+    Param: +src_file: Name of the source pcap file with extension
+           +dst_file: Name of the new pcap file with extension
+           +src_path: Relative path to the input file, it finishes with '/'
+           +dst_path: Relative path to the output file, it finishes with '/'
+           +src_ip: Source ip
+           +srv_ip: Server ip
+           dom: Target domain
+           +ext: Attack extension (seconds)
+           +packets:  Amount of packets per second
+           +ti: Start date
+           +src_port: Source port
     """
     try:
-        assert(os.path.exists(str(args[3]) + str(args[1])))
+        assert(src_path[len(src_path) - 1] == "/")
+    except:
+        raise Exception("Relative path to the input file, it finishes with '/'")
+    try:
+        assert(os.path.exists(str(src_path) + str(src_file)))
     except:
         raise Exception("Invalid source path")
     try:
-        assert(os.path.exists(str(args[4])))
+        assert(dst_path[len(dst_path) - 1] == "/")
+    except:
+        raise Exception("Relative path to the output file, it finishes with '/'")
+    try:
+        assert(os.path.exists(str(dst_path)))
     except:
         raise Exception("Invalid output file path")
     try:
-        f = args[2].split(".")
+        f = dst_file.split(".")
         assert(len(f) == 2)
         assert(f[1] == "pcap")
     except:
         raise Exception("Invalid output file extension")
     try:
-        assert(checkValidIp(args[5]))
+        assert(checkValidIp(src_ip))
     except:
         raise Exception("Invalid source ip")
     try:
-        assert(checkValidIp(args[6]))
+        assert(checkValidIp(srv_ip))
     except:
         raise Exception("Invalid server ip")
     try:
-        assert(int(args[8]) > 0)
+        assert(int(ext) > 0)
     except:
         raise Exception("Attack extension must be greater than 0")
     try:
-        assert(int(args[9]) > 0)
+        assert(int(packets) > 0)
     except:
         raise Exception("Amoount of packets per second must be greater than 0")
     try:
-        assert(float(args[10]) >= 0)
+        assert(float(ti) >= 0)
     except:
         raise Exception("Start date must be greater than or equal to 0")
     try:
-        assert(int(args[11]) >= 0)
-        assert(int(args[11]) <= 65535)
+        assert(int(src_port) >= 0)
+        assert(int(src_port) <= 65535)
     except:
         raise Exception("Source port must be between 0 and 65535")
 
@@ -96,6 +103,18 @@ def genIp():
     """
     ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
     return ip
+
+def gen_n_ip(n: int):
+    """
+    Gives an array of n random ip
+    Param: n: Number of ip
+    return: Array
+    """
+    ans=[]
+    for i in range(n):
+        ans.append(genIp())
+    return ans
+
 
 def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int, t: float, seed: float):
     """
@@ -135,6 +154,24 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ans.time = p.time + dt
     return ans
 
+def newTuple(dom: string, src_ip:string, serv:string, srcport:int, t:float, seed:float, dom_ip:string, snd_ip:string, dt:float):
+    """
+    Gives an array that contains a request and response
+    Param: dom: Target domain
+           src_ip: Source ip
+           serv: Server ip
+           srcport: Source port
+           t: Request arrival time
+           seed: Seed for randomize
+           dom_ip: Asked domain ip
+           snd_ip: Asked domain server ip
+           dt: Response delay time
+    return: An array (request, response)
+    """
+    req = randomSubBuilder(dom, src_ip, serv, srcport, t, seed)
+    res = regularResponse(req, dom, dom_ip, snd_ip, dt)
+    return [req, res]
+
 def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, snd_ip: string, duracion: int, c: int, ti: float, srcport : int):
     """
     Gives an array of tuples that contains request and response
@@ -157,9 +194,7 @@ def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, 
         dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         p = randomSubBuilder(dom, src_ip, serv, srcport, t, Time.time())
         a = regularResponse(p, dom, dom_ip, snd_ip, dt)
-        tuple = []
-        tuple.append(p)
-        tuple.append(a)
+        tuple = newTuple(dom, src_ip, serv, srcport, t, Time.time(), dom_ip, snd_ip, dt)
         new_packets.append(tuple)
 
     return new_packets

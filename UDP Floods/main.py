@@ -15,7 +15,7 @@ def main():
     ###########################################################################
     ###################### Manejo de valores por consola ######################
     parser = argparse.ArgumentParser(description='UDP Flood attack simulator')
-    parser.add_argument("-ff", "--final_file", help="Sufijo para el nombre del archivo donde guardar el ataque", default='UDPFloodAttack.pcap')
+    parser.add_argument("-ff", "--final_file", help="Sufijo para el nombre del archivo donde guardar el ataque", default='UDPFloodAttack')
     parser.add_argument("-f", "--file", help="Nombre del archivo a procesar, ejemplo: ej.pcap")
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
     parser.add_argument("-sip","--server_ip", help="Direccion IP del servidor atacado (d: 200.7.4.7)", default='200.7.4.7')
@@ -30,19 +30,22 @@ def main():
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
+    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por decima de segundo que acepta el servidor (d: 35)', type=int, default=35)
     args = parser.parse_args()
 
     #################### Manejo de los nombres de archivos ####################
     nombrePktFin=args.final_file
     if nombrePktFin[-5:]!='.pcap':
         nombrePktFin==nombrePktFin+'.pcap'
+    if args.ddos_type:
+        nombrePktFin+='_DDoS'
     nombrePktIni=args.file
     print("El nombre de archivo a procesar es: ", nombrePktIni)
     index=nombrePktIni.find('.pcap')
     if index==-1:
         print('\nEl nombre del archivo a procesar debe tener una extension valida')
         return
-    nombrePktFin=nombrePktIni[:index]+'_'+nombrePktFin
+    nombrePktFin=nombrePktIni[:index]+'_'+nombrePktFin+'.pcap'
     ###########################################################################
 
     paquete= sniff(offline='input/'+nombrePktIni, count=1)
@@ -63,6 +66,7 @@ def main():
     intervaloPuertos=args.inter_port
     abiertos=args.open_port
     cerrados=args.closed_port
+    tolerancia=args.server_tolerance
     #################### Verificacion de valores ingresados ####################
     try:
         assert(len(nombrePktFin)>0 and len(nombrePktIni)>0)
@@ -73,8 +77,6 @@ def main():
     except:
         raise Exception('La duracion del ataque debe ser mayor a 0')
     try:
-        assert(PortSrc<=65536)
-        assert(PortSrc>=0)
         assert(puertoInicial<=65536)
         assert(puertoInicial>=0)
         assert(puertoFinal<=65536)
@@ -101,6 +103,10 @@ def main():
         assert(intervaloPuertos>0)
     except:
         raise Exception('El intervalo entre un puerto y otro debe ser mayor a 0')
+    try:
+        assert(tolerancia>0)
+    except:
+        raise Exception('La tolerancia del servidor debe ser mayor a 0')
     ############################################################################
     ####################### Creacion de puertos a atacar #######################
     if abiertos!=20 and cerrados!=500:
@@ -113,7 +119,7 @@ def main():
         puertos=randomPortsGen(puertoInicial, puertoFinal, intervaloPuertos, Seed)
 
 
-    attack=udpFloodAttack(IPservidor, IPsrcList, PortSrc, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+    attack=udpFloodAttack(IPservidor, IPsrcList, PortSrcList, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     print('Paquetes de ataque creados exitosamente')
     ins = PacketInserter()
     operation = ins.withPackets(attack)\
@@ -121,6 +127,9 @@ def main():
                 .withPcapInput(nombrePktIni)\
                 .withOutputDir("output/")\
                 .withPcapOutput(nombrePktFin)\
+                .withServerIp(IPservidor)\
+                .withTimestamp(0.1)\
+                .withServerTolerance(tolerancia)\
                 .insert()
     if operation:
         print("Paquetes insertados exitosamente")

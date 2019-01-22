@@ -88,7 +88,7 @@ class ReadOkState(InserterState):
             t0 = queryList[0].time
         elif len(responseList) != 0:
             t0 = responseList[0].time
-        else: 
+        else:
             t0 = ta
         dtInsert = ta - t0
         if dtInsert >= self.getInserter().getTimestamp():
@@ -144,9 +144,10 @@ class ReadNOkState(InserterState):
         else:
             t0 = ta
         dtInsert = ta - t0
-        if dtInsert >= self.getInserter().getTimestamp(): 
+        if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
         if len(queryList) < self.getInserter().getServerTolerance():
+<<<<<<< HEAD
             self.getInserter().changeState(ReadOkState(self.getInserter()))      
         return (count,queries,ta,writer)
 """
@@ -155,9 +156,14 @@ class ReadNOkState(InserterState):
     states change to an server ok or server not ok state.
     @author Joaquin Cruz
 """
+=======
+            self.getInserter().changeState(ReadOkState(self.getInserter()))
+        return (count,queries,ta)
+
+>>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75
 class FileInsertState(InserterState):
     def __init__(self,inserter : PacketInserter):
-        super().__init__(inserter) 
+        super().__init__(inserter)
     def processData(self,bufferFile: list, bufferAttack: list, queryList: list, responseList: list, noResponse: dict, delay: float,data: list,writer: PcapWriter):
         """
             Process the buffers for the insertion when the dt of the buffers is greater than the timestamp given, then returns to one of the
@@ -186,7 +192,7 @@ class FileInsertState(InserterState):
             ta = bufferAttack[0].time
         elif len(bufferAttack) == 0:
             ta = bufferFile[0].time
-        elif len(bufferFile)!= 0 and len(bufferAttack)!= 0: 
+        elif len(bufferFile)!= 0 and len(bufferAttack)!= 0:
             ta = min(bufferFile[0].time,bufferAttack[0][0].time)
         
         ### Starts to write on the file 
@@ -198,8 +204,12 @@ class FileInsertState(InserterState):
             if count == 50000:
                 writer.close()
                 del writer
+<<<<<<< HEAD
                 writerAux = PcapWriter(outputDirection,append = True,sync=True) 
                 writer = writerAux
+=======
+                writer = PcapWriter(outputDirection,append = True,sync=True)
+>>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75
                 count = 0
                 continue
             if len(responseList) == 0:
@@ -221,4 +231,8 @@ class FileInsertState(InserterState):
             self.getInserter().changeState(ReadNOkState(self.getInserter()))
         else:
             self.getInserter().changeState(ReadOkState(self.getInserter()))
+<<<<<<< HEAD
         return (count,queries,ta,writerAux)
+=======
+        return (count,queries,ta)
+>>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75

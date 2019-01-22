@@ -34,7 +34,7 @@ except:
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def PacketCreator(IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, attackType):
+def PacketCreator(IPservidor: str, IPlist: list, PortSrcList: list, datosMultiples: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, attackType: int):
     random.seed(Seed)
     datos=datosMultiples[:]
     if attackType==0 or attackType==1:
@@ -43,7 +43,7 @@ def PacketCreator(IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial
     if len(IPlist)==1:
         IPlist+=IPlist
         PortSrcList+=PortSrcList
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
     last_icmpResp=0
     for i in range(len(tiempos)):
@@ -73,7 +73,7 @@ def PacketCreator(IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial
 
 """Author @Javi801
  Port Scan attack simulator, using UDP type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: IPservidor -> (str) server IP address
          IPsrc -> (string) source IP address
@@ -88,12 +88,12 @@ def PacketCreator(IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+def UDP_attack(IPservidor: str, IPsrc: str, PortSrc: int, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float):
     return PacketCreator(IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
 
 """Author @Javi801
  DDoS Port Scan attack simulator, using UDP type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: totalIPs -> (int) total of source IP address
          IPservidor -> (str) server IP address
@@ -107,8 +107,8 @@ def UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, 
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def UDP_DDoS_attack(totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
-    IPsrcList=randomIP(totalIPs, Seed)
+def UDP_DDoS_attack(totalIPs: int, IPservidor: str, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float):
+    IPsrcList=randomIP(totalIPs, Seed, 1)
     PortSrcList=randomSourcePorts(totalIPs, Seed)
     return PacketCreator(IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 1)
 
@@ -129,7 +129,7 @@ def UDP_DDoS_attack(totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, n
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def UDPgen(PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp):
+def UDPgen(PortSrc: int, PortDst: int, icmpResp, IPsrc: str, IPservidor: str, tiempo: float, interResp: float):
     ipQ=IP(src=IPsrc, dst=IPservidor, proto='udp')
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
@@ -145,7 +145,7 @@ def UDPgen(PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp):
 
 """Author @Javi801
  Port Scanning attack simulator, using Static Port type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: IPsrc -> (string) source IP address
          IPservidor -> (str) server IP address
@@ -158,7 +158,7 @@ def UDPgen(PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp):
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def Domain_attack(IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDominios, Seed, interResp):
+def Domain_attack(IPservidor: str, IPsrc: str, PortSrc: int, tiempoInicial: float, tiempoFinal: float, numDominios: int, Seed: float, interResp: float):
     ############### generando los domininios a atacar ################
     domsFile='ultimos-dominios-1m.txt'
     f = open(domsFile, "r")
@@ -173,12 +173,11 @@ def Domain_attack(IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDom
             break
     f.close()
     ##################################################################
-    NuevoSetPaquetesEnviados=PackagesCreator(IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 2)
-    return NuevoSetPaquetesEnviados
+    return PacketCreator(IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 2)
 
 """Author @Javi801
  DDoS Port Scanning attack simulator, using Static Port type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: totalIPs -> (int) total of source IP address
          IPservidor -> (str) server IP address
@@ -190,8 +189,8 @@ def Domain_attack(IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDom
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def Domain_DDoS_attack(totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDominios, Seed, interResp):
-    IPsrcList=randomIP(totalIPs, Seed)
+def Domain_DDoS_attack(totalIPs: int, IPservidor: str, tiempoInicial: float, tiempoFinal: float, numDominios: int, Seed: float, interResp: float):
+    IPsrcList=randomIP(totalIPs, Seed, 1)
     PortSrcList=randomSourcePorts(totalIPs, Seed)
     ############### generando los domininios a atacar ################
     domsFile='ultimos-dominios-1m.txt'
@@ -207,8 +206,7 @@ def Domain_DDoS_attack(totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDomi
             break
     f.close()
     ##################################################################
-    NuevoSetPaquetesEnviados=PackagesCreator(IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 2)
-    return NuevoSetPaquetesEnviados
+    return PacketCreator(IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 2)
 
 """ Author @Javi801
  Creates an array of ethernet packet (query and answer) with especific values
@@ -223,7 +221,7 @@ def Domain_DDoS_attack(totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDomi
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def DomainGen(PortSrc, dom, IPsrc, IPservidor, t, interResp):
+def DomainGen(PortSrc: int, dom: str, IPsrc: str, IPservidor: str, t: float, interResp: float):
     dom=dom+'.'
     Id=int(RandShort())
     ################### Query packet ###################
@@ -248,7 +246,7 @@ def DomainGen(PortSrc, dom, IPsrc, IPservidor, t, interResp):
 
 """ Author @Javi801
  Port Scan attack simulator, using TCP SYN type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: IPservidor -> (str) server IP address
          IPsrc -> (string) source IP address
@@ -263,12 +261,12 @@ def DomainGen(PortSrc, dom, IPsrc, IPservidor, t, interResp):
  Return: NuevoSetPaquetesEnviados -> Array of packages, with numPaquetesAEnviar
                                      as length
 """
-def TCP_attack(IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
+def TCP_attack(IPservidor: str, IPsrc: str, PortSrc: int, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float):
     return PacketCreator(IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0)
 
 """ Author @Javi801
  DDoS Port Scan attack simulator, using TCP SYN type.
- Creates an array of packages with given values using PackagesCreator function.
+ Creates an array of packages with given values using PacketCreator function.
 
  Params: totalIPs -> (int) total of source IP address
          IPservidor -> (str) server IP address
@@ -282,11 +280,10 @@ def TCP_attack(IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, 
  Return: NuevoSetPaquetesEnviados -> Array of packages, with numPaquetesAEnviar
                                      as length
 """
-def TCP_DDoS_attack(totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp):
-    IPsrcList=randomIP(totalIPs, Seed)
+def TCP_DDoS_attack(totalIPs: int, IPservidor: str, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float):
+    IPsrcList=randomIP(totalIPs, Seed, 1)
     PortSrcList=randomSourcePorts(totalIPs, Seed)
-    NuevoSetPaquetesEnviados=PackagesCreator(IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0)
-    return NuevoSetPaquetesEnviados
+    return PacketCreator(IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0)
 
 """ Author @Javi801
  Creates an array of ethernet packet (query and answer) with especific values
@@ -302,7 +299,7 @@ def TCP_DDoS_attack(totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, n
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def TCPgen(PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp):
+def TCPgen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, t: float, interResp: float):
     ipQ=IP(src=IPsrc, dst=IPservidor, proto='tcp')
     Id=int(RandShort())
     dnsQ=DNS(rd=0, id=Id)
@@ -310,7 +307,7 @@ def TCPgen(PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp):
     SetPaquetesQ=Ether(dst='18:66:da:4d:c0:08', src='18:66:da:e6:36:56')/ipQ/tcpQ/dnsQ
     SetPaquetesQ.time=t
     ipA=IP(proto='tcp', src=IPservidor, dst=IPsrc)
-    tcpA=TCP(sport=PortSrc, dport=PortDst)
+    tcpA=TCP(sport=PortDst, dport=PortSrc)
     SetPaquetesA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')/ipA/tcpA/DNS(id=Id,aa=1)
     SetPaquetesA.time=t+interResp
     if open:
