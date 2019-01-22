@@ -300,7 +300,3 @@ class PacketInserter:
             #### If the file does not exist, we return false because something went wrong
             print("Error file not found")
             return False
-        except:
-            #### If something went wrong, we return false
-            print("Something went wrong")
-            return False

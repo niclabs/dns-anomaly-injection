@@ -1,6 +1,7 @@
 try:
     ##### Sys libraries import and adding the path of modules to use
     import sys
+    import argparse
     sys.path.append('..')
     sys.path.append('../RandomSubdomain')
     
@@ -14,6 +15,7 @@ try:
     import time
     import randFloats as rnd
     import randomSubdomain as rndSb
+    import ipGenerator as ipgen
 except:
 
     #### Librarie not found error
@@ -33,7 +35,7 @@ def createFalseDomains(number: int):
     return domainNames
 
 
-def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):
+def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
     """
         Creates a list of tuples (request,response) to simulate an NXDOMAIN 
         attack to the DNS server
@@ -45,13 +47,16 @@ def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):
     """
     builder = DNSPacketBuilder()
     pkts = []
+    ips = ipgen.randomIP(numberOfIp,time.time(),True)
     for i in range(len(times)):
         idDNS = int(RandShort())
         idQrIp = int(RandShort())
         idRspIp = int(RandShort())
         sport = random.randint(1024,65535)
+        k = random.randint(0,len(ips)-1)
         packetTime = times[i]
         domainName = names[i]
+        srcIp = ips[k]
         z = builder.withSrcIP(srcIp)\
             .withDestIP(destIp)\
             .withSrcPort(sport)\
@@ -68,8 +73,8 @@ def createPackateNXDomain(srcIp:str,destIp:str,times: list,names: list):
 
 def main(args,test=""):
     ##### Reading console input from the user
-    inputFileName = args[1]
-    attackerIP = args[2]
+    inputFileName = 
+    numberIp = args.numberIp
     if len(args)>=4:
         initialTime = int(args[3])
     else:
@@ -84,7 +89,7 @@ def main(args,test=""):
     outputFileName = fileComponents[0]+"-modified"+test+".pcap"
 
     ##### Starting the simulation, setting it's parameters
-    rate = 2000 ##TODO ver estudios de cuantos son por segundo, por ahora 2000 por segundo it's ok
+    rate = random.randint(1000,2000) 
     first = sniff(offline="input/"+inputFileName,count=1)
     if len(first)== 0:
         ti = initialTime
@@ -94,7 +99,7 @@ def main(args,test=""):
     domainNames = createFalseDomains(len(timeOfInsertion))
     
     ##### Creating the packages and generation it's insertion
-    packages = createPackateNXDomain(attackerIP,"200.7.4.7",timeOfInsertion,domainNames)
+    packages = createPackateNXDomain(numberIp,"200.7.4.7",timeOfInsertion,domainNames)
     inserter = PacketInserter()
     print("Empezando a ingresar "+str(len(packages)))
     operation = inserter.withPackets(packages)\
@@ -112,10 +117,13 @@ def main(args,test=""):
     return 1
 #### Runner of the module
 if __name__ == "__main__":
-    arguments = sys.argv
-    if len(arguments) == 2:
-        arguments.append(0)
-        arguments.append(60)
-    if len(arguments) == 3:
-        arguments.append(60)
-    main(arguments)
+    parser = argparse.ArgumentParser(description = "Simulacion de ataque NXDOMAIN")
+    parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
+    parser.add_argument('--fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
+    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='',type=int)
+    parser.add_argument('--dt','--duration',dest='duration',action='store',default=1,help='',type=int)
+    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='',type=int)
+    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='',type=str)
+    
+    parser.parse_args()
+    main(parser.parse_args())

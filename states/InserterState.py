@@ -194,7 +194,7 @@ class FileInsertState(InserterState):
         if len(bufferFile) == 0 and len(bufferAttack) == 0:
             return 
         if len(bufferFile) == 0:
-            ta = bufferAttack[0].time
+            ta = bufferAttack[0][0].time
         elif len(bufferAttack) == 0:
             ta = bufferFile[0].time
         elif len(bufferFile)!= 0 and len(bufferAttack)!= 0:
