@@ -7,7 +7,7 @@ import states.InserterState as state
 
 """
 Packet inserter, inserts packets for the attack simulation
-and creates a new pcap file with the attacks given
+and creates a new pcap file with the attacks given.
 @author: Joaquin Cruz
 """
 class PacketInserter:
@@ -20,7 +20,10 @@ class PacketInserter:
             :param: output is the of the output pcap file with it's extension
             :param: inputDir is the relative path to the input file, it finishes with /
             :param: outputDir is the relative path to the output file directory, it also finishes with /
-            :param: delayResponse is the delays of the response time of the server 
+            :param: delayResponse is the delays of the response time of the server
+            :param: timestamp is the time period where the buffer will be measuring
+            :param: serverTolerance is the number of querie's by the timestamp defined that the server
+                                    can handle
         """   
         self.__packetsToAppend=[]
         self.__input=""
@@ -33,14 +36,27 @@ class PacketInserter:
         self.__timestamp = 0.001
         self.__serverTolerance = 30
     def getTimestamp(self):
-        
+        """
+            Getter for the timestamp field of the object
+            :return: the timestamp defined on in an object instance
+        """
         return self.__timestamp
     def getServerTolerance(self):
-
+        """
+            Getter for the server tolerance
+            :return: the server tolerance
+        """
         return self.__serverTolerance
     def changeState(self,anotherState):
-
+        """
+            Changes the state that the inserter currently have for 
+            another new state.
+            :param: anotherState is the new state of the inserter
+        """
+        actualState  = self.__state
         self.__state = anotherState
+        del actualState
+        
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -130,11 +146,21 @@ class PacketInserter:
         self.__responseDt = dt
         return self
     def withTimestamp(self, timestamp: float):
-
+        """
+            Setter for the server timestamp, this is, the number of seconds that the medition for the 
+            server tolerance will have. For example, if the timestamp is 0.01, the buffers on the inserter will
+            get only packets of a time interval of timestamp seconds. It have to be measured in seconds
+        """
         self.__timestamp = timestamp
         return self
     def withServerTolerance(self, tolerance: int):
-        
+        """
+            Setter for the server tolerance, this is, given the timestamp of the medition, the server can
+            receive a maximum number of tolerance queries in that timestamp.
+            For example, if the timestamp is 0.01 seconds and the tolerance is 30, the server can't get more than
+            30 queries in 0.01 seconds of data analisis.
+            :param: tolerance: int: maximum number of queries that the server can get in the timestamp given
+        """
         self.__serverTolerance = tolerance
         return self
     def _calculateDelay(self,pktsPerSecond: float):
@@ -200,31 +226,35 @@ class PacketInserter:
                 if pktRead == None:
                     break
 
-                #### Putting the packet readed to a buffer for the file
+                #### Processing the data readed and their value.
                 buffer.append(pktRead)
-                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+                (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
             
+            ### Processing the data that have not been written on the pcap file and it's still in the buffer
             while len(buffer) != 0 and len(self.__packetsToAppend) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
-                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+                (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            ### Checking if some buffer it's not emptied
             while len(buffer) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
-                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+                (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+
             while len(self.__packetsToAppend) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
-                (count,queries,ta) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+                (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            ## Writing on the file of the buffers needed
             while len(bufferQueries) != 0 and len(bufferResponse) != 0:
                 if count == 50000:
                     writer.close()
@@ -265,7 +295,7 @@ class PacketInserter:
             #### If the file does not exist, we return false because something went wrong
             print("Error file not found")
             return False
-        """except:
+        except:
             #### If something went wrong, we return false
             print("Something went wrong")
-            return False"""
+            return False

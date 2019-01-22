@@ -1,6 +1,10 @@
 import unittest
+import sys
+sys.path.append("TCP-SYN-Flood/")
 from PacketInserter import *
 from scapy.all import *
+from TCPPacketBuilder import *
+
 class PacketInserterTest(unittest.TestCase):
     def setUp(self):
         self.inserter = PacketInserter()
@@ -23,8 +27,9 @@ class PacketInserterTest(unittest.TestCase):
         self.assertEqual("input/",ins.getInputDir())
         ins.withPcapOutput("lol-modified.pcap")
         self.assertEqual("lol-modified.pcap",ins.getOutputName())
-        ins.withDelay(0.008)
-        self.assertAlmostEqual(0.008,ins.getDelay())
+        ins.withResponseDt(0.008)
+        self.assertAlmostEqual(0.008,ins.getResponseDt())
+        ins.with
     def test_insertion_light(self):
         pass
     def test_insertion_full(self):
