@@ -55,8 +55,7 @@ class PacketInserter:
         """
         actualState  = self.__state
         self.__state = anotherState
-        del actualState
-        
+        del actualState  
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -93,6 +92,12 @@ class PacketInserter:
             :return: the ip of the server set
         """
         return self.__serverIp
+    def getState(self):
+        """
+            Getter for the currently state of the inserter.
+            :return: the current state
+        """ 
+        return self.__state
     def withPackets(self,packets: list):
         """
             Sets the list to packets to be inserted in the pcap file,
