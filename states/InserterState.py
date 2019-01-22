@@ -147,7 +147,6 @@ class ReadNOkState(InserterState):
         if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
         if len(queryList) < self.getInserter().getServerTolerance():
-<<<<<<< HEAD
             self.getInserter().changeState(ReadOkState(self.getInserter()))      
         return (count,queries,ta,writer)
 """
@@ -156,11 +155,6 @@ class ReadNOkState(InserterState):
     states change to an server ok or server not ok state.
     @author Joaquin Cruz
 """
-=======
-            self.getInserter().changeState(ReadOkState(self.getInserter()))
-        return (count,queries,ta)
-
->>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75
 class FileInsertState(InserterState):
     def __init__(self,inserter : PacketInserter):
         super().__init__(inserter)
@@ -204,12 +198,8 @@ class FileInsertState(InserterState):
             if count == 50000:
                 writer.close()
                 del writer
-<<<<<<< HEAD
                 writerAux = PcapWriter(outputDirection,append = True,sync=True) 
                 writer = writerAux
-=======
-                writer = PcapWriter(outputDirection,append = True,sync=True)
->>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75
                 count = 0
                 continue
             if len(responseList) == 0:
@@ -231,8 +221,4 @@ class FileInsertState(InserterState):
             self.getInserter().changeState(ReadNOkState(self.getInserter()))
         else:
             self.getInserter().changeState(ReadOkState(self.getInserter()))
-<<<<<<< HEAD
         return (count,queries,ta,writerAux)
-=======
-        return (count,queries,ta)
->>>>>>> a1cb9bb4a9f6d17a21be588cc09cb43099bdda75
