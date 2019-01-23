@@ -68,7 +68,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
 
 def main(args,test=""):
     ##### Reading console input from the user
-    inputFileName = args.fileInput
+putFileName = args.fileInput
     numberIp = args.numberIp
     initialTime = args.ti
     atckDuration = args.duration
@@ -111,11 +111,11 @@ def main(args,test=""):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Simulacion de ataque NXDOMAIN")
     parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
-    parser.add_argument('--fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
-    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='',type=int)
-    parser.add_argument('--dt','--duration',dest='duration',action='store',default=1,help='',type=int)
-    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='',type=int)
-    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='',type=str)
+    parser.add_argument('--fi','--file_input',dest='fileInput',action='store',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
+    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='Tiempo inicial del ataque',type=int)
+    parser.add_argument('--dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque',type=int)
+    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips de la net',type=int)
+    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='ruta del directorio del output, debe tener un / alfinal',type=str)
     
     parser.parse_args()
     main(parser.parse_args())

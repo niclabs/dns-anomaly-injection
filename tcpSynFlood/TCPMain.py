@@ -83,7 +83,8 @@ def main(args,test=""):
     numberOfIp = args.numberIp
     initialTime = args.ti
     duration = args.duration
-    
+    timestamp = args.timestamp
+    tolerance = args.tolerance
     ##### Generating the files of the output
     destinyIP = "200.7.4.7" #Ip of the server
     direction = "input/"+fileName
@@ -105,24 +106,27 @@ def main(args,test=""):
                 .withOutputDir("output/")\
                 .withPcapOutput(output)\
                 .withServerIp("200.7.4.7")\
-                .withResponseDt(0.0006)\
-                .withTimestamp(0.01)\
-                .withServerTolerance(10)\
+                .withResponseDt(0.006)\
+                .withTimestamp(timestamp)\
+                .withServerTolerance(tolerance)\
                 .insert()
-    ##TODO agregar la estadistica al codigo de los DNS.
     ##### Seeing that everything is ok
     if operation:
         print("Packets Inserted")
         return 0
     return 1
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Simulacion de ataque NXDOMAIN")
+    parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
     parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
     parser.add_argument('--fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
-    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='',type=int)
-    parser.add_argument('--dt','--duration',dest='duration',action='store',default=60,help='',type=int)
-    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='',type=int)
-    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='',type=str)
-    
-    parser.parse_args()
-    main(parser.parse_args())
+    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
+    parser.add_argument('--dt','--duration',dest='duration',action='store',default=60,help='tiempo de duracion del ataque',type=int)
+    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
+    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
+    parser.add_argument('--time','--timestamp',dest='timestamp',action='store',default=0.001,help='tiempo de la ventana de medicion',type=float)
+    parser.add_argument('--tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
+    arguments = parser.parse_args()
+    if arguments.timestamp >= 1.00:
+        arguments.timestamp = 1.00
+        print("Warning! Changed the timestamp to one second!")
+    main(arguments)

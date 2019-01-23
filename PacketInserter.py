@@ -53,9 +53,7 @@ class PacketInserter:
             another new state.
             :param: anotherState is the new state of the inserter
         """
-        actualState  = self.__state
-        self.__state = anotherState
-        del actualState  
+        self.__state = anotherState 
     def getPacketsToAppend(self):
         """
             Getter for the packet list
@@ -234,6 +232,7 @@ class PacketInserter:
                 #### Processing the data readed and their value.
                 buffer.append(pktRead)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+            
             ## We have readed all the pcap, we eliminate the reader resources
             del reader
         
