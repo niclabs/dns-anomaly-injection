@@ -19,7 +19,7 @@ from scapy.all import *
 def createPackets(fileDirectionName: str,dip: str,number: int,initialTime=0,duration = 1,numberIp = 1):
     """
         Creates a series of packets of information that are going to be added to the pcap file
-        :param: fileDirectionName it's the name of the file which is going to be modified
+        :param: fileDirectionName it's the name of the file which is going to be modified with it's direction
         :param dip:str: the destiny IP
         :param number:int: the number per second to create
         :param duration: the duration of the attack on the file
@@ -80,19 +80,25 @@ def main(args,test=""):
     """
     ##### Reading the inputs from the user
     fileName = args.fileInput
+    inputdir = args.inputDirectory
+    outputdir = args.outputDirectory
     numberOfIp = args.numberIp
     initialTime = args.ti
     duration = args.duration
     timestamp = args.timestamp
     tolerance = args.tolerance
+    pps = args.pps
+    despps = args.des
     ##### Generating the files of the output
     destinyIP = "200.7.4.7" #Ip of the server
-    direction = "input/"+fileName
+    direction = inputdir+fileName
     outName = fileName.split(".pcap")
     output = outName[0]+"-modified"+test+".pcap"
 
     ##### Getting prepared for generating the attack
-    number_packets_second = random.randint(2000,5000)
+    number_packets_second = int(abs(random.gauss(pps,despps)))
+    while number_packets_second == 0:
+        number_packets_second = int(abs(random.gauss(pps,despps)))
     print("Generating attack of "+str(number_packets_second)+" per second")
     pkts=createPackets(direction,destinyIP,number_packets_second,initialTime,duration,numberOfIp)
     print("Number of packets created: "+str(2*len(pkts)))
@@ -101,9 +107,9 @@ def main(args,test=""):
     print("Inserting packets on the modified pcap")
     ins = PacketInserter()
     operation = ins.withPackets(pkts)\
-                .withInputDir("input/")\
+                .withInputDir(inputdir)\
                 .withPcapInput(fileName)\
-                .withOutputDir("output/")\
+                .withOutputDir(outputdir)\
                 .withPcapOutput(output)\
                 .withServerIp("200.7.4.7")\
                 .withResponseDt(0.006)\
@@ -117,14 +123,16 @@ def main(args,test=""):
     return 1
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
-    parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
-    parser.add_argument('--fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
-    parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
-    parser.add_argument('--dt','--duration',dest='duration',action='store',default=60,help='tiempo de duracion del ataque',type=int)
-    parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
-    parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
-    parser.add_argument('--time','--timestamp',dest='timestamp',action='store',default=0.001,help='tiempo de la ventana de medicion',type=float)
-    parser.add_argument('--tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
+    parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
+    parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=4500,type=int,help="Packets per second of the attack")
+    parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=1000,type=int,help="Standard desviation of the packets per second of the attack")
+    parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
+    parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
+    parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
+    parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
+    parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
+    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.001,help='tiempo de la ventana de medicion, medido en segundos',type=float)
+    parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00
