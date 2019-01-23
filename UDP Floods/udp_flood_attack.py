@@ -74,7 +74,7 @@ def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, ti
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
     udpQ=UDP(sport=PortSrc, dport=PortDst)
-    datos=Raw(load=''.join(random.choice(string.ascii_letters) for i in range(1458))) #Datos de peso
+    datos=Raw(load=datos(0,contador,1458)) #Datos de peso
     QPacket=etherQ/ip/udpQ/datos
     if not(open):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
@@ -83,3 +83,16 @@ def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, ti
         APacket=etherA/IP(src=IPservidor, dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
+
+
+def datos(aleatorio, contador, largo, solo_letras):
+    letras=string.ascii_letters
+    todo=letras+string.punctuation
+    if aleatorio and solo_letras:
+        return ''.join(random.choice(letras) for i in range(largo))
+    if aleatorio:
+        return ''.join(random.choice(todo) for i in range(largo))
+    if solo_letras:
+        final=letras[contador:]
+        while(len(final)<largo):
+            final+=letras[:largo-len(final]
