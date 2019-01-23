@@ -31,8 +31,8 @@ def mainDoS(srv_ip:string, target_ip:string, src_port:int, ext:int, packets:int,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "Amplification attack")
-    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets that the server can answer in 0.1 sec", type=int)
-    parser.add_argument("-sf", "--src_file", help="Name of the source pcap file with extension")
+    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets per unit of time that the server can answer", type=int)
+    parser.add_argument("-unitt", "--unit_time", help= "Fraction of time for server tolerance", type=float)
     parser.add_argument("-df", "--dst_file", help="Name of the new pcap file with extension")
     parser.add_argument("-sp", "--src_path", help="Relative path to the input file, it finishes with '/'")
     parser.add_argument("-dp", "--dst_path", help="Relative path to the output file,, it finishes with '/'")
@@ -61,6 +61,6 @@ if __name__ == '__main__':
             .withInputDir(args.src_path)\
             .withOutputDir(args.dst_path)\
             .withServerIp(args.server_ip)\
-            .withTimestamp(0.1)\
+            .withTimestamp(args.unit_time)\
             .withServerTolerance(args.server_tolerance)\
             .insert()

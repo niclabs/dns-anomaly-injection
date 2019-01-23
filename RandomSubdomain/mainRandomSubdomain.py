@@ -32,7 +32,8 @@ def main(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:s
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "DoS Random Subdomain attack")
-    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets that the server can answer in 0.1 sec", type=int)
+    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets per unit of time that the server can answer", type=int)
+    parser.add_argument("-unitt", "--unit_time", help= "Fraction of time for server tolerance", type=float)
     parser.add_argument("-sf", "--src_file", help = "Name of the source pcap file with extension, ex: blanco.pcap.gz")
     parser.add_argument("-df", "--dst_file", help = "Name of the new pcap file with extension")
     parser.add_argument("-sp", "--src_path", help = "Relative path to the input file, it finishes with '/'")

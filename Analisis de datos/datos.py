@@ -2,7 +2,7 @@ import csv
 import numpy as np
 
 tiempos= []
-with open('rcode5.csv', newline='') as csvfile:
+with open('tcp.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=" ")
     i = 0
     for row in reader:
