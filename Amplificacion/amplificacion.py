@@ -12,7 +12,7 @@ from randomSubdomain import genIp
 from randomSubdomain import regularResponse
 
 
-def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets, server_tolerance):
+def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets, server_tolerance, unit_time):
     """
     Check if the arguments are correct
     Param: +src_file: Name of the source pcap file with extension
@@ -29,7 +29,8 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
            +dom_ip: Asked domain ip
            +snd_ip: Asked domain server ip
            +number_botnets: Number of botnets
-           +server_tolerance: Amount of packets that the server can answer in 0.1 sec
+           +server_tolerance: Amount of packets per unit of time that the server can answer
+           +unit_time: Fraction of time for server tolerance
     """
     try:
         assert(src_path[len(src_path) - 1] == "/")
@@ -94,6 +95,10 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
         assert(int(server_tolerance) > 0)
     except:
         raise Exception("Server tolerance must be greater than 0")
+    try:
+        assert(float(unit_time) > 0)
+    except:
+        raise Exception("Fraction of time for server tolerance must be greater than 0")
 
 
 def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):
@@ -157,6 +162,8 @@ def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c:
     time = genInter(seed, ti, tf, c)
     for t in time:
         dt = abs(random.gauss(0.0001868, 0.0000297912738902))
+        while(dt == 0):
+            dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         p = amplificationBuilder(ip, serv, srcport, qname, t)
         if(ans_type == 1):
             a = amplificationResponse(p, dt)

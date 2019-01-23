@@ -22,20 +22,21 @@ def checkValidIp(ip : string):
                 return False
     return True
 
-def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, packets, ti, n_bot):
+def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, dom, ext, packets, ti, n_bot, server_tolerance, unit_time):
     """
     Check if the arguments are correct
     Param: +src_file: Name of the source pcap file with extension
            +dst_file: Name of the new pcap file with extension
            +src_path: Relative path to the input file, it finishes with '/'
            +dst_path: Relative path to the output file, it finishes with '/'
-           +src_ip: Source ip
            +srv_ip: Server ip
            dom: Target domain
            +ext: Attack extension (seconds)
            +packets:  Amount of packets per second
            +ti: Start date
            +n_bot : Number of botnets
+           +server_tolerance: Amount of packets per unit of time that the server can answer
+           +unit_time: Fraction of time for server tolerance
     """
     try:
         assert(src_path[len(src_path) - 1] == "/")
@@ -60,10 +61,6 @@ def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, 
     except:
         raise Exception("Invalid output file extension")
     try:
-        assert(checkValidIp(src_ip))
-    except:
-        raise Exception("Invalid source ip")
-    try:
         assert(checkValidIp(srv_ip))
     except:
         raise Exception("Invalid server ip")
@@ -83,6 +80,14 @@ def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, 
         assert(int(n_bot) > 0)
     except:
         raise Exception("Number of botnets must be greater than 0")
+    try:
+        assert(int(server_tolerance) > 0)
+    except:
+        raise Exception("Server tolerance must be greater than 0")
+    try:
+        assert(float(unit_time) > 0)
+    except:
+        raise Exception("Fraction of time for server tolerance must be greater than 0")
 
 def randomSub(seed: float):
     """
@@ -101,18 +106,6 @@ def genIp():
     """
     ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
     return ip
-
-def gen_n_ip(n: int):
-    """
-    Gives an array of n random ip
-    Param: n: Number of ip
-    return: Array
-    """
-    ans=[]
-    for i in range(n):
-        ans.append(genIp())
-    return ans
-
 
 def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int, t: float, seed: float):
     """

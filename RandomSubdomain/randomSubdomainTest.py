@@ -35,28 +35,6 @@ class genIpTest(unittest.TestCase):
         self.assertTrue(int(values[2]) >= 0 and int(values[2])<=255, "Invalid ip")
         self.assertTrue(int(values[3]) >= 0 and int(values[3])<=255, "Invalid ip")
 
-class gen_n_ipTest(unittest.TestCase):
-    def setUp(self):
-        self.n1 = 30
-        self.n2 = 0
-        self.n3 = 1
-        self.ip1 = gen_n_ip(self.n1)
-        self.ip2 = gen_n_ip(self.n2)
-        self.ip3 = gen_n_ip(self.n3)
-
-    def test_number_of_created_ip(self):
-        self.assertEqual(len(self.ip1), self.n1, "Wrong amount of created ip")
-        self.assertEqual(len(self.ip2), self.n2, "Wrong amount of created ip")
-        self.assertEqual(len(self.ip3), self.n3, "Wrong amount of created ip")
-
-    def test_valid_ip(self):
-        for ip in self.ip1:
-            self.assertTrue(checkValidIp(ip), "Invalid created ip")
-        for ip in self.ip2:
-            self.assertTrue(checkValidIp(ip), "Invalid created ip")
-        for ip in self.ip3:
-            self.assertTrue(checkValidIp(ip), "Invalid created ip")
-
 class requestBuilderTest(unittest.TestCase):
     def setUp(self):
         self.dom = "hola.cl"
