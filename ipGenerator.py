@@ -25,7 +25,7 @@ def randomIP(total, Seed, ddos):
         ip='200.7.4.7'
         while(ip=='200.7.4.7'):
             if ddos and total>256:
-                    l=random.randint(0,255)
+                l=random.randint(0,255)
             elif not(ddos):
                 j=random.randint(0,255)
                 k=random.randint(0,255)

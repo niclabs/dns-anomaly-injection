@@ -20,9 +20,9 @@ class udp_flood_attackTest(unittest.TestCase):
 
 
     def test_udpPairGen_query(self):
-        packUDP_openPort=udpPairGen(300, 700, 1, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
-        packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
-        self.assertFalse(packUDP_openPort[0]==packUDP_closePort[0], '\nproblemas entre el paquete de pregunta de puerto abierto y cerrado\nScript "udp_flood_attack", funcion "udpPairGen"')
+        packUDP_openPort=udpPairGen(300, 700, 1, '200.7.4.7', '190.34.123.200', 12.6, 0.1, 6, 0)
+        packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1, 6, 0)
+        self.assertEqual(packUDP_openPort[0],packUDP_closePort[0], '\nproblemas entre el paquete de pregunta de puerto abierto y cerrado\nScript "udp_flood_attack", funcion "udpPairGen"')
         ask=packUDP_openPort[0]
 
         self.assertEqual(ask.time, 12.6, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')
@@ -36,7 +36,7 @@ class udp_flood_attackTest(unittest.TestCase):
 
 
     def test_udpPairGen_response(self):
-        packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1)
+        packUDP_closePort=udpPairGen(300, 700, 0, '200.7.4.7', '190.34.123.200', 12.6, 0.1, 6, 0)
         ans=packUDP_closePort[1]
 
         self.assertEqual(ans.time, 12.7, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpPairGen"')

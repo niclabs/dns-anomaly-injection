@@ -49,7 +49,7 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
             IPsrc=IPsrcList[j]
             if len(PortSrcList)>1:
                 PortSrc=PortSrcList[j]
-        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp)
+        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp, len(NuevoSetPaquetesEnviados), Seed)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
     return NuevoSetPaquetesEnviados
 
@@ -66,15 +66,17 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
          IPservidor -> (str) Server IP address
          tiempo -> (float) time at the packet is sent
          interResp -> (float) interval between query and answer
+         contador -> (int) total of packs sents
+         Seed -> (float) seed for randomize
 
  Return: SetPaquetes -> (list(Ether())) An ethernet packet list
 """
-def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, tiempo: float, interResp: float):
+def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, tiempo: float, interResp: float, contador: int, Seed: float):
     ip=IP(src=IPsrc, dst=IPservidor, proto='udp')
     etherQ=Ether(src='18:66:da:e6:36:56', dst='18:66:da:4d:c0:08')
     etherQ.time=tiempo
     udpQ=UDP(sport=PortSrc, dport=PortDst)
-    datos=Raw(load=datos(0,contador,1458)) #Datos de peso
+    datos=Raw(load=rF.randomString(0,contador,1458,1, Seed)) #Datos de peso
     QPacket=etherQ/ip/udpQ/datos
     if not(open):
         etherA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')
@@ -83,16 +85,3 @@ def udpPairGen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, ti
         APacket=etherA/IP(src=IPservidor, dst=IPsrc)/icmp
         return [QPacket,APacket]
     return [QPacket]
-
-
-def datos(aleatorio, contador, largo, solo_letras):
-    letras=string.ascii_letters
-    todo=letras+string.punctuation
-    if aleatorio and solo_letras:
-        return ''.join(random.choice(letras) for i in range(largo))
-    if aleatorio:
-        return ''.join(random.choice(todo) for i in range(largo))
-    if solo_letras:
-        final=letras[contador:]
-        while(len(final)<largo):
-            final+=letras[:largo-len(final]

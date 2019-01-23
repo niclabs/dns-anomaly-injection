@@ -1,4 +1,5 @@
 import random as r
+import string
 
 """ Author @Javi801
  Gives an array with "cantidad" of random floats, between Tmin and Tmax, using
@@ -8,7 +9,7 @@ import random as r
        Tmin -> (float) minimun number
        Tmax -> (float) maximal number
        cantidad -> (int) total of number required
-       
+
  Return: an array of float numbers
 """
 def gen(Seed, Tmin, Tmax, cantidad):
@@ -63,3 +64,44 @@ def genInter(Seed, tmin, tmax, cantidad):
         t0 += 1
         t1 += 1
     return inter
+
+
+""" @Javi801
+ Gives an array with letters or letter plus numbers, with the length given. The
+ content can be random if you enter the parameter aleatorio=1.
+
+ Param: aleatorio -> (boolean) True if the content must be random, false if not
+        contador -> (int) index where start to cut letters and numbers to add at
+                    final array
+        largo -> (int) length of the array
+        solo_letras -> (boolean) True if the content must be only letter, false
+                       if it can be numbers as well
+        Seed -> (float) seed for randomize
+
+ Return: inter -> (float) interval calculated
+"""
+def randomString(aleatorio, contador, largo, solo_letras, Seed):
+    r.seed(Seed)
+    letras=string.ascii_letters
+    todo=string.ascii_letters+string.digits
+    if aleatorio and solo_letras:
+        return ''.join(r.choice(letras) for i in range(largo))
+    if aleatorio:
+        return ''.join(r.choice(todo) for i in range(largo))
+    if solo_letras:
+        contador=contador%len(letras)
+        final=letras[contador:]
+        if len(final)<largo:
+            m=int((largo-len(final))/len(letras))
+            final+=(letras*m)
+            final+=letras[:largo-len(final)]
+        final=final[:largo]
+        return final
+    contador=contador%len(todo)
+    final=todo[contador:]
+    if len(final)<largo:
+        m=int((largo-len(final))/len(todo))
+        final+=(todo*m)
+        final+=todo[:largo-len(final)]
+    final=final[:largo]
+    return final

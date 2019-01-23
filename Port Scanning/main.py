@@ -35,7 +35,8 @@ def main():
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
-    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por decima de segundo que acepta el servidor (d: 350)', type=int, default=35)
+    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por unidad de tiempo que acepta el servidor (d: 42 por centecima de seg)', type=int, default=42)
+    parser.add_argument("-ut", "--time_unit", help='Fraccion de segundo con la cual se mide la capacidad del servidor (d: centecima de segundo)', type=float, default=0.01)
     args = parser.parse_args()
 
     #################### Manejo de los nombres de archivos ####################
@@ -63,6 +64,13 @@ def main():
     totalInfectados=args.total_of_zombies
     PortSrc=args.sport
     tolerancia=args.server_tolerance
+    uTiempo=args.time_unit
+    ###################### Limite para la unidad de tiempo #####################
+    if uTiempo>1:
+        print('Dado el algoritmo de insersicion, no se permite utilizar un valor menor a 1 segundo')
+        tolerancia=tolerancia/uTiempo
+        uTiempo=1
+    ############################################################################
     #################### Verificacion de valores ingresados ####################
     try:
         assert(len(nombrePktFin)>0 and len(nombrePktIni)>0)
@@ -179,7 +187,7 @@ def main():
                 .withOutputDir("output/")\
                 .withPcapOutput(nombrePktFin)\
                 .withServerIp(IPservidor)\
-                .withTimestamp(0.1)\
+                .withTimestamp(uTiempo)\
                 .withServerTolerance(tolerancia)\
                 .insert()
     if operation:
