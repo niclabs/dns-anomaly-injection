@@ -40,7 +40,7 @@ def PacketCreator(IPservidor: str, IPlist: list, PortSrcList: list, datosMultipl
     if attackType==0 or attackType==1:
         datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     copia_seguridad=datos[:]
-    if len(IPlist)==1:
+    if len(IPlist)==1: #Para asegurar que la funcion randint no se caiga
         IPlist+=IPlist
         PortSrcList+=PortSrcList
     tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
@@ -49,23 +49,25 @@ def PacketCreator(IPservidor: str, IPlist: list, PortSrcList: list, datosMultipl
     for i in range(len(tiempos)):
         if len(datos)==0:
             datos=copia_seguridad[:]
+        #Se selecciona el puerto o dominio a atacar
         j=0
         if len(datos)>1:
             j=random.randint(0,len(datos)-1)
         datoAInsertar=datos.pop(j)
+        #Se selecciona la IP y el puerto de origen
         k=random.randint(0,len(PortSrcList)-1)
         IPsrc=IPlist[k]
         PortSrc=PortSrcList[k]
 
-        if attackType==0:
+        if attackType==0: #Si el ataque es TCP
             SetPaquetes=TCPgen(PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], IPsrc, IPservidor, tiempos[i], interResp)
-        elif attackType==1:
+        elif attackType==1: #Si el ataque es UDP
             icmpResp=not(datoAInsertar in datosMultiples[0]) and (tiempos[i]-last_icmpResp)>=60
             if icmpResp:
                 last_icmpResp=tiempos[i]+interResp
                 copia_seguridad.remove(datoAInsertar) #Se elimina el puerto cerrado de la lista pues ya se obtuvo un mensaje ICMP
             SetPaquetes=UDPgen(PortSrc, datoAInsertar, icmpResp, IPsrc, IPservidor, tiempos[i], interResp)
-        else:
+        else: #Si el ataque es dirigido a otro servidor pero pasa por este
             SetPaquetes=DomainGen(PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], interResp)
 
         NuevoSetPaquetesEnviados+=[SetPaquetes]
