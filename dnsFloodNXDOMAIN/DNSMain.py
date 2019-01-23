@@ -1,25 +1,20 @@
-try:
-    ##### Sys libraries import and adding the path of modules to use
-    import sys
-    import argparse
-    sys.path.append('..')
-    sys.path.append('../RandomSubdomain')
-    
-    ##### Libraries and module to use, created by us or scapy
-    
-    from scapy.all import *
-    from PacketInserter import *
-    from DNSPacketBuilder import *
 
-    ##### Python libraries used
-    import time
-    import randFloats as rnd
-    import randomSubdomain as rndSb
-    import ipGenerator as ipgen
-except:
+##### Sys libraries import and adding the path of modules to use
+import sys
+import argparse
+sys.path.append('..')
+    
+##### Libraries and module to use, created by us or scapy
+    
+from scapy.all import *
+from PacketInserter import *
+from DNSPacketBuilder import *
 
-    #### Librarie not found error
-    raise Exception("Be sure to have all the libraries installed")
+##### Python libraries used
+import time
+import randFloats as rnd
+import RandomSubdomain.randomSubdomain as rndSb
+import ipGenerator as ipgen
 
 
 def createFalseDomains(number: int):
@@ -73,23 +68,18 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
 
 def main(args,test=""):
     ##### Reading console input from the user
-    inputFileName = 
+    inputFileName = args.fileInput
     numberIp = args.numberIp
-    if len(args)>=4:
-        initialTime = int(args[3])
-    else:
-        initialTime = 0
-    if len(args)>=5:
-        atckDuration = int(args[4])
-    else:
-        atckDuration = 60
-    
+    initialTime = args.ti
+    atckDuration = args.duration
+
     ##### Creating the right names for the output file
     fileComponents = inputFileName.split('.pcap')
     outputFileName = fileComponents[0]+"-modified"+test+".pcap"
 
     ##### Starting the simulation, setting it's parameters
     rate = random.randint(1000,2000) 
+    print("Generating attack of "+str(rate)+" packets per second")
     first = sniff(offline="input/"+inputFileName,count=1)
     if len(first)== 0:
         ti = initialTime
@@ -99,9 +89,11 @@ def main(args,test=""):
     domainNames = createFalseDomains(len(timeOfInsertion))
     
     ##### Creating the packages and generation it's insertion
+    print("Creating the packets")
     packages = createPackateNXDomain(numberIp,"200.7.4.7",timeOfInsertion,domainNames)
+    print("Number of packets created: "+str(2*len(packages)))
     inserter = PacketInserter()
-    print("Empezando a ingresar "+str(len(packages)))
+    print("Inserting packets on the modified pcap")
     operation = inserter.withPackets(packages)\
                 .withInputDir("input/")\
                 .withPcapInput(inputFileName)\

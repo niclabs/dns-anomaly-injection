@@ -1,7 +1,7 @@
 try:
     import sys
-    sys.path.append('../tcpSynFlood')
-    from AbstractPacketBuilder import *
+    sys.path.append('..')
+    from tcpSynFlood.AbstractPacketBuilder import *
     from scapy.all import *
 except:
     raise Exception("You don't have some libraries, pls install")

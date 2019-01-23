@@ -27,7 +27,7 @@ class DNSPacketBuilderTest(unittest.TestCase):
         self.assertAlmostEqual(0.0,dnsBuilder.getTime())
         self.assertEqual("",dnsBuilder.getDomain())
         self.assertEqual(0,dnsBuilder.getIdDNS())
-        self.assertAlmostEqual(0.00015,dnsBuilder.getResponseDT())
+        self.assertAlmostEqual(0.0006,dnsBuilder.getResponseDT())
     def test_construct_query(self):
         ether = Ether(src= self.etherSrc, dst=self.etherDst)
         ip = IP(id=self.qrIdIp,src=self.srcIp,dst=self.dstIp)
@@ -46,6 +46,12 @@ class DNSPacketBuilderTest(unittest.TestCase):
                             .withDomain(self.domain)\
                             .withIdDNS(self.idDNS)\
                             .build()
+        self.assertTrue(request.haslayer(Ether))
+        self.assertTrue(request.haslayer(IP))
+        self.assertTrue(request.haslayer(UDP))
+        self.assertTrue(request.haslayer(DNS))
+        self.assertFalse(request.haslayer(TCP))
+        self.assertNotEqual(request.getlayer(IP).src,request.getlayer(IP).dst)
         self.assertEqual(pkt,request)
     def test_construct_response(self):
         ether = Ether(src= self.etherDst, dst=self.etherSrc)
@@ -64,6 +70,12 @@ class DNSPacketBuilderTest(unittest.TestCase):
                             .withDomain(self.domain)\
                             .withIdDNS(self.idDNS)\
                             .build()
+        self.assertTrue(response.haslayer(Ether))
+        self.assertTrue(response.haslayer(IP))
+        self.assertTrue(response.haslayer(UDP))
+        self.assertTrue(response.haslayer(DNS))
+        self.assertFalse(response.haslayer(TCP))
+        self.assertNotEqual(response.getlayer(IP).src,response.getlayer(IP).dst)
         self.assertEqual(pkt,response)
     def test_construct_both(self):
         etherQr = Ether(src= self.etherSrc, dst=self.etherDst)
@@ -89,6 +101,13 @@ class DNSPacketBuilderTest(unittest.TestCase):
                             .withDomain(self.domain)\
                             .withIdDNS(self.idDNS)\
                             .build()
+        requestIPLayer = request.getlayer(IP)
+        requestDNSLayer = request.getlayer(DNS)
+        responseIPLayer = response.getlayer(IP)
+        responseDNSLayer = response.getlayer(DNS)
+        self.assertEqual(requestIPLayer.src,responseIPLayer.dst)
+        self.assertEqual(requestIPLayer.dst,responseIPLayer.src)
+        self.assertEqual(requestDNSLayer.id,responseDNSLayer.id)
         self.assertEqual((pktQr,pktResp),(request,response))
 if __name__ == "__main__":
     unittest.main()

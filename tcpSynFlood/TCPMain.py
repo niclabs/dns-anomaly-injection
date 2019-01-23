@@ -1,32 +1,36 @@
-try:
-    import sys
-    import argparse
-    sys.path.append('..')
-    import randFloats as rnd
-    import ipGenerator as ipg
-    from PacketInserter import *
-    from scapy.all import *
-    import random
-    import time
-    from TCPPacketBuilder import *
-except:
-    raise Exception("Get assure that every library is avalaible")
-def createPackets(fileName: str,dip: str,number: int,initialTime=0,duration = 60,numberIp = 1):
+### Imports 
+### Of console and system configurations and parser, python main libraries
+import sys
+import argparse
+sys.path.append('..')
+import random
+import time
+
+### Modules of functions and objects made by us
+import randFloats as rnd
+import ipGenerator as ipg
+from PacketInserter import *
+from TCPPacketBuilder import *
+
+### Scapy librarie
+from scapy.all import *
+
+
+def createPackets(fileDirectionName: str,dip: str,number: int,initialTime=0,duration = 1,numberIp = 1):
     """
         Creates a series of packets of information that are going to be added to the pcap file
-        :param: fileName it's the name of the file which is going to be modified
-        :param sip:str: the source IP
+        :param: fileDirectionName it's the name of the file which is going to be modified
         :param dip:str: the destiny IP
         :param number:int: the number per second to create
         :param duration: the duration of the attack on the file
         :return: a list of the packets to insert
     """
     #### First we create a list of random times and the ip's
-    first = sniff(offline=fileName,count=1)
+    first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
     times =rnd.genInter(time.time(),ti,ti+duration,number)
     responseTime=0.0006
-    print("Creando Ip's del ataque")
+    print("Creating Ip's of the attack")
     ips = ipg.randomIP(numberIp,time.time(),True)
     #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()
@@ -90,10 +94,10 @@ def main(args,test=""):
     number_packets_second = random.randint(2000,5000)
     print("Generating attack of "+str(number_packets_second)+" per second")
     pkts=createPackets(direction,destinyIP,number_packets_second,initialTime,duration,numberOfIp)
-    print("Paquetes creados: "+str(2*len(pkts)))
+    print("Number of packets created: "+str(2*len(pkts)))
 
     ##### Insertion of the packets generated
-    print("Empezando a ingresar paquetes en pcap")
+    print("Inserting packets on the modified pcap")
     ins = PacketInserter()
     operation = ins.withPackets(pkts)\
                 .withInputDir("input/")\

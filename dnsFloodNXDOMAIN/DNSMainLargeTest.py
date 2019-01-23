@@ -1,7 +1,7 @@
-import unittest
 import argparse
-import TCPMain as m
-class LargeTest(unittest.TestCase):
+import unittest
+import DNSMain as m
+class DNSMainLargeTest(unittest.TestCase):
     def setUp(self):
         self.parser = argparse.ArgumentParser(description = "Simulacion de ataque NXDOMAIN")
         self.parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
@@ -14,5 +14,6 @@ class LargeTest(unittest.TestCase):
     def test_large(self):
         ok = m.main(self.parser.parse_args(self.args),"--large_test")
         self.assertEqual(0,ok)
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     unittest.main()

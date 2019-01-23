@@ -234,7 +234,9 @@ class PacketInserter:
                 #### Processing the data readed and their value.
                 buffer.append(pktRead)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-            
+            ## We have readed all the pcap, we eliminate the reader resources
+            del reader
+        
             ### Processing the data that have not been written on the pcap file and it's still in the buffer
             while len(buffer) != 0 and len(self.__packetsToAppend) != 0:
                 dt = math.ceil(ta-ti)
