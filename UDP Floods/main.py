@@ -29,7 +29,7 @@ def main():
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
-    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
+    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial", type=float, default=0)
     parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por unidad de tiempo que acepta el servidor (d: 42 por centecima de seg)', type=int, default=42)
     parser.add_argument("-ut", "--time_unit", help='Unidad de tiempo con la cual se mide la capacidad del servidor (d: centecima de segundo)', type=float, default=0.01)
     args = parser.parse_args()
@@ -96,7 +96,7 @@ def main():
     except:
         raise Exception("El numero de paquetes por segundo a enviar debe ser mayor a 0")
     try:
-        assert(interResp>0)
+        assert(interResp>=0)
     except:
         raise Exception("El intervalo de respuesta debe ser mayor a 0")
     try:

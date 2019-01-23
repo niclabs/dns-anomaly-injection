@@ -35,6 +35,7 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
     puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
     NuevoSetPaquetesEnviados=[]
+    dt=interResp
     for i in range(len(tiempos)):
         if len(puertos)==0:
             puertos=puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:]
@@ -49,7 +50,12 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
             IPsrc=IPsrcList[j]
             if len(PortSrcList)>1:
                 PortSrc=PortSrcList[j]
-        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp, len(NuevoSetPaquetesEnviados), Seed)
+        if interResp==0:
+            while dt==0:
+                dt=abs(random.gauss(0.0001868, 0.0000297912738902))
+        else:
+            dt=interResp
+        SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], dt, len(NuevoSetPaquetesEnviados), Seed)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
     return NuevoSetPaquetesEnviados
 

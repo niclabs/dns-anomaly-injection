@@ -15,7 +15,7 @@ def main():
     ###################### Manejo de valores por consola ######################
     parser = argparse.ArgumentParser(description='Port Scanning attack simulator')
     parser.add_argument("-ff", "--final_file", help="Sufijo para el nombre del archivo donde guardar el ataque", default='PortScanningAttack')
-    parser.add_argument("-f", "--file", help="Nombre del archivo a procesar, ejemplo: ej.pcap")
+    parser.add_argument("file", help="Nombre del archivo a procesar, ejemplo: ej.pcap")
     parser.add_argument("-tcp", "--tcp_server_attack", help="Ataque Port Scan tipo TCP SYN al servidor", action="store_true")
     parser.add_argument("-udp", "--udp_server_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-dom", "--domain_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
@@ -34,7 +34,7 @@ def main():
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
     parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
-    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
+    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta  inicial", type=float, default=0)
     parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por unidad de tiempo que acepta el servidor (d: 42 por centecima de seg)', type=int, default=42)
     parser.add_argument("-ut", "--time_unit", help='Fraccion de segundo con la cual se mide la capacidad del servidor (d: centecima de segundo)', type=float, default=0.01)
     args = parser.parse_args()
@@ -49,7 +49,7 @@ def main():
     if index==-1:
         print('\nEl nombre del archivo a procesar debe tener una extension valida')
         return
-    nombrePktFin=nombrePktIni[:index]+'_'+'nombrePktFin'
+    nombrePktFin=nombrePktIni[:index]+'_'+nombrePktFin
     ###########################################################################
 
     paquete= sniff(offline='input/'+nombrePktIni, count=1)
@@ -57,7 +57,7 @@ def main():
     if args.seed:
         Seed=args.seed
     duracion=args.duration
-    numPaquetesAEnviar=(args.num_packages)*duracion
+    numPaquetesAEnviar=int((args.num_packages)*duracion)
     interResp=args.int_resp
     IPservidor=args.server_ip
     IPsrc=args.ip_src
@@ -94,7 +94,7 @@ def main():
     except:
         raise Exception("El numero de paquetes por segundo a enviar debe ser mayor a 0")
     try:
-        assert(interResp>0)
+        assert(interResp>=0)
     except:
         raise Exception("El intervalo de respuesta debe ser mayor a 0")
     try:
@@ -157,27 +157,27 @@ def main():
 
         if args.udp_server_attack:
             if args.ddos_type:
-                nombrePktFin=nombrePktFin+'_UDP_DDoS_attack.pcap'
+                nombrePktFin+='_UDP_DDoS_attack.pcap'
                 attack=UDP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
-                nombrePktFin=nombrePktFin+'_UDP_attack.pcap'
+                nombrePktFin+='_UDP_attack.pcap'
                 attack=UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         if args.tcp_server_attack:
             if args.ddos_type:
-                nombrePktFin=nombrePktFin+'_TCP_DDoS_attack.pcap'
+                nombrePktFin+='_TCP_DDoS_attack.pcap'
                 attack=TCP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
             else:
-                nombrePktFin=nombrePktFin+'_TCP_attack.pcap'
+                nombrePktFin+='_TCP_attack.pcap'
                 attack=TCP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     elif args.domain_attack:
         if args.ddos_type:
-            nombrePktFin=nombrePktFin+'_Domain_DDoS_attack.pcap'
+            nombrePktFin+='_Domain_DDoS_attack.pcap'
             attack=Domain_DDoS_attack(totalInfectados, IPservidor, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
         else:
-            nombrePktFin=nombrePktFin+'_Domain_attack.pcap'
+            nombrePktFin+='_Domain_attack.pcap'
             attack=Domain_attack(IPservidor, IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
     else:
-        print('Debe seleccionar un tipo de ataque, utilice el comando --help para ver las opciones')
+        print('Debe seleccionar un tipo de ataque, utilice el comando --help o -h para ver las opciones')
         return
     print('Paquetes de ataque creados exitosamente')
     ins = PacketInserter()

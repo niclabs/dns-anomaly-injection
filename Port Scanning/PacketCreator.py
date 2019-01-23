@@ -12,67 +12,6 @@ try:
 except:
     raise Exception("randFloat or ipGenerator error")
 
-""" Author @Javi801
- Creates an array of packages with given values. Each packet contains an
- Ether pack in its firts layer, an IP pack in its second layer, an TCP or UDP
- pack in its third layer and a DNS pack in its last layer
-
- Params: IPservidor -> (str) server IP address
-         IPlist -> (list(str)) list of source IP addresses
-         PortSrcList -> (list(int)) list of source ports
-         datosMultiples -> (list(int) or list(list(int))) values list for
-                            variable param
-         tiempoInicial -> (float) time in which the attack begins
-         tiempoFinal -> (float) time in which the attack ends
-         numPaquetesAEnviar -> (int) number of packages that will be sent
-         Seed -> (float) seed for randomize
-         interResp -> (float) time between a query and its response
-         attackType -> (int) type of Port Scanning attack;
-                       - 0 => TCP SYN attack type
-                       - 1 => UDP attack type
-                       - 2 or more => Static Port attack type
-
- Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
-"""
-def PacketCreator(IPservidor: str, IPlist: list, PortSrcList: list, datosMultiples: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, attackType: int):
-    random.seed(Seed)
-    datos=datosMultiples[:]
-    if attackType==0 or attackType==1:
-        datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
-    copia_seguridad=datos[:]
-    if len(IPlist)==1: #Para asegurar que la funcion randint no se caiga
-        IPlist+=IPlist
-        PortSrcList+=PortSrcList
-    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
-    NuevoSetPaquetesEnviados=[]
-    last_icmpResp=0
-    for i in range(len(tiempos)):
-        if len(datos)==0:
-            datos=copia_seguridad[:]
-        #Se selecciona el puerto o dominio a atacar
-        j=0
-        if len(datos)>1:
-            j=random.randint(0,len(datos)-1)
-        datoAInsertar=datos.pop(j)
-        #Se selecciona la IP y el puerto de origen
-        k=random.randint(0,len(PortSrcList)-1)
-        IPsrc=IPlist[k]
-        PortSrc=PortSrcList[k]
-
-        if attackType==0: #Si el ataque es TCP
-            SetPaquetes=TCPgen(PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], IPsrc, IPservidor, tiempos[i], interResp)
-        elif attackType==1: #Si el ataque es UDP
-            icmpResp=not(datoAInsertar in datosMultiples[0]) and (tiempos[i]-last_icmpResp)>=60
-            if icmpResp:
-                last_icmpResp=tiempos[i]+interResp
-                copia_seguridad.remove(datoAInsertar) #Se elimina el puerto cerrado de la lista pues ya se obtuvo un mensaje ICMP
-            SetPaquetes=UDPgen(PortSrc, datoAInsertar, icmpResp, IPsrc, IPservidor, tiempos[i], interResp)
-        else: #Si el ataque es dirigido a otro servidor pero pasa por este
-            SetPaquetes=DomainGen(PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], interResp)
-
-        NuevoSetPaquetesEnviados+=[SetPaquetes]
-    return NuevoSetPaquetesEnviados
-
 """Author @Javi801
  Port Scan attack simulator, using UDP type.
  Creates an array of packages with given values using PacketCreator function.
@@ -308,6 +247,7 @@ def TCPgen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, t: flo
     tcpQ=TCP(flags='S', sport=PortSrc, dport=PortDst)
     SetPaquetesQ=Ether(dst='18:66:da:4d:c0:08', src='18:66:da:e6:36:56')/ipQ/tcpQ/dnsQ
     SetPaquetesQ.time=t
+
     ipA=IP(proto='tcp', src=IPservidor, dst=IPsrc)
     tcpA=TCP(sport=PortDst, dport=PortSrc)
     SetPaquetesA=Ether(src='18:66:da:4d:c0:08', dst='18:66:da:e6:36:56')/ipA/tcpA/DNS(id=Id,aa=1)
@@ -318,3 +258,106 @@ def TCPgen(PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, t: flo
         SetPaquetesA[2].flags='R'
     SetPaquetes=[SetPaquetesQ,SetPaquetesA]
     return SetPaquetes
+
+
+""" Author @Javi801
+ Creates an array of packages with given values. Each packet contains an
+ Ether pack in its firts layer, an IP pack in its second layer, an TCP or UDP
+ pack in its third layer and a DNS pack in its last layer
+
+ Params: IPservidor -> (str) server IP address
+         IPlist -> (list(str)) list of source IP addresses
+         PortSrcList -> (list(int)) list of source ports
+         datosMultiples -> (list(int) or list(list(int))) values list for
+                            variable param
+         tiempoInicial -> (float) time in which the attack begins
+         tiempoFinal -> (float) time in which the attack ends
+         numPaquetesAEnviar -> (int) number of packages that will be sent
+         Seed -> (float) seed for randomize
+         interResp -> (float) time between a query and its response
+         attackType -> (int) type of Port Scanning attack;
+                       - 0 => TCP SYN attack type
+                       - 1 => UDP attack type
+                       - 2 or more => Static Port attack type
+
+ Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
+"""
+def PacketCreator(IPservidor: str, IPlist: list, PortSrcList: list, datosMultiples: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, attackType: int):
+    random.seed(Seed)
+    datos=asignacionDatos(datosMultiples, attackType)
+    tiempos=rF.gen(Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar) #tiempos donde se inyectan los paquetes
+    NuevoSetPaquetesEnviados=[]
+    last_icmpResp=0
+    for i in range(len(tiempos)):
+        if len(datos)==0:
+            datos=asignacionDatos(datosMultiples, attackType)
+        #Se selecciona el puerto o dominio a atacar
+        j=0
+        if len(datos)>1:
+            j=random.randint(0,len(datos)-1)
+        datoAInsertar=datos.pop(j)
+        #Se selecciona la IP y el puerto de origen
+        k=0
+        if len(IPlist)>1:
+            k=random.randint(0,len(PortSrcList)-1)
+        IPsrc=IPlist[k]
+        PortSrc=PortSrcList[k]
+        #Se crea la tupla pregunta-respuesta
+        if attackType==0: #Si el ataque es TCP
+            SetPaquetes=TCPgen(PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], IPsrc, IPservidor, tiempos[i], pickDelayResp(interResp, attackType))
+        elif attackType==1: #Si el ataque es UDP
+            icmpResp=(datoAInsertar in datosMultiples[1]) and (tiempos[i]-last_icmpResp)>=60
+            if icmpResp:
+                last_icmpResp=tiempos[i]+dt
+                datosMultiples[1].remove(datoAInsertar) #Se elimina el puerto cerrado de la lista pues ya se obtuvo un mensaje ICMP
+            SetPaquetes=UDPgen(PortSrc, datoAInsertar, icmpResp, IPsrc, IPservidor, tiempos[i], pickDelayResp(interResp, attackType))
+        else: #Si el ataque es dirigido a otro servidor pero pasa por este
+            SetPaquetes=DomainGen(PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], pickDelayResp(interResp, attackType))
+
+        NuevoSetPaquetesEnviados+=[SetPaquetes]
+    return NuevoSetPaquetesEnviados
+
+
+""" @Javi801
+ Gives a response interval, considering the type of simulated attack and the
+ response interval given.
+
+ Params: attackType -> (int) type of Port Scanning attack;
+               - 0 => TCP SYN attack type
+               - 1 => UDP attack type
+               - 2 or more => Static Port attack type
+         interResp -> (float) previous time between a query and its response
+
+ Return: dt -> (float) response interval
+"""
+def pickDelayResp(attackType, interResp):
+    if interResp>0:
+        return interResp
+    dt=interResp
+    while dt==0:
+        if attackType==0: #Ataque es tipo TCP
+            dt=abs(random.gauss(0.0001868, 0.0000297912738902))
+        elif attackType==1: #Si el ataque es tipo UDP la respuesta es ICMP
+            dt=abs(random.gauss(0.0001868, 0.0000297912738902))
+        else:
+            dt=abs(random.gauss(0.0001868, 0.0000297912738902))
+    return dt
+
+
+""" @Javi801
+ Gives an array with the given data distributed according to the type of attack
+
+  Params: datosMultiples -> (list(int) or list(list(int))) values list for
+                     variable param
+          attackType -> (int) type of Port Scanning attack;
+                - 0 => TCP SYN attack type
+                - 1 => UDP attack type
+                - 2 or more => Static Port attack type
+
+  Return: datos -> (list()) distributed data
+"""
+def asignacionDatos(datosMultiples, attackType):
+    datos=datosMultiples[:]
+    if attackType==0 or attackType==1:
+        datos=datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
+    return datos
