@@ -1,5 +1,5 @@
 import argparse
-from PackagesCreator import *
+from PacketCreator import *
 import sys
 sys.path.append("..")
 from PacketInserter import *
@@ -33,7 +33,7 @@ def main():
     parser.add_argument("-cpl", "--closed_port_list", help="Lista de puertos cerrados, ejemplo:1 2 3 (d: [])")
     parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
-    parser.add_argument("-n", "--num_packages", help="Total de paquetes a enviar (d: 5000)", type=int, default=5000)
+    parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
     parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta inicial (d: 0.0001s)", type=float, default=0.0001)
     parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por decima de segundo que acepta el servidor (d: 350)', type=int, default=35)
     args = parser.parse_args()
@@ -56,7 +56,7 @@ def main():
     if args.seed:
         Seed=args.seed
     duracion=args.duration
-    numPaquetesAEnviar=args.num_packages
+    numPaquetesAEnviar=(args.num_packages)*duracion
     interResp=args.int_resp
     IPservidor=args.server_ip
     IPsrc=args.ip_src
@@ -84,7 +84,7 @@ def main():
     try:
         assert(numPaquetesAEnviar>0)
     except:
-        raise Exception("El numero de paquetes a enviar debe ser mayor a 0")
+        raise Exception("El numero de paquetes por segundo a enviar debe ser mayor a 0")
     try:
         assert(interResp>0)
     except:

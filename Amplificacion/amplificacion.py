@@ -6,7 +6,6 @@ import random
 from randFloats import *
 import time as Time
 import string
-from PacketInserter import *
 sys.path.append("../RandomSubdomain")
 from randomSubdomain import checkValidIp
 from randomSubdomain import genIp
@@ -35,7 +34,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     try:
         assert(src_path[len(src_path) - 1] == "/")
     except:
-        raise Exception("Relative path to the input file, it finishes with '/'")
+        raise Exception("Wrong relative path to the input file, it finishes with '/'")
     try:
         assert(os.path.exists(str(src_path) + str(src_file)))
     except:
@@ -88,11 +87,11 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     except:
         raise Exception("Invalid domain server ip")
     try:
-        assert(number_botnets > 0)
+        assert(int(number_botnets) > 0)
     except:
         raise Exception("Number of botnets must be greater than 0")
     try:
-        assert(server_tolerance > 0)
+        assert(int(server_tolerance) > 0)
     except:
         raise Exception("Server tolerance must be greater than 0")
 

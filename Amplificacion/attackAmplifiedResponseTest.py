@@ -44,6 +44,10 @@ class attackTest(unittest.TestCase):
         self.assertTrue(self.ti < ti, "Wrong initial time")
         self.assertTrue(abs(tf - self.ti - self.d) <= 1, "Wrong last packet arrival time")
         self.assertTrue(tf < self.ti + self.d, "Wrong last packet arrival time")
+        for t in self.packets:
+            req = t[0]
+            self.assertTrue(req.time >= self.ti,"Packet out of time range")
+            self.assertTrue(req.time <= self.ti + self.d,"Packet out of time range")
 
     def test_attack_packet_structure(self):
         for t in self.packets:
@@ -51,7 +55,6 @@ class attackTest(unittest.TestCase):
             res = t[1]
             self.assertTrue(len(res) > 3000, "Small packet size")
             self.assertTrue(len(res)/len(req) > 37, "Small amplification factor")
-            print(len(res)/len(req))
 
             self.assertEqual(res[DNS].id, req[DNS].id, "Wrong response DNS id")
             self.assertEqual(str(req[DNSQR].qname), "b'" + self.q_name + "'")
@@ -65,6 +68,6 @@ class attackTest(unittest.TestCase):
             self.assertEqual(req[IP].dst, self.serv_ip, "Wrong request destination ip")
             self.assertEqual(res[IP].src, req[IP].dst, "Wrong response source ip")
             self.assertEqual(res[IP].dst, req[IP].src, "Wrong response destination ip")
-            
+
 if __name__ == '__main__':
     unittest.main()

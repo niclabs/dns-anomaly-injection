@@ -1,35 +1,39 @@
 import argparse
 from randomSubdomain import *
-from scapy.all import *
 import sys
 sys.path.append("..")
 from PacketInserter import *
+from PortsGenerator import randomSourcePorts
 
-def mainDoS(src_file, src_path, src_ip, srv_ip, dom, dom_ip, snd_ip, ext, packets, ti, src_port):
+def main(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:string, ti:float, ext:int, packets:int,  n_bot:int):
     """
-    Param: src_file: Name of the source pcap file with extension
-           src_path: Relative path to the input file, it finishes with '/'
-           src_ip: Source ip
-           srv_ip: Server ip
-           dom: Target domain
-           dom_ip: Domain ip
-           snd_ip: Domain server ip
-           ext: Attack extension (seconds)
-           packets:  Amount of packets per second
-           ti: Start date
-           src_port: Source port
-
+    Gives an array of packets
+    Param: target_dom: Taget domain
+           server_ip: Server ip
+           domain_ip: Asked domain ip
+           server_dom_ip: Asked domain server ip
+           ti: Initial time of the attack
+           ext: Attack extension
+           packets: Packets per second
+           n_bot: Amount of botnets
+    return: Array of tuples with the packets of the attack
     """
-    p0 = sniff(offline = src_path + src_file, count = 1)
-    t0 = p0[0].time
-
-    return randomSubAttack(src_ip, srv_ip, dom + ".", dom_ip, snd_ip, ext, packets, ti + t0, src_port)
-
+    tf =  ti + ext
+    new_packets = []
+    ips = gen_n_ip(n_bot)
+    ports = randomSourcePorts(n_bot, Time.time())
+    time = genInter(Time.time(), ti, tf, packets * n_bot)
+    for t in time:
+        n = random.randint(0, n_bot - 1)
+        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
+        tuple = newTuple(target_dom, ips[n], server_ip, ports[n], t, Time.time(), domain_ip, server_dom_ip, dt)
+        new_packets.append(tuple)
+    return new_packets
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "DoS Random Subdomain attack")
     parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets that the server can answer in 0.1 sec", type=int)
-    parser.add_argument("-sf", "--src_file", help = "Name of the source pcap file with extension")
+    parser.add_argument("-sf", "--src_file", help = "Name of the source pcap file with extension, ex: blanco.pcap.gz")
     parser.add_argument("-df", "--dst_file", help = "Name of the new pcap file with extension")
     parser.add_argument("-sp", "--src_path", help = "Relative path to the input file, it finishes with '/'")
     parser.add_argument("-dp", "--dst_path", help = "Relative path to the output file")
@@ -39,24 +43,16 @@ if __name__ == '__main__':
     parser.add_argument("-ext", "--attack_extension", help = "Attack extension (seconds)", type=float)
     parser.add_argument("-psec", "--packets", help ="Amount of packets per second", type=int)
     parser.add_argument("-ti", "--initial_time", help = "Initial time of the attack", type=float)
-    parser.add_argument("-sport", "--source_port", help = "Source port", type = int)
     parser.add_argument("-nbot", "--number_botnets", help="Number of botnets", type=int, default = 1)
     parser.add_argument("-domip","--domain_ip", help= "Asked domain ip, default: random ip", default= genIp())
     parser.add_argument("-sndip", "--server_dom_ip", help= "Asked domain server ip, default: random ip", default=genIp())
     args = parser.parse_args()
 
-    checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.source_ip, args.server_ip, args.target_domain, args.attack_extension, args.packets, args.initial_time, args.source_port)
+    checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.source_ip, args.server_ip, args.target_domain, args.attack_extension, args.packets, args.initial_time, args.number_botnets)
 
-    tf = args.initial_time + args.attack_extension
-    new_packets = []
-    ips = gen_n_ip(args.number_botnets)
-    time = genInter(Time.time(), args.initial_time, tf, c * args.number_botnets)
-    for t in time:
-        n_ip = random.randint(0, args.number_botnets - 1)
-        #TODO: Source port
-        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        tuple = newTuple(args.target_domain, ips[n_ip], args.server_ip, args.source_port, t, Time.time(), args.domain_ip, args.server_dom_ip, dt)
-        new_packets.append(tuple)
+    p0 = sniff(offline = args.src_path + args.src_file, count = 1)
+    t0 = p0[0].time
+    new_packets = main(args.target_domain, args.server_ip, args.domain_ip, args.server_dom_ip, args.initial_time + t0, args.attack_extension, args.packets, args.number_botnets)
 
     inserter =PacketInserter()\
               .withPackets(new_packets)\

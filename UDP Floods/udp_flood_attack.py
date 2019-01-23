@@ -51,8 +51,6 @@ def udpFloodAttack(IPservidor: str, IPsrcList: list, PortSrcList: list, puertosA
                 PortSrc=PortSrcList[j]
         SetPaquetes=udpPairGen(PortSrc, puertoTarget, puertoTarget in puertosAbiertosCerrados[0], IPsrc, IPservidor, tiempos[i], interResp)
         NuevoSetPaquetesEnviados+=[SetPaquetes]
-        if (len(NuevoSetPaquetesEnviados)%1000)==0:
-            print('\n'+str(len(NuevoSetPaquetesEnviados)))
     return NuevoSetPaquetesEnviados
 
 

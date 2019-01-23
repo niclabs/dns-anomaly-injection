@@ -35,6 +35,28 @@ class genIpTest(unittest.TestCase):
         self.assertTrue(int(values[2]) >= 0 and int(values[2])<=255, "Invalid ip")
         self.assertTrue(int(values[3]) >= 0 and int(values[3])<=255, "Invalid ip")
 
+class gen_n_ipTest(unittest.TestCase):
+    def setUp(self):
+        self.n1 = 30
+        self.n2 = 0
+        self.n3 = 1
+        self.ip1 = gen_n_ip(self.n1)
+        self.ip2 = gen_n_ip(self.n2)
+        self.ip3 = gen_n_ip(self.n3)
+
+    def test_number_of_created_ip(self):
+        self.assertEqual(len(self.ip1), self.n1, "Wrong amount of created ip")
+        self.assertEqual(len(self.ip2), self.n2, "Wrong amount of created ip")
+        self.assertEqual(len(self.ip3), self.n3, "Wrong amount of created ip")
+
+    def test_valid_ip(self):
+        for ip in self.ip1:
+            self.assertTrue(checkValidIp(ip), "Invalid created ip")
+        for ip in self.ip2:
+            self.assertTrue(checkValidIp(ip), "Invalid created ip")
+        for ip in self.ip3:
+            self.assertTrue(checkValidIp(ip), "Invalid created ip")
+
 class requestBuilderTest(unittest.TestCase):
     def setUp(self):
         self.dom = "hola.cl"
@@ -93,6 +115,51 @@ class responseTest(unittest.TestCase):
     def test_time(self):
         self.assertEqual(self.response.time, self.t + self.dt, "Wrong response arrival time")
 
+class newTupleTest(unittest.TestCase):
+    def setUp(self):
+        self.dom = "hola.cl"
+        self.src_ip = "8.8.8.8"
+        self.dst_ip = "200.7.4.7"
+        self.src_port = 33835
+        self.t = 20
+        self.seed = 5
+        self.dom_ip = genIp()
+        self.dom_srv_ip = genIp()
+        self.dt = 0.0001868
+        self.tuple = newTuple(self.dom, self.src_ip, self.dst_ip, self.src_port, self.t, self.seed, self.dom_ip, self.dom_srv_ip, self.dt)
+
+    def test_len(self):
+        self.assertEqual(len(self.tuple), 2, "Len must be 2")
+
+    def test_structure(self):
+        req = self.tuple[0]
+        res = self.tuple[1]
+        self.assertEqual(req[DNS].qr, 0, "Structure must be (request, response)")
+        self.assertEqual(res[DNS].qr, 1, "Structure must be (request, response)")
+
+    def test_DNS_layer(self):
+        req = self.tuple[0]
+        res = self.tuple[1]
+        self.assertEqual(res[DNS].id, req[DNS].id, "Wrong response DNS id")
+        self.assertEqual(res[DNS].qd, req[DNS].qd, "Is answering a different question")
+        self.assertEqual(res[DNS].rcode, 0, "DNS rcode must be 0")
+
+    def test_UDP_layer(self):
+        req = self.tuple[0]
+        res = self.tuple[1]
+        self.assertEqual(res[UDP].sport, 53, "Wrong response source port")
+        self.assertEqual(res[UDP].dport, req[UDP].sport, "Wrong response destination port")
+
+    def test_IP_layer(self):
+        req = self.tuple[0]
+        res = self.tuple[1]
+        self.assertEqual(res[IP].proto, 17, "Wrong response ip protocol")
+        self.assertEqual(res[IP].src, req[IP].dst, "Wrong response source ip")
+        self.assertEqual(res[IP].dst, req[IP].src, "Wrong response destination ip")
+
+    def test_time(self):
+        res = self.tuple[1]
+        self.assertEqual(res.time, self.t + self.dt, "Wrong response arrival time")
 
 if __name__ == '__main__':
     unittest.main()

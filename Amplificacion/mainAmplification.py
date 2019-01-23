@@ -1,20 +1,18 @@
 import argparse
 from amplificacion import *
-from scapy.all import *
 import sys
 sys.path.append("..")
 from PacketInserter import *
 
-def mainDoS(src_file, src_path, srv_ip, target_ip, src_port, ext, packets, ti, dom, rtype, dom_ip, snd_ip):
+def mainDoS(srv_ip:string, target_ip:string, src_port:int, ext:int, packets:int, n_bots: int, ti:float, dom:string, rtype, dom_ip:string, snd_ip:string):
     """
     Gives an array with packets for the DoS amplication attack
-    Param: src_file: Name of the source pcap file with extension
-           src_path: Relative path to the input file, it finishes with '/'
-           srv_ip: Server ip
+    Param: srv_ip: Server ip
            target_ip: Target ip
            src_port: Source port
            ext: Attack extension (seconds)
            packets: Amount of packets per second
+           n_bots: Amount of botnets
            ti: Initial time of the attack
            dom: Asked domain
            rtype: Response type
@@ -24,12 +22,11 @@ def mainDoS(src_file, src_path, srv_ip, target_ip, src_port, ext, packets, ti, d
            snd_ip: Asked domain server ip
     return: Array of new packets
     """
-    p0 = sniff(offline = src_path + src_file, count = 1)
-    t0 = p0[0].time
+
     if(rtype):
-        return amplificationAttack(srv_ip, target_ip, src_port, ext, packets, ti + t0, dom, 1)
+        return amplificationAttack(srv_ip, target_ip, src_port, ext, packets * n_bots, ti, dom, 1)
     else:
-        return amplificationAttack(srv_ip, target_ip, src_port, ext, packets, ti + t0, dom, 0, dom_ip, snd_ip)
+        return amplificationAttack(srv_ip, target_ip, src_port, ext, packets * n_bots, ti, dom, 0, dom_ip, snd_ip)
 
 
 if __name__ == '__main__':
@@ -49,14 +46,13 @@ if __name__ == '__main__':
     parser.add_argument("-rtype", "--response_type", help="Response type, true:amplified response, false:normal response. Default: true", action="store_true")
     parser.add_argument("-domip","--domain_ip", help= "Asked domain ip, default: random ip", default= genIp())
     parser.add_argument("-sndip", "--server_dom_ip", help= "Asked domain server ip, default: random ip", default=genIp())
-    parser.add_argument("-nbot", "--number_botnets", help="Number of botnets", type=int, default = 1)
+    parser.add_argument("-nbot", "--number_botnets", help="Number of botnets, default = 1", type=int, default = 1)
     args = parser.parse_args()
 
     checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets, args.initial_time, args.domain, args.domain_ip, args.server_dom_ip, args.number_botnets, args.server_tolerance)
-
-    new_packets = []
-    packets = mainDoS(args.src_file, args.src_path, args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets * args.number_botnets, args.initial_time, args.domain, args.response_type, args.domain_ip, args.server_dom_ip)
-    new_packets.extend(packets)
+    p0 = sniff(offline = args.src_path + args.src_file, count = 1)
+    t0 = p0[0].time
+    new_packets = mainDoS(args.server_ip, args.target_ip, args.src_port, args.attack_extension, args.packets , args.number_botnets, args.initial_time + t0, args.domain, args.response_type, args.domain_ip, args.server_dom_ip)
 
     inserter = PacketInserter()\
             .withPackets(new_packets)\

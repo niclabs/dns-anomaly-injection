@@ -6,7 +6,6 @@ import os
 sys.path.append("..")
 import time as Time
 from randFloats import *
-from PacketInserter import *
 
 def checkValidIp(ip : string):
     """
@@ -23,7 +22,7 @@ def checkValidIp(ip : string):
                 return False
     return True
 
-def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, packets, ti, src_port):
+def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, packets, ti, n_bot):
     """
     Check if the arguments are correct
     Param: +src_file: Name of the source pcap file with extension
@@ -36,7 +35,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, 
            +ext: Attack extension (seconds)
            +packets:  Amount of packets per second
            +ti: Start date
-           +src_port: Source port
+           +n_bot : Number of botnets
     """
     try:
         assert(src_path[len(src_path) - 1] == "/")
@@ -81,10 +80,9 @@ def checkArgs(src_file, dst_file, src_path, dst_path, src_ip, srv_ip, dom, ext, 
     except:
         raise Exception("Start date must be greater than or equal to 0")
     try:
-        assert(int(src_port) >= 0)
-        assert(int(src_port) <= 65535)
+        assert(int(n_bot) > 0)
     except:
-        raise Exception("Source port must be between 0 and 65535")
+        raise Exception("Number of botnets must be greater than 0")
 
 def randomSub(seed: float):
     """
@@ -171,30 +169,3 @@ def newTuple(dom: string, src_ip:string, serv:string, srcport:int, t:float, seed
     req = randomSubBuilder(dom, src_ip, serv, srcport, t, seed)
     res = regularResponse(req, dom, dom_ip, snd_ip, dt)
     return [req, res]
-
-def randomSubAttack(src_ip: string, serv: string, dom : string, dom_ip: string, snd_ip: string, duracion: int, c: int, ti: float, srcport : int):
-    """
-    Gives an array of tuples that contains request and response
-    Param: src_ip: Source ip
-           serv: Server ip
-           dom: Target domain
-           dom_ip: Domain ip
-           snd_ip: Domain server ip
-           duracion: Attack extension (seconds)
-           c: Amount of packets per second
-           ti: Start date TODO: ver en que se medirá (Con respecto al paquete)
-           srcport: Source port
-    return: Array of tuples (request, response) of the attack
-    """
-    tf = ti + duracion
-    new_packets = []
-    seed = Time.time() #Seed for randomize
-    time = genInter(seed, ti, tf, c)
-    for t in time:
-        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        p = randomSubBuilder(dom, src_ip, serv, srcport, t, Time.time())
-        a = regularResponse(p, dom, dom_ip, snd_ip, dt)
-        tuple = newTuple(dom, src_ip, serv, srcport, t, Time.time(), dom_ip, snd_ip, dt)
-        new_packets.append(tuple)
-
-    return new_packets
