@@ -184,53 +184,59 @@ class FileInsertState(InserterState):
             queries done to the server in total, ta is the actual time and writer is the PcapWriter that can be modified
         """
         ### Extract the data of the arrays given
-        t0 = queryList[0].time
+        if len(queryList) != 0:
+            t0 = queryList[0].time
+        else:
+            t0 = responseList[0].time
         count = data[0]
         queries = data[1]
         outputDirection = data[2]
-
         ### Calculates the actual time
-        if len(bufferFile) == 0 and len(bufferAttack) == 0:
-            return 
-        if len(bufferFile) == 0:
-            ta = bufferAttack[0][0].time
-        elif len(bufferAttack) == 0:
-            ta = bufferFile[0].time
-        elif len(bufferFile)!= 0 and len(bufferAttack)!= 0:
-            ta = min(bufferFile[0].time,bufferAttack[0][0].time)
-        
         ### Starts to write on the file 
-        dtInsert = ta - t0
         writerAux = writer
-        while dtInsert >= self.getInserter().getTimestamp() and len(queryList) != 0:
-            t0 = queryList[0].time
-            dtInsert = ta - t0
+        while len(queryList) != 0 and len(responseList) != 0:
             if count == 50000:
                 writer.close()
                 del writer
                 writerAux = PcapWriter(outputDirection,append = True,sync=True) 
                 writer = writerAux
                 count = 0
-                continue
-            if len(responseList) == 0:
+            if queryList[0].time < responseList[0].time:
                 pkt = queryList[0]
-                writerAux.write(pkt)
+                writer.write(pkt)
+                ta = queryList[0].time
                 queryList.pop(0)
             else:
-                if queryList[0].time < responseList[0].time:
-                    pkt = queryList[0]
-                    writerAux.write(pkt)
-                    queryList.pop(0)
-                else:
-                    pkt = responseList[0]
-                    writerAux.write(pkt)
-                    responseList.pop(0)
+                pkt = responseList[0]
+                writer.write(pkt)
+                ta = responseList[0].time
+                responseList.pop(0)
             count+=1
-        ### After inserting, we manage the transitions
-        if len(queryList) >= self.getInserter().getServerTolerance():
-            self.getInserter().changeState(ReadNOkState(self.getInserter()))
-        else:
-            self.getInserter().changeState(ReadOkState(self.getInserter()))
+        while len(queryList) != 0:
+            if count == 50000:
+                writer.close()
+                del writer
+                writerAux = PcapWriter(outputDirection,append = True, sync= True)
+                writer = writerAux
+                count = 0
+            pkt = queryList[0]
+            writer.write(pkt)
+            ta = queryList[0].time
+            queryList.pop(0)
+            count+=1
+        while len(responseList) != 0:
+            if count == 50000:
+                writer.close()
+                del writer
+                writerAux = PcapWriter(outputDirection,append= True, sync = True)
+                writer = writerAux
+                count = 0
+            pkt = responseList[0]
+            writer.write(pkt)
+            ta = responseList[0].time
+            responseList.pop(0)
+            count+=1
+        self.getInserter().changeState(ReadOkState(self.getInserter()))
         return (count,queries,ta,writerAux)
     def __eq__(self,obj):
         if isinstance(obj,FileInsertState):
