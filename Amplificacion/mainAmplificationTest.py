@@ -35,12 +35,18 @@ class mainAmplificationTest(unittest.TestCase):
     def test_amplified_response_size(self):
         for t in self.amplified_DDoS_attack:
             res = t[1]
-            self.assertTrue(len(res) > 3000)
+            self.assertTrue(len(res) > 3000, "Small response, size must be greater than 3000 bytes")
 
     def test_non_amplified_response_size(self):
         for t in self.regular_DDoS_attack:
             res = t[1]
-            self.assertTrue(len(res) < 500)
+            self.assertTrue(len(res) < 500, "Big response, size must be less than 500 bytes")
+
+    def test_attack_time(self):
+        for t in self.regular_DDoS_attack:
+            req = t[0]
+            self.assertTrue(req.time >= self.ti, "Packet out of time range")
+            self.assertTrue(req.time <= self.ti + self.ext, "Packet out of time range")
 
 if __name__ == '__main__':
     unittest.main()

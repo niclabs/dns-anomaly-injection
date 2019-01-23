@@ -34,7 +34,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     try:
         assert(src_path[len(src_path) - 1] == "/")
     except:
-        raise Exception("Relative path to the input file, it finishes with '/'")
+        raise Exception("Wrong relative path to the input file, it finishes with '/'")
     try:
         assert(os.path.exists(str(src_path) + str(src_file)))
     except:

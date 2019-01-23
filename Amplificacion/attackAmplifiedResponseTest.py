@@ -44,6 +44,10 @@ class attackTest(unittest.TestCase):
         self.assertTrue(self.ti < ti, "Wrong initial time")
         self.assertTrue(abs(tf - self.ti - self.d) <= 1, "Wrong last packet arrival time")
         self.assertTrue(tf < self.ti + self.d, "Wrong last packet arrival time")
+        for t in self.packets:
+            req = t[0]
+            self.assertTrue(req.time >= self.ti,"Packet out of time range")
+            self.assertTrue(req.time <= self.ti + self.d,"Packet out of time range")
 
     def test_attack_packet_structure(self):
         for t in self.packets:

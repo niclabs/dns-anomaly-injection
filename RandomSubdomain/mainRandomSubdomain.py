@@ -33,7 +33,7 @@ def main(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:s
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "DoS Random Subdomain attack")
     parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets that the server can answer in 0.1 sec", type=int)
-    parser.add_argument("-sf", "--src_file", help = "Name of the source pcap file with extension")
+    parser.add_argument("-sf", "--src_file", help = "Name of the source pcap file with extension, ex: blanco.pcap.gz")
     parser.add_argument("-df", "--dst_file", help = "Name of the new pcap file with extension")
     parser.add_argument("-sp", "--src_path", help = "Relative path to the input file, it finishes with '/'")
     parser.add_argument("-dp", "--dst_path", help = "Relative path to the output file")
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.source_ip, args.server_ip, args.target_domain, args.attack_extension, args.packets, args.initial_time, args.number_botnets)
 
-    p0 = sniff(offline = args.src_path + args.src_file + ".gz", count = 1)
+    p0 = sniff(offline = args.src_path + args.src_file, count = 1)
     t0 = p0[0].time
     new_packets = main(args.target_domain, args.server_ip, args.domain_ip, args.server_dom_ip, args.initial_time + t0, args.attack_extension, args.packets, args.number_botnets)
 

@@ -12,7 +12,7 @@ import gzip
 #---------------------#
 #Ejemplo
 #DoS amplified response
-#python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
+#python3 mainAmplification.py -servtol 35 -sf blanco.1506993600.pcap.gz -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
 #DoS regular response
 #python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4
 #DDoS amplified response
@@ -20,7 +20,7 @@ import gzip
 #DDoS regular response
 #python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4 -nbot 30
 
-def main():
+def main3():
   #paquetes = rdpcap("/home/niclabs/Downloads/lol.pcap")
   inter = genInter(20, 0, 2, 3)
   p0 = sniff(offline = "/home/niclabs/Downloads/lol.pcap", count = 1)
@@ -45,5 +45,10 @@ def main2():
     except:
         raise Exception("Wrong output file extension")
 
+def main():
+    try:
+        assert(os.path.isfile("/home/niclabs/Downloads/blanco.1506993600.pcap.gz"))
+    except:
+        raise Exception("no existe")
 if __name__ == '__main__':
     main()
