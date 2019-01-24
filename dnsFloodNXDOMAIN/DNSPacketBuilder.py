@@ -75,6 +75,10 @@ class DNSPacketBuilder(AbstractPacketBuilder):
         """
         self._rspIpId = id
         return self
+    def withResponseDt(self,dt: float):
+
+        self._responseDT = dt
+        return self
     def _buildRequest(self):
         """
             Build a request DNS packet for the DNS NXDOMAIN flood

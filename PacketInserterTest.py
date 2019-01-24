@@ -40,7 +40,6 @@ class PacketInserterTest(unittest.TestCase):
         pass
     def test_insertion_full(self):
         pass
-    ##TODO changes tests, generate more test
 
 if __name__ == "__main__":
     unittest.main()

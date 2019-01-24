@@ -2,7 +2,7 @@ import csv
 import numpy as np
 
 tiempos= []
-with open('rcode0.csv', newline='') as csvfile:
+with open('rcode3.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=" ")
     for row in reader:
         tiempos.append(float(row[0]))

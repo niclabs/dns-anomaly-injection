@@ -9,7 +9,7 @@ sys.path.append('..')
 from scapy.all import *
 from PacketInserter import *
 from DNSPacketBuilder import *
-
+import random
 ##### Python libraries used
 import time
 import randFloats as rnd
@@ -52,6 +52,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
         packetTime = times[i]
         domainName = names[i]
         srcIp = ips[k]
+        responseDt = abs(random.gauss(0.00023973491409910548,3.641262394861281e-05))
         z = builder.withSrcIP(srcIp)\
             .withDestIP(destIp)\
             .withSrcPort(sport)\
@@ -61,6 +62,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
             .withQrIpId(idQrIp)\
             .withRspIpId(idRspIp)\
             .withIdDNS(idDNS)\
+            .withResponseDt(responseDt)\
             .build()
         pkts.append(z)
     return pkts
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
     parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
     parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
-    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.001,help='tiempo de la ventana de medicion, medido en segundos',type=float)
+    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
     parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:

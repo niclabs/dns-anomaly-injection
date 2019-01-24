@@ -29,7 +29,6 @@ def createPackets(fileDirectionName: str,dip: str,number: int,initialTime=0,dura
     first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
     times =rnd.genInter(time.time(),ti,ti+duration,number)
-    responseTime=0.0006
     print("Creating Ip's of the attack")
     ips = ipg.randomIP(numberIp,time.time(),True)
     #### Then we start to build with our builder
@@ -38,6 +37,7 @@ def createPackets(fileDirectionName: str,dip: str,number: int,initialTime=0,dura
     quantity = len(times)
     for i in range(quantity):
         #### Create the random parameters for the attack
+        responseTime = abs(random.gauss(0.005931744402515722,0.15624380490520876))
         k = random.randint(0,len(ips)-1)
         sip = ips[k]
         qrIpId = int(RandShort())
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
     parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
     parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
-    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.001,help='tiempo de la ventana de medicion, medido en segundos',type=float)
+    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
     parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:

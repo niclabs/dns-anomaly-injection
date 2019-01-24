@@ -8,13 +8,17 @@ Object that test the functions of the TCPMain.py file
 """
 class TCPMainTest(unittest.TestCase):
     def setUp(self):
-        self.parser = argparse.ArgumentParser(description = "Simulacion de ataque NXDOMAIN")
-        self.parser.add_argument('--di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
-        self.parser.add_argument('--fi','--file_input',dest='fileInput',action='store',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
-        self.parser.add_argument('--ti','--initial_time',dest='ti',action='store',default=0,help='',type=int)
-        self.parser.add_argument('--dt','--duration',dest='duration',action='store',default=1,help='',type=int)
-        self.parser.add_argument('--ipn','--ip_number',dest='numberIp',action='store',default=1,help='',type=int)
-        self.parser.add_argument('--do','--directory_output',dest='outputDirectory',action='store',default='output/',help='',type=str)
+        self.parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
+        self.parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
+        self.parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=4500,type=int,help="Packets per second of the attack")
+        self.parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=1000,type=int,help="Standard desviation of the packets per second of the attack")
+        self.parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
+        self.parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
+        self.parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
+        self.parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
+        self.parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
+        self.parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
+        self.parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
         self.basicArgs = ['--fi',"test1k.pcap",'--duration','1']
         self.sixSecondsArgs = ['--fi',"test1k.pcap",'--ipn','4','--dt','6']
         self.one50kArgs = ['--fi',"test50k.pcap",'--ipn',"3"]
