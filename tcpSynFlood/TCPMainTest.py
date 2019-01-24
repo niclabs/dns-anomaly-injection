@@ -19,10 +19,10 @@ class TCPMainTest(unittest.TestCase):
         self.parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
         self.parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
         self.parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
-        self.basicArgs = ['--fi',"test1k.pcap",'--duration','1']
-        self.sixSecondsArgs = ['--fi',"test1k.pcap",'--ipn','4','--dt','6']
-        self.one50kArgs = ['--fi',"test50k.pcap",'--ipn',"3"]
-        self.six50kArgs = ['--fi',"test50k.pcap",'--ipn',"7",'--dt',"6"]
+        self.basicArgs = ['-fi',"test1k.pcap",'--duration','1']
+        self.sixSecondsArgs = ['-fi',"test1k.pcap",'-ipn','4','-dt','6']
+        self.one50kArgs = ['-fi',"test50k.pcap",'-ipn',"3"]
+        self.six50kArgs = ['-fi',"test50k.pcap",'-ipn',"7",'-dt',"6"]
     def test_basic(self):
         ok = m.main(self.parser.parse_args(self.basicArgs),"--test_basic")
         self.assertEqual(0,ok)
