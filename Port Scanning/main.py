@@ -21,6 +21,12 @@ def main():
     parser.add_argument("-dom", "--domain_attack", help="Ataque Port Scan tipo UDP SYN al servidor", action="store_true")
     parser.add_argument("-ddos","--ddos_type", help="Extender el ataque a tipo distribuido", action="store_true")
     parser.add_argument("-tz","--total_of_zombies", help="Cantidad de computadores en la botnet para el ataque DDoS (d: 15000)", type=int, default=255)
+    parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
+    parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
+    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta  inicial", type=float, default=-1)
+    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por unidad de tiempo que acepta el servidor (d: 42 por centecima de seg)', type=int, default=42)
+    parser.add_argument("-ut", "--time_unit", help='Fraccion de segundo con la cual se mide la capacidad del servidor (d: centecima de segundo)', type=float, default=0.01)
+    parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
     parser.add_argument("-ip", "--ip_src", help="Direccion IP de origen (d: 200.27.161.26)", default='200.27.161.26')
     parser.add_argument("-sip","--server_ip", help="Direccion IP del servidor atacado (d: 200.7.4.7)", default='200.7.4.7')
     parser.add_argument("-ps", "--sport", help="Puerto de origen (d: 1280)", type=int, default=1280)
@@ -31,12 +37,8 @@ def main():
     parser.add_argument("-cp", "--closed_port", help="Total de puertos cerrados (d: aleatorio)", type=int)
     parser.add_argument("-opl", "--open_port_list", help="Lista de puertos abiertos, ejemplo:1 2 3 (d: [])")
     parser.add_argument("-cpl", "--closed_port_list", help="Lista de puertos cerrados, ejemplo:1 2 3 (d: [])")
-    parser.add_argument("-s", "--seed", help="Semilla para aleatorizar datos (d: computer time)", type=float)
-    parser.add_argument("-d", "--duration", help="Duracion del ataque (d: 60s)", type=float, default=60)
-    parser.add_argument("-n", "--num_packages", help="Total de paquetes por segundo a enviar (d: 500)", type=int, default=500)
-    parser.add_argument("-ir", "--int_resp", help="Intervalo de respuesta  inicial", type=float, default=0)
-    parser.add_argument("-st", "--server_tolerance", help='Cantidad maxima de paquetes por unidad de tiempo que acepta el servidor (d: 42 por centecima de seg)', type=int, default=42)
-    parser.add_argument("-ut", "--time_unit", help='Fraccion de segundo con la cual se mide la capacidad del servidor (d: centecima de segundo)', type=float, default=0.01)
+    parser.add_argument("-alr", "--activate_limit_rate", help="Activar el limite de respuestas ICMP por segundo (activar para simular servidor con linux o solaris)", action="store_true")
+    parser.add_argument("-lr", "--limit_rate", help="Limite de respuestas ICMP por segundo (d: 2)", type=int, default=2)
     args = parser.parse_args()
 
     #################### Manejo de los nombres de archivos ####################
@@ -94,7 +96,7 @@ def main():
     except:
         raise Exception("El numero de paquetes por segundo a enviar debe ser mayor a 0")
     try:
-        assert(interResp>=0)
+        assert(interResp>0 or interResp==-1)
     except:
         raise Exception("El intervalo de respuesta debe ser mayor a 0")
     try:
@@ -156,12 +158,14 @@ def main():
     ############################################################################
 
         if args.udp_server_attack:
+            if args.activate_limit_rate:
+                print('Limite de respuestas ICMP por segundo activado')
             if args.ddos_type:
                 nombrePktFin+='_UDP_DDoS_attack.pcap'
-                attack=UDP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=UDP_DDoS_attack(totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp, args.activate_limit_rate, args.limit_rate)
             else:
                 nombrePktFin+='_UDP_attack.pcap'
-                attack=UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp)
+                attack=UDP_attack(IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp, args.activate_limit_rate, args.limit_rate)
         if args.tcp_server_attack:
             if args.ddos_type:
                 nombrePktFin+='_TCP_DDoS_attack.pcap'
