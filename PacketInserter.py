@@ -31,7 +31,7 @@ class PacketInserter:
         self.__inputDir=""
         self.__outputDir=""
         self.__serverIp = "200.7.4.7"
-        self.__responseDt= 0.0006
+        self.__responseDt= 0.006
         self.__state = state.ReadOkState(self)
         self.__timestamp = 0.001
         self.__serverTolerance = 30

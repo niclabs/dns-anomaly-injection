@@ -117,7 +117,7 @@ def main(args,test=""):
                 .withOutputDir(outputdir)\
                 .withPcapOutput(output)\
                 .withServerIp(destinyIP)\
-                .withResponseDt(0.006)\
+                .withResponseDt(0.0066541468651955095)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
                 .insert()

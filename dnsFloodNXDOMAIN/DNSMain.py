@@ -112,7 +112,7 @@ def main(args,test=""):
                 .withPcapInput(inputFileName)\
                 .withOutputDir(outputDir)\
                 .withPcapOutput(outputFileName)\
-                .withResponseDt(0.006)\
+                .withResponseDt(0.0066541468651955095)\
                 .withServerIp(destinyIp)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\

@@ -13,7 +13,7 @@ class PacketInserterTest(unittest.TestCase):
         self.assertEqual("", ins.getOutputName())
         self.assertEqual("",ins.getInputDir())
         self.assertEqual("",ins.getOutputDir())
-        self.assertAlmostEqual(0.0006,ins.getResponseDt())
+        self.assertAlmostEqual(0.006,ins.getResponseDt())
         self.assertEqual(state.ReadOkState(ins),ins.getState())
         self.assertAlmostEqual(0.001,ins.getTimestamp())
         self.assertEqual(30,ins.getServerTolerance())
