@@ -30,41 +30,51 @@ def createFalseDomains(number: int):
     return domainNames
 
 
-def createPackateNXDomain(numberOfIp: int,destIp:str,times: list,names: list):
+def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps: float,despps: float):
     """
         Creates a list of tuples (request,response) to simulate an NXDOMAIN 
         attack to the DNS server
         :param srcIp:str: the source IP where the attack is generated
         :param destIp:str: the IP of the server
-        :param times:list: the time when the attack is given
+        :param duration:int: the duration of the attack
         :param names:list: the name of the non existant domain
+        :param ti:float: the initial time of the attack
         :return: a list (request,response) of fake queries to be append
     """
+    assert duration >=1
     builder = DNSPacketBuilder()
     pkts = []
     ips = ipgen.randomIP(numberOfIp,time.time(),True)
-    for i in range(len(times)):
-        idDNS = int(RandShort())
-        idQrIp = int(RandShort())
-        idRspIp = int(RandShort())
-        sport = random.randint(1024,65535)
-        k = random.randint(0,len(ips)-1)
-        packetTime = times[i]
-        domainName = names[i]
-        srcIp = ips[k]
-        responseDt = abs(random.gauss(0.00023973491409910548,3.641262394861281e-05))
-        z = builder.withSrcIP(srcIp)\
-            .withDestIP(destIp)\
-            .withSrcPort(sport)\
-            .withDestPort(53)\
-            .withTime(packetTime)\
-            .withDomain(domainName)\
-            .withQrIpId(idQrIp)\
-            .withRspIpId(idRspIp)\
-            .withIdDNS(idDNS)\
-            .withResponseDt(responseDt)\
-            .build()
-        pkts.append(z)
+    ta = ti
+    for i in range(duration):
+        ta +=1
+        rate = int(abs(random.gauss(pps,despps)))
+        while rate == 0:
+            rate = int(abs(random.gauss(pps,despps)))
+        times = rnd.genInter(time.time(),ti,ta,rate)
+        names = createFalseDomains(len(times))
+        for i in range(len(times)):
+            idDNS = int(RandShort())
+            idQrIp = int(RandShort())
+            idRspIp = int(RandShort())
+            sport = random.randint(1024,65535)
+            k = random.randint(0,len(ips)-1)
+            packetTime = times[i]
+            domainName = names[i]
+            srcIp = ips[k]
+            responseDt = abs(random.gauss(0.00023973491409910548,3.641262394861281e-05))
+            z = builder.withSrcIP(srcIp)\
+                .withDestIP(destIp)\
+                .withSrcPort(sport)\
+                .withDestPort(53)\
+                .withTime(packetTime)\
+                .withDomain(domainName)\
+                .withQrIpId(idQrIp)\
+                .withRspIpId(idRspIp)\
+                .withIdDNS(idDNS)\
+                .withResponseDt(responseDt)\
+                .build()
+            pkts.append(z)
     return pkts
 
 
@@ -80,26 +90,20 @@ def main(args,test=""):
     tolerance = args.tolerance
     pps = args.pps
     despps = args.des
+    destinyIp = args.serverIp
     ##### Creating the right names for the output file
     fileComponents = inputFileName.split('.pcap')
     outputFileName = fileComponents[0]+"-modified"+test+".pcap"
 
     ##### Starting the simulation, setting it's parameters
-    rate = int(abs(random.gauss(pps,despps)))
-    while rate == 0:
-        rate = int(abs(random.gauss(pps,despps)))
-    print("Generating attack of "+str(rate)+" packets per second")
     first = sniff(offline=inputDir+inputFileName,count=1)
     if len(first)== 0:
         ti = initialTime
     else:
         ti=first[0].time + initialTime
-    timeOfInsertion = rnd.genInter(time.time(),ti,ti+atckDuration,rate)
-    domainNames = createFalseDomains(len(timeOfInsertion))
-    
     ##### Creating the packets and generation it's insertion
     print("Creating the packets")
-    packets = createPackateNXDomain(numberIp,"200.7.4.7",timeOfInsertion,domainNames)
+    packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
     print("Number of packets created: "+str(2*len(packets)))
     inserter = PacketInserter()
     print("Inserting packets on the modified pcap")
@@ -109,7 +113,7 @@ def main(args,test=""):
                 .withOutputDir(outputDir)\
                 .withPcapOutput(outputFileName)\
                 .withResponseDt(0.006)\
-                .withServerIp("200.7.4.7")\
+                .withServerIp(destinyIp)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
                 .insert()
@@ -131,6 +135,7 @@ if __name__ == "__main__":
     parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
     parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
     parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
+    parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help='Ip del servidor dns, default 200.7.4.7',type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00

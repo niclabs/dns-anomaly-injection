@@ -19,6 +19,7 @@ class TCPMainTest(unittest.TestCase):
         self.parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
         self.parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
         self.parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
+        self.parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help='Ip del servidor dns, default 200.7.4.7',type=str)
         self.basicArgs = ['-fi',"test1k.pcap",'--duration','1']
         self.sixSecondsArgs = ['-fi',"test1k.pcap",'-ipn','4','-dt','6']
         self.one50kArgs = ['-fi',"test50k.pcap",'-ipn',"3"]

@@ -98,7 +98,7 @@ def main(args,test=""):
     pps = args.pps
     despps = args.des
     ##### Generating the files of the output
-    destinyIP = "200.7.4.7" #Ip of the server
+    destinyIP = args.serverIp
     direction = inputdir+fileName
     outName = fileName.split(".pcap")
     output = outName[0]+"-modified"+test+".pcap"
@@ -138,6 +138,7 @@ if __name__ == "__main__":
     parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
     parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
     parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
+    parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help='Ip del servidor, por default es 200.7.4.7',type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00
