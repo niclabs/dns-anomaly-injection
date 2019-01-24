@@ -18,12 +18,15 @@ from scapy.all import *
 
 def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initialTime=0,duration = 1,numberIp = 1):
     """
-        Creates a series of packets of information that are going to be added to the pcap file
-        :param: fileDirectionName it's the name of the file which is going to be modified with it's direction
-        :param dip:str: the destiny IP
-        :param number:int: the number per second to create
-        :param duration: the duration of the attack on the file
-        :return: a list of the packets to insert
+        Create the attack packets array of tuples, with the tuples form being (request,response).
+        :param fileDirectionName:str: its the file route and it's name string
+        :param dip:str: the destiny ip of the attack packets created, it's the hostage ip
+        :param pps:float: the mean packets per second of the attack, it will be used to make a gaussian probability
+        :param despps:float: the standard desviation of the packets per second of the attacker
+        :param initialTime:float: the initial time of the attack 
+        :param duration:float: the attack duration to the server
+        :param numberIp:int: the number of ip of the DDOS attack (botnet number), if it's a 1, the type of the attack is DOS
+        :return: a list of tuple of representing the attack and the server response.
     """
     assert duration>=1
     #### First we create a list of random ip's
@@ -126,18 +129,18 @@ def main(args,test=""):
         return 0
     return 1
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
-    parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
-    parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=3500,type=int,help="Packets per second of the attack")
+    parser = argparse.ArgumentParser(description = "TCP-SYN Flood attack simulation")
+    parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Directory path to the input, must finish with /",type=str)
+    parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=1500,type=int,help="Mean of the packets per second of the attack")
     parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=500,type=int,help="Standard desviation of the packets per second of the attack")
-    parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
-    parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
-    parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
-    parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help='cantidad de ips del DDOS, por default es 1',type=int)
-    parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='direccion del archivo modificado del output',type=str)
-    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='tiempo de la ventana de medicion, medido en segundos',type=float)
-    parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='tolerancia del servidor',type=int)
-    parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help='Ip del servidor, por default es 200.7.4.7',type=str)
+    parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
+    parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
+    parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
+    parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
+    parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
+    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
+    parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
+    parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00
