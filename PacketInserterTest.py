@@ -36,10 +36,6 @@ class PacketInserterTest(unittest.TestCase):
         self.assertAlmostEqual(0.01,ins.getTimestamp())
         ins.withServerTolerance(30)
         self.assertEqual(30,ins.getServerTolerance())
-    def test_insertion_light(self):
-        pass
-    def test_insertion_full(self):
-        pass
 
 if __name__ == "__main__":
     unittest.main()

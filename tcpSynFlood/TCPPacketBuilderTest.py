@@ -48,9 +48,19 @@ class TCPPacketBuilderTest(unittest.TestCase):
                   .withSrcIP(self.srcIp)\
                   .withDestIP(self.dstIp)\
                   .withSrcPort(self.srcPort)\
+                  .withDestPort(self.dstPort)\
                   .withFlags("S")\
                   .withIpId(self.ipId)\
                   .build()
+        self.assertTrue(pktbuilded.haslayer(Ether))
+        self.assertTrue(pktbuilded.haslayer(IP))
+        self.assertTrue(pktbuilded.haslayer(TCP))
+        self.assertEqual(self.srcIp,pktbuilded.getlayer(IP).src)
+        self.assertEqual(self.dstIp,pktbuilded.getlayer(IP).dst)
+        self.assertEqual('S',pktbuilded.getlayer(TCP).flags)
+        self.assertEqual(self.srcPort,pktbuilded.getlayer(TCP).sport)
+        self.assertEqual(self.dstPort,pktbuilded.getlayer(TCP).dport)
+        self.assertEqual(self.ipId,pktbuilded.getlayer(IP).id)
         self.assertEqual(pktbuilded,pktexpected)
     def test_build_SA(self):
         tether = Ether(src=self.etherSrc,dst=self.etherDst)
@@ -64,6 +74,7 @@ class TCPPacketBuilderTest(unittest.TestCase):
                   .withFlags("SA")\
                   .withIpId(self.ipId)\
                   .build()
+        self.assertEqual('SA',pktbuilded.getlayer(TCP).flags)
         self.assertEqual(pktbuilded,pktexpected)
 if __name__=="__main__":
     unittest.main()

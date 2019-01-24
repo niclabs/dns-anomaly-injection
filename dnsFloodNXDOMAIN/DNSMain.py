@@ -5,7 +5,6 @@ import argparse
 sys.path.append('..')
     
 ##### Libraries and module to use, created by us or scapy
-    
 from scapy.all import *
 from PacketInserter import *
 from DNSPacketBuilder import *
@@ -32,20 +31,25 @@ def createFalseDomains(number: int):
 
 def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps: float,despps: float):
     """
-        Creates a list of tuples (request,response) to simulate an NXDOMAIN 
-        attack to the DNS server
-        :param srcIp:str: the source IP where the attack is generated
-        :param destIp:str: the IP of the server
+        Creates the attack packets tuple and give a list of the form (request,response). The number of packets are
+        variable and depends of the pps and despps that is the mean of the packets per second of the attack and it's
+        standard desviation.
+        :param numberOfIp:int: is the number of spoofed ip's of the attack to generate, it will not necesarily choose
+        every one. 
+        :param destIp:str: is the destiny ip which will be attacked 
         :param duration:int: the duration of the attack
-        :param names:list: the name of the non existant domain
         :param ti:float: the initial time of the attack
-        :return: a list (request,response) of fake queries to be append
+        :param pps:float: the mean of the packets per second
+        :param despps:float: the standard desviation of the packets per second
+        :return: a list of tuples whith (request,response) packets
     """
     assert duration >=1
+    ## Starting defining the variables that we will use to create and store the packages created
     builder = DNSPacketBuilder()
     pkts = []
     ips = ipgen.randomIP(numberOfIp,time.time(),True)
     ta = ti
+    ## We defined by every second the number of packets to create
     for i in range(duration):
         ta +=1
         rate = int(abs(random.gauss(pps,despps)))
@@ -53,15 +57,20 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
             rate = int(abs(random.gauss(pps,despps)))
         times = rnd.genInter(time.time(),ti,ta,rate)
         names = createFalseDomains(len(times))
+        ## For each time created we also create a packet that will be sent at that time
         for i in range(len(times)):
+            ## Generates it's ids of query and response of the ip layer
             idDNS = int(RandShort())
             idQrIp = int(RandShort())
             idRspIp = int(RandShort())
+            ## The port number
             sport = random.randint(1024,65535)
+            ## a time and a domain with it's ip
             k = random.randint(0,len(ips)-1)
             packetTime = times[i]
             domainName = names[i]
             srcIp = ips[k]
+            ## And randomly we generate the response delay of the server
             responseDt = abs(random.gauss(0.00023973491409910548,3.641262394861281e-05))
             z = builder.withSrcIP(srcIp)\
                 .withDestIP(destIp)\
@@ -79,7 +88,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
 
 
 def main(args,test=""):
-    ##### Reading console input from the user
+    ##### Reading console input from the user, defining it's variables
     inputFileName = args.fileInput
     numberIp = args.numberIp
     initialTime = args.ti
@@ -95,13 +104,13 @@ def main(args,test=""):
     fileComponents = inputFileName.split('.pcap')
     outputFileName = fileComponents[0]+"-modified"+test+".pcap"
 
-    ##### Starting the simulation, setting it's parameters
+    ##### Starting the simulation, setting it's parameters of the initial time
     first = sniff(offline=inputDir+inputFileName,count=1)
     if len(first)== 0:
         ti = initialTime
     else:
         ti=first[0].time + initialTime
-    ##### Creating the packets and generation it's insertion
+    ##### Creating the packets and generate it's insertion
     print("Creating the packets")
     packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
     print("Number of packets created: "+str(2*len(packets)))
@@ -117,7 +126,7 @@ def main(args,test=""):
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
                 .insert()
-    ##### Checking if everything goes ok
+    ##### Checking if everything goes ok after the insertion operation.
     if operation:
         print("Packets Inserted")
         return 0
