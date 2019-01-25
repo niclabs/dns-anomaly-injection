@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "NXDOMAIN flood attack simulation")
     parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Directory path to the input, must finish with /",type=str)
     parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=1500,type=int,help="Mean of the packets per second of the attack")
-    parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=500,type=int,help="Standard desviation of the packets per second of the attack")
+    parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=250,type=int,help="Standard desviation of the packets per second of the attack")
     parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
     parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
     parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
