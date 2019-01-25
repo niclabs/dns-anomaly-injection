@@ -118,12 +118,12 @@ def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int,
            seed: Seed for randomize
     return: A packet that has a random string as a subdomain
     """
-    id_IP = int(RandShort())
-    id_DNS = int(RandShort())
-    sub = randomSub(seed)
-    q_name = sub + '.' + dom
+    id_IP = int(RandShort()) #id for IP layer
+    id_DNS = int(RandShort()) #id for DNS layer
+    sub = randomSub(seed) #Random subdomain
+    q_name = sub + '.' + dom #Complete domain request
     ans = Ether()/IP(src = src_ip, dst = dst_ip, id = id_IP)/UDP(sport = src_port)/DNS(rd = 0, id= id_DNS, qd=DNSQR(qname=str(q_name)))
-    ans.time = t
+    ans.time = t #Set time
     return ans
 
 def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
@@ -136,13 +136,13 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
            dt: Response delay time
     return : A response packet that has the EDNS0 extension and an additional record with the answer
     """
-    id_IP = int(RandShort())
-    ar_ans = DNSRR(rrname = dom, rdata = ip_dom)
-    ar_ext = DNSRROPT(rclass=4096)
-    an_ans = DNSRR(rrname = dom, rdata = ip_srv)
-    ns_ans = DNSRR(rrname = dom, type = 2, rdata = dom)
+    id_IP = int(RandShort()) #id for IP layer
+    ar_ans = DNSRR(rrname = dom, rdata = ip_dom) #Domain answer
+    ar_ext = DNSRROPT(rclass=4096) #Extension
+    an_ans = DNSRR(rrname = dom, rdata = ip_srv) #Domain server answer
+    ns_ans = DNSRR(rrname = dom, type = 2, rdata = dom) #Name server answer
     ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ns = ns_ans, an = an_ans,ar= ar_ans/ar_ext)
-    ans.time = p.time + dt
+    ans.time = p.time + dt #Set arrival time
     return ans
 
 def newTuple(dom: string, src_ip:string, serv:string, srcport:int, t:float, seed:float, dom_ip:string, snd_ip:string, dt:float):

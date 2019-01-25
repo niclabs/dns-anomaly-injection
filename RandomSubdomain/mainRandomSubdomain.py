@@ -20,15 +20,15 @@ def main(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:s
            attack_type: Boolean, true: DDoS attack, false: DoS
     return: Array of tuples with the packets of the attack
     """
-    tf =  ti + ext
+    tf =  ti + ext #End time of the attack
     new_packets = []
-    ips = randomIP(n_bot, Time.time(), attack_type)
-    ports = randomSourcePorts(n_bot, Time.time())
-    time = genInter(Time.time(), ti, tf, packets * n_bot)
+    ips = randomIP(n_bot, Time.time(), attack_type) #Array with source ip
+    ports = randomSourcePorts(n_bot, Time.time()) #Array with source ports
+    time = genInter(Time.time(), ti, tf, packets * n_bot) #Arrival time of the requests
     for t in time:
         n = random.randint(0, n_bot - 1)
-        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        while(dt == 0):
+        dt = abs(random.gauss(0.0001868, 0.0000297912738902)) #Delay time for the response
+        while(dt == 0): #Delay time can't be 0
             dt = abs(random.gauss(0.0001868, 0.0000297912738902))
         tuple = newTuple(target_dom, ips[n], server_ip, ports[n], t, Time.time(), domain_ip, server_dom_ip, dt)
         new_packets.append(tuple)
@@ -36,21 +36,22 @@ def main(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:s
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "DoS Random Subdomain attack")
-    parser.add_argument("-servtol", "--server_tolerance", help="Server tolerance, packets per unit of time that the server can answer", type=int, default =42)
-    parser.add_argument("-unitt", "--unit_time", help= "Fraction of time for server tolerance", type=float, default= 0.01)
-    parser.add_argument("src_file", help = "Name of the source pcap file with extension, ex: blanco.pcap.gz")
-    parser.add_argument("dst_file", help = "Name of the new pcap file with extension")
-    parser.add_argument("src_path", help = "Relative path to the input file, it finishes with '/'")
-    parser.add_argument("dst_path", help = "Relative path to the output file")
-    parser.add_argument("-srv", "--server_ip", help = "Server ip")
-    parser.add_argument("-target", "--target_domain", help = "Target domain")
-    parser.add_argument("-ext", "--attack_extension", help = "Attack extension (seconds)", type=float)
-    parser.add_argument("-psec", "--packets", help ="Amount of packets per second", type=int)
-    parser.add_argument("-ti", "--initial_time", help = "Initial time of the attack", type=float)
-    parser.add_argument("-at", "--attack_type", help = "Attack type, true: DDoS, false: DoS", action="store_true")
-    parser.add_argument("-nbot", "--number_botnets", help="Number of botnets", type=int, default = 1)
-    parser.add_argument("-domip","--domain_ip", help= "Asked domain ip, default: random ip", default= genIp())
-    parser.add_argument("-sndip", "--server_dom_ip", help= "Asked domain server ip, default: random ip", default=genIp())
+    parser.add_argument('-servtol', '--server_tolerance', help='Server tolerance, packets per unit of time that the server can answer, default:42', type=int, default =42)
+    parser.add_argument('-unitt', '--unit_time', help= 'Fraction of time for server tolerance, default:0.01', type=float, default= 0.01)
+    parser.add_argument('-srv', '--server_ip', help = 'Server ip, default: 200.7.4.7', default='200.7.4.7')
+    parser.add_argument('-ext', '--attack_extension', help = 'Attack extension (seconds)', type=float)
+    parser.add_argument('-psec', '--packets', help ='Amount of packets per second default: 2500', type=int, default=2500)
+    parser.add_argument('-ti', '--initial_time', help = 'Initial time of the attack, default:0', type=float, default= 0)
+    parser.add_argument('-at', '--attack_type', help = 'Attack type, true: DDoS, false: DoS, default:false', action='store_true')
+    parser.add_argument('-nbot', '--number_botnets', help='Number of botnets, default:1', type=int, default = 1)
+    parser.add_argument('-domip','--domain_ip', help= 'Asked domain ip, default: random ip', default= genIp())
+    parser.add_argument('-sndip', '--server_dom_ip', help= 'Asked domain server ip, default: random ip', default=genIp())
+    requiredNamed = parser.add_argument_group('Required arguments')
+    requiredNamed.add_argument('-sf', '--src_file', help='Name of the source pcap file with extension, ex: file.pcap.gz', required=True)
+    requiredNamed.add_argument('-df','--dst_file', help='Name of the new pcap file with extension', required=True)
+    requiredNamed.add_argument('-sp','--src_path', help = "Relative path to the input file, it finishes with '/'", required=True)
+    requiredNamed.add_argument('-dp', '--dst_path', help="Relative path to the output file,, it finishes with '/'",required=True)
+    requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain', required=True)
     args = parser.parse_args()
 
     checkArgs(args.src_file, args.dst_file, args.src_path, args.dst_path, args.server_ip, args.target_domain, args.attack_extension, args.packets, args.initial_time, args.number_botnets, args.server_tolerance, args.unit_time)
