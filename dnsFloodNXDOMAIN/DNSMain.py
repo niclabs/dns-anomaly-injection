@@ -56,6 +56,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
         while rate == 0:
             rate = int(abs(random.gauss(pps,despps)))
         times = rnd.genInter(time.time(),ti,ta,rate)
+        print(len(times))
         names = createFalseDomains(len(times))
         ## For each time created we also create a packet that will be sent at that time
         for i in range(len(times)):
