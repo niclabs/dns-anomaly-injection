@@ -24,7 +24,9 @@ class PacketInserter:
             :param: timestamp is the time period where the buffer will be measuring
             :param: serverTolerance is the number of querie's by the timestamp defined that the server
                                     can handle
-        """   
+        """
+        self.__quantity = 100
+        self.__args=[]   
         self.__packetsToAppend=[]
         self.__input=""
         self.__output=""
@@ -166,6 +168,14 @@ class PacketInserter:
         """
         self.__serverTolerance = tolerance
         return self
+    def withArgs(self,args: list):
+
+        self.__args = args
+        return self
+    def withQuantity(self,quantity: int):
+
+        self.__quantity = quantity
+        return self
     def _calculateDelay(self,pktsPerSecond: float):
         """
             Calculates the time to add for the delay given the response dt.
@@ -213,6 +223,7 @@ class PacketInserter:
             ti = first.time
             ta = ti
             buffer.append(first)
+            pkts = [] ## buffer for the attack packets of it's attack
             #### Loop for the slow reading and writing of the packet
             while True:
                 #### Calculating the delay of the response
@@ -228,7 +239,6 @@ class PacketInserter:
                 #### ending the loop
                 if pktRead == None:
                     break
-
                 #### Processing the data readed and their value.
                 buffer.append(pktRead)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
@@ -269,11 +279,11 @@ class PacketInserter:
                     count = 0 
                 if bufferQueries[0].time < bufferResponse[0].time:
                     writer.write(bufferQueries[0])
-                    bufferQueries.pop(0)
+                    del bufferQueries[0]
                     count +=1
                 else:
                     writer.write(bufferResponse[0])
-                    bufferResponse.pop(0)
+                    del bufferResponse[0]
                     count +=1
             while len(bufferQueries) != 0:
                 if count == 50000:
@@ -282,7 +292,7 @@ class PacketInserter:
                     writer = PcapWriter(outputDirection,append = True, sync = True)
                     count = 0
                 writer.write(bufferQueries[0])
-                bufferQueries.pop(0)
+                del bufferQueries[0]
                 count+=1
             while len(bufferResponse) != 0:
                 if count == 50000:
@@ -291,7 +301,7 @@ class PacketInserter:
                     writer = PcapWriter(outputDirection,append = True,sync = True)
                     count = 0
                 writer.write(bufferResponse[0])
-                bufferResponse.pop(0)
+                del bufferResponse[0]
                 count += 1
             
             #### We close the writer and return true because everything goes as planned

@@ -205,12 +205,12 @@ class FileInsertState(InserterState):
                 pkt = queryList[0]
                 writer.write(pkt)
                 ta = queryList[0].time
-                queryList.pop(0)
+                del queryList[0]
             else:
                 pkt = responseList[0]
                 writer.write(pkt)
                 ta = responseList[0].time
-                responseList.pop(0)
+                del responseList[0]
             count+=1
         while len(queryList) != 0:
             if count == 50000:
@@ -222,7 +222,7 @@ class FileInsertState(InserterState):
             pkt = queryList[0]
             writer.write(pkt)
             ta = queryList[0].time
-            queryList.pop(0)
+            del queryList[0]
             count+=1
         while len(responseList) != 0:
             if count == 50000:
@@ -234,7 +234,7 @@ class FileInsertState(InserterState):
             pkt = responseList[0]
             writer.write(pkt)
             ta = responseList[0].time
-            responseList.pop(0)
+            del responseList[0]
             count+=1
         self.getInserter().changeState(ReadOkState(self.getInserter()))
         return (count,queries,ta,writerAux)

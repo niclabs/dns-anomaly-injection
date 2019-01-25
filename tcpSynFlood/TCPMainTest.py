@@ -10,8 +10,8 @@ class TCPMainTest(unittest.TestCase):
     def setUp(self):
         self.parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
         self.parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Nombre del directorio donde esta el input con / de la ruta",type=str)
-        self.parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=4500,type=int,help="Packets per second of the attack")
-        self.parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=1000,type=int,help="Standard desviation of the packets per second of the attack")
+        self.parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=3500,type=int,help="Packets per second of the attack")
+        self.parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=250,type=int,help="Standard desviation of the packets per second of the attack")
         self.parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Nombre del archivo pcap con su respesctivas extensiones",type=str)
         self.parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='tiempo de inicio del ataque desde el primer paquete del primer archivo',type=int)
         self.parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='tiempo de duracion del ataque, medido en segundos',type=int)
