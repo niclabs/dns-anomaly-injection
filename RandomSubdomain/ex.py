@@ -12,9 +12,9 @@ import argparse
 #---------------------#
 #Ejemplo:
 #DoS
-#python3 mainRandomSubdomain.py -servtol 30 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srcip 8.8.8.8 -srv 2.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0
+#python3 mainRandomSubdomain.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 200.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0
 #DDoS
-#python3 mainRandomSubdomain.py -servtol 30 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srcip 8.8.8.8 -srv 2.7.4.7 -target hola.cl -ext 3 -psec 10 -ti 0 -nbot 30
+#python3 mainRandomSubdomain.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target hola.cl -ext 3 -psec 100 -ti 0 -nbot 30 -at
 def main2():
     dom = 'chao.cl'
     serv = '2.7.4.7'

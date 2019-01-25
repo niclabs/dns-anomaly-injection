@@ -12,11 +12,11 @@ import gzip
 #---------------------#
 #Ejemplo
 #DoS amplified response
-#python3 mainAmplification.py -servtol 35 -sf blanco.1506993600.pcap.gz -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
+#python3 mainAmplification.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 200.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype
 #DoS regular response
 #python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4
 #DDoS amplified response
-#python3 mainAmplification.py -servtol 50 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype -nbot 30
+#python3 mainAmplification.py -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -rtype -nbot 30
 #DDoS regular response
 #python3 mainAmplification.py -servtol 35 -sf lol.pcap -df new.pcap -sp /home/niclabs/Downloads/ -dp /home/niclabs/Downloads/ -srv 2.7.4.7 -target 8.8.8.8 -sport 33865 -ext 3 -psec 10 -ti 0 -dom hola.cl -domip 3.3.3.3 -sndip 4.4.4.4 -nbot 30
 

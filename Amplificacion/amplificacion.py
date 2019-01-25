@@ -24,7 +24,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
            +src_port: Source port
            +ext: Attack extension (seconds)
            +packets: Amount of packets per second
-           +ti: Start date
+           +ti: Initial time of the attack
            domain: Asked domain
            +dom_ip: Asked domain ip
            +snd_ip: Asked domain server ip
@@ -32,70 +32,70 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
            +server_tolerance: Amount of packets per unit of time that the server can answer
            +unit_time: Fraction of time for server tolerance
     """
-    try:
+    try: #Check structure of the relative path to the input file
         assert(src_path[len(src_path) - 1] == "/")
     except:
         raise Exception("Wrong relative path to the input file, it finishes with '/'")
-    try:
+    try: #Check input file
         assert(os.path.exists(str(src_path) + str(src_file)))
     except:
         raise Exception("Invalid source path")
-    try:
+    try: #Check strucuture of the relative path to the output file
         assert(dst_path[len(dst_path) -1] == "/")
     except:
         raise Exception("Relative path to the output file it finishes with '/'")
-    try:
+    try: #Check relative path to the output file
         assert(os.path.exists(str(dst_path)))
     except:
         raise Exception("Invalid output file path")
-    try:
+    try: #Check extension of the output file
         f = dst_file.split(".")
         assert(len(f) == 2)
         assert(f[1] == "pcap")
     except:
         raise Exception("Wrong output file extension")
-    try:
+    try: #Check server ip
         assert(checkValidIp(srv_ip))
     except:
         raise Exception("Invalid server ip")
-    try:
+    try: #Check target ip
         assert(checkValidIp(target_ip))
     except:
         raise Exception("Invalid target ip")
-    try:
+    try: #Check valid port
         assert(int(src_port) >= 0)
         assert(int(src_port) <= 65535)
     except:
         raise Exception("Source port must be between 0 and 65535")
-    try:
+    try: #Check extension of the attack
         assert(float(ext) > 0)
     except:
         raise Exception("Extension of the attack must be greater than 0")
-    try:
+    try: #Check amount of packets
         assert(int(packets) > 0)
     except:
         raise Exception("Amount of packets per second must be greater than 0")
-    try:
+    try: #Chack initial time of the attack
         assert(float(ti)>= 0)
     except:
-        raise Exception("Start date must be greater than or equal to 0")
-    try:
+        raise Exception("Initial time of the attack must be greater than or equal to 0")
+    try: #Check valid asked domain ip
         assert(checkValidIp(dom_ip))
     except:
         raise Exception("Invalid domain ip")
-    try:
+    try: #Check valid asked domain server ip
         assert(checkValidIp(snd_ip))
     except:
         raise Exception("Invalid domain server ip")
-    try:
+    try: #Check number of botnets
         assert(int(number_botnets) > 0)
     except:
         raise Exception("Number of botnets must be greater than 0")
-    try:
+    try: #Check server tolerance
         assert(int(server_tolerance) > 0)
     except:
         raise Exception("Server tolerance must be greater than 0")
-    try:
+    try: #Check fraction of time for server tolerance
         assert(float(unit_time) > 0)
     except:
         raise Exception("Fraction of time for server tolerance must be greater than 0")
@@ -111,10 +111,10 @@ def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: s
            t: Arrival time
     return: A packet with EDNS0 extension
     """
-    id_IP = int(RandShort())
-    id_DNS = int(RandShort())
+    id_IP = int(RandShort()) #id for IP layer
+    id_DNS = int(RandShort()) #id for DNS layer
     p = Ether()/IP(dst=ip_dst, src=ip_src, id = id_IP)/UDP(sport=src_port)/DNS(rd=0, id= id_DNS, qd=DNSQR(qname=str(q_name), qtype = "ALL"),ar=DNSRROPT(rclass=4096))
-    p.time = t
+    p.time = t #Set arrival time
     return p
 
 def amplificationResponse(p, dt: float):
@@ -125,17 +125,15 @@ def amplificationResponse(p, dt: float):
     return: A response packet that has the EDNS0 extension and the answer section is set up
            - Type: TXT: Contains a large string
     """
-    id_IP = int(RandShort())
+    id_IP = int(RandShort()) #id for IP layer
     #Create the answer with EDNS0 extension
     ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ar = DNSRROPT(rclass=4096))
 
     #Create and set the answer
     n = random.randint(38, 40) #Amplification factor
-    r_data = os.urandom(n*len(p))
-    ans[DNS].an = DNSRR(type='TXT', rclass=0x8001, rdata = r_data)
-
-    #Set the response time
-    ans.time = p.time + dt
+    r_data = os.urandom(n*len(p)) #Random data to increase the size of the packet
+    ans[DNS].an = DNSRR(type='TXT', rclass=0x8001, rdata = r_data) #Set the answer
+    ans.time = p.time + dt #Set the response time
     return ans
 
 def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c: int, ti: float, qname : string, ans_type: int, dom_ip = genIp(), dom_srv_ip = genIp()):
@@ -156,18 +154,18 @@ def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c:
     return: Array of tuples (request, response) of the attack
     """
 
-    tf = ti + duracion
+    tf = ti + duracion #End time of the attack
     new_packets = []
     seed = Time.time() #Seed for randomize
-    time = genInter(seed, ti, tf, c)
+    time = genInter(seed, ti, tf, c) #Array with arrival times for requests
     for t in time:
-        dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        while(dt == 0):
+        dt = abs(random.gauss(0.0001868, 0.0000297912738902)) #Delay time for response
+        while(dt == 0): #Delay time can't be 0
             dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        p = amplificationBuilder(ip, serv, srcport, qname, t)
-        if(ans_type == 1):
+        p = amplificationBuilder(ip, serv, srcport, qname, t) #Request
+        if(ans_type == 1): #If the response is amplified
             a = amplificationResponse(p, dt)
-        else:
+        else: #Regular response
             a = regularResponse(p, qname, dom_ip, dom_srv_ip, dt)
         tuple = []
         tuple.append(p)
