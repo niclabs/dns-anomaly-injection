@@ -269,7 +269,7 @@ class PacketInserter:
                     pkts = f(self.__args[0])
                     del self.__args[0]
                     if len(pkts) <= 2:
-                        self.__packetsToAppend += [pkts]
+                        self.__packetsToAppend.append(pkts)
                     else:
                         self.__packetsToAppend += pkts
                     i+=1
