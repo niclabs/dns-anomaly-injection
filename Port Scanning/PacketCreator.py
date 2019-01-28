@@ -24,13 +24,12 @@ except:
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packets that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
 
  Return: NuevoSetPaquetesEnviados -> Array of packets that will be insert
 """
-def UDP_attack( IPservidor: str, IPsrc: str, PortSrc: int, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, UDP_ICMP_Limit, icmpTasa: int ):
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, UDP_ICMP_Limit, icmpTasa, 1 )
+def UDP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa ):
+    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
 
 """Author @Javi801
  DDoS Port Scan attack simulator, using UDP type.
@@ -43,15 +42,14 @@ def UDP_attack( IPservidor: str, IPsrc: str, PortSrc: int, puertos: list, tiempo
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packets that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
 
  Return: NuevoSetPaquetesEnviados -> Array of packets that will be insert
 """
-def UDP_DDoS_attack( totalIPs, IPservidor, puertos: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, UDP_ICMP_Limit, icmpTasa: int ):
+def UDP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa ):
     IPsrcList = randomIP( totalIPs, Seed, 1 )
     PortSrcList = randomSourcePorts( totalIPs, Seed )
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, UDP_ICMP_Limit, icmpTasa, 1 )
+    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
 
 
 """ Author @Javi801
@@ -64,16 +62,15 @@ def UDP_DDoS_attack( totalIPs, IPservidor, puertos: list, tiempoInicial: float, 
 """
 def generadorParesPortScanningUDP( args ):
     paquetes = []
-    for i in range( len( args ) ):
-        PortSrc = args[i][0]
-        PortDst = args[i][1]
-        icmpResp = args[i][2]
-        IPsrc = args[i][3]
-        IPservidor = args[i][4]
-        tiempo = args[i][5]
-        interResp = args[i][6]
-        par = UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp )
-        paquetes.append( par )
+    PortSrc = args[0]
+    PortDst = args[1]
+    icmpResp = args[2]
+    IPsrc = args[3]
+    IPservidor = args[4]
+    tiempo = args[5]
+    interResp = args[6]
+    par = UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp )
+    paquetes += par
     return paquetes
 
 
@@ -118,11 +115,10 @@ def UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp ):
          tiempoFinal -> ( float ) time in which the attack ends
          numDominios -> ( int ) number of domains which will be asked
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
  Return: NuevoSetPaquetesEnviados -> Array of packets that will be insert
 """
-def Domain_attack( IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDominios, Seed, interResp ):
+def Domain_attack( IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDominios, Seed ):
     ############### generando los domininios a atacar ################
     domsFile = 'ultimos-dominios-1m.txt'
     f = open( domsFile, "r" )
@@ -137,7 +133,7 @@ def Domain_attack( IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDo
             break
     f.close()
     ##################################################################
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 0, 0, 2 )
+    return PacketCreator( IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
 
 """Author @Javi801
  DDoS Port Scanning attack simulator, using Static Port type.
@@ -149,11 +145,10 @@ def Domain_attack( IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDo
          tiempoFinal -> ( float ) time in which the attack ends
          numDominios -> ( int ) number of domains which will be asked
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
  Return: NuevoSetPaquetesEnviados -> Array of packets that will be insert
 """
-def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDominios, Seed, interResp ):
+def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDominios, Seed ):
     IPsrcList = randomIP( totalIPs, Seed, 1 )
     PortSrcList = randomSourcePorts( totalIPs, Seed )
     ############### generando los domininios a atacar ################
@@ -170,7 +165,7 @@ def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDom
             break
     f.close()
     ##################################################################
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, interResp, 0, 0, 2 )
+    return PacketCreator( IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
 
 
 """ Author @Javi801
@@ -183,15 +178,14 @@ def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDom
 """
 def generadorParesPortScanningDom( args ):
     paquetes = []
-    for i in range( len( args ) ):
-        PortSrc = args[i][0]
-        dom = args[i][1]
-        IPsrc = args[i][2]
-        IPservidor = args[i][3]
-        t = args[i][4]
-        interResp = args[i][5]
-        par = DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp )
-        paquetes.append( par )
+    PortSrc = args[0]
+    dom = args[1]
+    IPsrc = args[2]
+    IPservidor = args[3]
+    t = args[4]
+    interResp = args[5]
+    par = DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp )
+    paquetes += par
     return paquetes
 
 
@@ -243,13 +237,12 @@ def DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp ):
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packets that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
  Return: NuevoSetPaquetesEnviados -> Array of packets, with numPaquetesAEnviar
                                      as length
 """
-def TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp ):
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0, 0, 0 )
+def TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed ):
+    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
 
 """ Author @Javi801
  DDoS Port Scan attack simulator, using TCP SYN type.
@@ -262,15 +255,14 @@ def TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal,
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packets that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
  Return: NuevoSetPaquetesEnviados -> Array of packets, with numPaquetesAEnviar
                                      as length
 """
-def TCP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp ):
+def TCP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed ):
     IPsrcList = randomIP( totalIPs, Seed, 1 )
     PortSrcList = randomSourcePorts( totalIPs, Seed )
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, 0, 0, 0 )
+    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
 
 
 """ Author @Javi801
@@ -283,16 +275,15 @@ def TCP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, 
 """
 def generadorParesPortScanningTCP( args ):
     paquetes = []
-    for i in range( len( args ) ):
-        PortSrc = args[i][0]
-        PortDst = args[i][1]
-        open = args[i][2]
-        IPsrc = args[i][3]
-        IPservidor = args[i][4]
-        t = args[i][5]
-        interResp = args[i][6]
-        par = TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp )
-        paquetes.append( par )
+    PortSrc = args[0]
+    PortDst = args[1]
+    open = args[2]
+    IPsrc = args[3]
+    IPservidor = args[4]
+    t = args[5]
+    interResp = args[6]
+    par = TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp )
+    paquetes += ( par )
     return paquetes
 
 
@@ -344,7 +335,6 @@ def TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp ):
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packets that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
          UDP_ICMP_Limit -> ( boolean ) True if the server have limit rate por ICMP
                            response, False if not
          icmpTasa -> ( int ) Number of ICMP responses with the limit rate
@@ -355,13 +345,13 @@ def TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp ):
 
  Return: SetArgumentos -> List of arguments to create the pairs of packets to send
 """
-def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, interResp, UDP_ICMP_Limit, icmpTasa, attackType ):
+def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, attackType ):
     random.seed( Seed )
     datos = datosMultiples[:]
     if attackType == 0 or attackType == 1:
         datos = datosMultiples[0][:]+datosMultiples[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     copia_seguridad = datos[:]
-    tiempos = rF.gen( Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar ) #tiempos donde se inyectan los paquetes
+    tiempos = rF.gen( Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar ) #tiempos donde se inyectan los paquetes
     SetArgumentos = []
     last_icmpResp = [0]
     for i in range( len( tiempos ) ):
@@ -380,9 +370,9 @@ def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicia
         PortSrc = PortSrcList[k]
         #Se crea la tupla pregunta-respuesta
         if attackType == 0: #Si el ataque es TCP
-            argumentosSetPaquetes = [PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], IPsrc, IPservidor, tiempos[i], pickDelayResp( interResp, attackType )]
+            argumentosSetPaquetes = [PortSrc, datoAInsertar, datoAInsertar in datosMultiples[0], IPsrc, IPservidor, tiempos[i], pickDelayResp( attackType )]
         elif attackType == 1: #Si el ataque es UDP
-            dt = pickDelayResp( interResp, attackType )
+            dt = pickDelayResp( attackType )
             if UDP_ICMP_Limit:
                 icmpResp = ( datoAInsertar in datosMultiples[1] ) and ( ( tiempos[i]-last_icmpResp[0] ) >=  1 or len( last_icmpResp )<icmpTasa )
                 if icmpResp:
@@ -395,7 +385,7 @@ def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicia
             if icmpResp and datoAInsertar in datosMultiples[1]:
                 copia_seguridad.remove( datoAInsertar )
         else: #Si el ataque es dirigido a otro servidor pero pasa por este
-            argumentosSetPaquetes = [PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], pickDelayResp( interResp, attackType )]
+            argumentosSetPaquetes = [PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], pickDelayResp( attackType )]
 
         SetArgumentos.append( argumentosSetPaquetes )
 
@@ -409,8 +399,7 @@ def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicia
  Gives a response interval, considering the type of simulated attack and the
  response interval given.
 
- Params: interResp -> ( float ) previous time between a query and its response
-         attackType -> ( int ) type of Port Scanning attack;
+ Params: attackType -> ( int ) type of Port Scanning attack;
                - 0  = > TCP SYN attack type
                - 1  = > UDP attack type
                - 2 or more  = > Static Port attack type
@@ -418,15 +407,11 @@ def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicia
 
  Return: dt -> ( float ) response interval
 """
-def pickDelayResp( interResp, attackType ):
-    if interResp >=  0:
-        return interResp
+def pickDelayResp( attackType ):
     dt = 0
     while dt == 0:
         if attackType == 0: #Ataque es tipo TCP
             dt = abs( random.gauss( 0.0324164173995, 0.661281423818 ) )
-        elif attackType == 1: #Si el ataque es tipo UDP la respuesta es ICMP
-            dt = abs( random.gauss( 0.0001868, 0.0000297912738902 ) )
         else:
             dt = abs( random.gauss( 0.000322919547395, 0.018900697143 ) )
     return dt

@@ -28,17 +28,18 @@ def main():
         print( '\nName or directory of the output file invalid' )
         return
     finalDir = args.output_file
-    if finalDir[-5:] ! =  '.pcap':
+    if finalDir[-5:] !=  '.pcap':
         finalDir  +=   '.pcap'
     iniDir = args.input_file
     if not( os.path.exists( iniDir ) ):
         print( '\nName or directory of the input file invalid' )
         return
     ###########################################################################
-    paquete = sniff( offline = finalDir, count = 1 )
+    paquete = sniff( offline = iniDir, count = 1 )
     tInicial = paquete[0].time + args.initial_time
     duracion = args.duration
     numPaquetesAEnviar = int( ( args.num_packet )*duracion )
+    IPservidor = args.server_ip
     totalInfectados = args.num_zombies
     PortSrc = args.sport
     tolerancia = args.packets_per_window
@@ -78,24 +79,22 @@ def main():
         raise Exception( 'The number of packets accepted per window must be greater than 0' )
     ############################################################################
     if totalInfectados>1:
-        attack = Domain_DDoS_attack( totalInfectados, IPservidor, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp )
+        attack = Domain_DDoS_attack( totalInfectados, IPservidor, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed )
     else:
         if args.src_ip:
             IPsrc = args.src_ip
         else:
             IPsrc = randomIP( 1, Seed, 0 )
-        attack = Domain_attack( IPservidor, IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp )
-    print( 'Attack packets created successfully' )
+        attack = Domain_attack( IPservidor, IPsrc, PortSrc, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed )
+    print( 'Arguments for packets created successfully' )
     ins = PacketInserter()
-    operation = ins.withPackets( attack )\
-                .withInputDir( "input/" )\
-                .withPcapInput( iniDir )\
-                .withOutputDir( "output/" )\
-                .withPcapOutput( finalDir )\
+    operation = ins.withArgs(attack)\
+                .withPcapInput(iniDir)\
+                .withPcapOutput(finalDir)\
                 .withServerIp( IPservidor )\
                 .withTimestamp( uTiempo )\
                 .withServerTolerance( tolerancia )\
-                .insert()
+                .insert(generadorParesPortScanningDom)
     if operation:
         print( "Packages inserted successfully" )
     ############################################################################
