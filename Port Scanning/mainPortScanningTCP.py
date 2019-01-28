@@ -34,14 +34,14 @@ def main():
         print( '\nName or directory of the output file invalid' )
         return
     finalDir = args.output_file
-    if finalDir[-5:] ! =  '.pcap':
+    if finalDir[-5:] !=  '.pcap':
         finalDir  +=   '.pcap'
     iniDir = args.input_file
     if not( os.path.exists( iniDir ) ):
         print( '\nName or directory of the input file invalid' )
         return
     ###########################################################################
-    paquete = sniff( offline = finalDir, count = 1 )
+    paquete = sniff( offline = iniDir, count = 1 )
     tInicial = paquete[0].time + args.initial_time
     duracion = args.duration
     numPaquetesAEnviar = int( ( args.num_packet )*duracion )
@@ -51,8 +51,8 @@ def main():
     tolerancia = args.packets_per_window
     uTiempo = args.window_size
     Seed = time.time
-    puertoInicial = args.iport
-    puertoFinal = args.fport
+    puertoInicial = args.initial_port
+    puertoFinal = args.final_port
     intervaloPuertos = args.inter_port
     ###################### Limite para la unidad de tiempo #####################
     if uTiempo>1:
@@ -127,25 +127,23 @@ def main():
         puertos = randomPortsGen( puertoInicial, puertoFinal, intervaloPuertos, Seed )
     ############################################################################
     if totalInfectados>1:
-        attack = TCP_DDoS_attack( totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp )
+        attack = TCP_DDoS_attack( totalInfectados, IPservidor, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed )
     else:
         if args.src_ip:
             IPsrc = args.src_ip
         else:
             IPsrc = randomIP( 1, Seed, 0 )
-        attack = TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp )
+        attack = TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed )
 
-    print( 'Attack packets created successfully' )
+    print( 'Arguments for packets created successfully' )
     ins = PacketInserter()
-    operation = ins.withPackets( attack )\
-                .withInputDir( "input/" )\
-                .withPcapInput( nombrePktIni )\
-                .withOutputDir( "output/" )\
-                .withPcapOutput( nombrePktFin )\
+    operation = ins.withArgs(attack)\
+                .withPcapInput(iniDir)\
+                .withPcapOutput(finalDir)\
                 .withServerIp( IPservidor )\
                 .withTimestamp( uTiempo )\
                 .withServerTolerance( tolerancia )\
-                .insert()
+                .insert(generadorParesPortScanningTCP)
     if operation:
         print( "Packages inserted successfully" )
     ############################################################################

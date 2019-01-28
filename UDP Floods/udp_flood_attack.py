@@ -26,15 +26,14 @@ except:
          tiempoFinal -> ( float ) time in which the attack ends
          numPaquetesAEnviar -> ( int ) number of packages that will be sent
          Seed -> ( float ) seed for randomize
-         interResp -> ( float ) time between a query and its response
 
  Return: NuevoSetPaquetesEnviados -> Array of packages that will be insert
 """
-def udpFloodAttack( IPservidor: str, IPsrcList: list, PortSrcList: list, puertosAbiertosCerrados: list, tiempoInicial: float, tiempoFinal: float, numPaquetesAEnviar: int, Seed: float, interResp: float, UDP_ICMP_Limit, icmpTasa: int ):
+def udpFloodAttack( IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa ):
     random.seed( Seed )
     puertos = puertosAbiertosCerrados[0][:]+puertosAbiertosCerrados[1][:] #Los puertos totales son los puertos abiertos mas los cerrados para TCP SYN
     copia_seguridad = puertos[:]
-    tiempos = rF.gen( Seed, tiempoInicial, tiempoFinal-interResp, numPaquetesAEnviar ) #tiempos donde se inyectan los paquetes
+    tiempos = rF.gen( Seed, tiempoInicial, tiempoFinal, numPaquetesAEnviar ) #tiempos donde se inyectan los paquetes
     SetPaquetesEnviados = []
     last_icmpResp = [0]
     for i in range( len( tiempos ) ):
@@ -51,7 +50,7 @@ def udpFloodAttack( IPservidor: str, IPsrcList: list, PortSrcList: list, puertos
             IPsrc = IPsrcList[j]
             if len( PortSrcList )>1:
                 PortSrc = PortSrcList[j]
-        dt = pickDelayResp( interResp )
+        dt = pickDelayResp( )
         if UDP_ICMP_Limit:
             icmpResp = ( puertoTarget in puertosAbiertosCerrados[1] ) and ( ( tiempos[i]-last_icmpResp[0] ) >=  1 or len( last_icmpResp )<icmpTasa )
             if icmpResp:
@@ -77,18 +76,17 @@ def udpFloodAttack( IPservidor: str, IPsrcList: list, PortSrcList: list, puertos
 """
 def generadorParesUDPflood( args ):
     SetPaquetes = []
-    for i in range( len( args ) ):
-        PortSrc = args[i][0]
-        puertoTarget = args[i][1]
-        icmpResp = args[i][2]
-        IPsrc = args[i][3]
-        IPservidor = args[i][4]
-        tiempoPregunta = args[i][5]
-        dt = args[i][6]
-        contador = args[i][7]
-        Seed = args[i][8]
-        Par = udpPairGen( PortSrc, puertoTarget, icmpResp, IPsrc, IPservidor, tiempoPregunta, dt, contador, Seed )
-        SetPaquetes.append( Par )
+    PortSrc = args[0]
+    puertoTarget = args[1]
+    icmpResp = args[2]
+    IPsrc = args[3]
+    IPservidor = args[4]
+    tiempoPregunta = args[5]
+    dt = args[6]
+    contador = args[7]
+    Seed = args[8]
+    Par = udpPairGen( PortSrc, puertoTarget, icmpResp, IPsrc, IPservidor, tiempoPregunta, dt, contador, Seed )
+    SetPaquetes += Par
     return SetPaquetes
 
 
@@ -109,7 +107,7 @@ def generadorParesUDPflood( args ):
 
  Return: SetPaquetes -> ( list( Ether() ) ) An ethernet packet list
 """
-def udpPairGen( PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, tiempo: float, interResp: float, contador: int, Seed: float ):
+def udpPairGen( PortSrc, PortDst, open, IPsrc, IPservidor, tiempo, interResp, contador, Seed ):
     ip = IP( src = IPsrc, dst = IPservidor, proto = 'udp' )
     etherQ = Ether( src = '18:66:da:e6:36:56', dst = '18:66:da:4d:c0:08' )
     etherQ.time = tiempo
@@ -128,8 +126,7 @@ def udpPairGen( PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, t
  Gives a response interval, considering the type of simulated attack and the
  response interval given.
 
- Params: interResp -> ( float ) previous time between a query and its response
-         attackType -> ( int ) type of Port Scanning attack;
+ Params: attackType -> ( int ) type of Port Scanning attack;
                - 0  = > TCP SYN attack type
                - 1  = > UDP attack type
                - 2 or more  = > Static Port attack type
@@ -137,11 +134,8 @@ def udpPairGen( PortSrc: int, PortDst: int, open, IPsrc: str, IPservidor: str, t
 
  Return: dt -> ( float ) response interval
 """
-def pickDelayResp( interResp ):
+def pickDelayResp():
     dt = 0
-    if interResp == -1:
-        while dt == 0:
-            dt = abs( random.gauss( 0.0001868, 0.0000297912738902 ) )
-    else:
-        dt = interResp
+    while dt == 0:
+            dt = abs( random.gauss( 0.000322919547395, 0.018900697143 ) )
     return dt

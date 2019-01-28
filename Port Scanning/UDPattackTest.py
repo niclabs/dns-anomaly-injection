@@ -5,7 +5,7 @@ class PacketCreatorTest( unittest.TestCase ):
 
     def test_PacketCreator_UDPattack( self ):
         puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
-        ataque=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 13, 9, 0.13, False, 0, 1 )
+        ataque=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 13, 9, False, 0, 1 )
         self.assertEqual( len( ataque ), 13, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "UDP attack"' )
 
         for i in range( len( ataque ) ):
@@ -20,8 +20,10 @@ class PacketCreatorTest( unittest.TestCase ):
         puertos = [[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
         ips = ['39.199.1.200', '195.23.145.200']
         portsrc = [200,145]
-        args = PacketCreator( '200.7.4.7', ips, portsrc, puertos, 0, 120, 80, 0, -1, 1, 3, 1 )
-        ataque = generadorParesPortScanningUDP( args )
+        args = PacketCreator( '200.7.4.7', ips, portsrc, puertos, 0, 120, 80, 0, 1, 3, 1 )
+        ataque = []
+        for i in range( len( args ) ):
+            ataque.append( generadorParesPortScanningUDP( args[i] ) )
 
         t = []
         c = 0
@@ -39,8 +41,10 @@ class PacketCreatorTest( unittest.TestCase ):
 
     def test_generadorParesPortScanningUDP( self ):
         puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
-        args=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 13, 9, 0.13, False, 0, 1 )
-        ataque=generadorParesPortScanningUDP( args )
+        args=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 13, 9, False, 0, 1 )
+        ataque = []
+        for i in range( len( args ) ):
+            ataque.append( generadorParesPortScanningUDP( args[i] ) )
         self.assertEqual( len( ataque ), 13, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "generadorParesPortScanningUDP"' )
 
         numPkts=0
@@ -57,17 +61,17 @@ class PacketCreatorTest( unittest.TestCase ):
 
 
     def test_UDP_DDoS_attack( self ):
-        udpAt=UDP_DDoS_attack( 25, '200.7.4.7', [[],list( range( 25,80,2 ) )], 160, 162, 40, 5, 0.001, False, 2 )
+        udpAt=UDP_DDoS_attack( 25, '200.7.4.7', [[],list( range( 25,80,2 ) )], 160, 162, 40, 5, False, 2 )
         ips=randomIP( 25, 5, 1 )
         ports=randomSourcePorts( 25, 5 )
-        packAt=PacketCreator( '200.7.4.7', ips, ports, [[],list( range( 25,80,2 ) )], 160, 162, 40, 5, 0.001, False, 2, 1 )
+        packAt=PacketCreator( '200.7.4.7', ips, ports, [[],list( range( 25,80,2 ) )], 160, 162, 40, 5, False, 2, 1 )
         self.assertEqual( udpAt, packAt, 'error en la funcion "UDP_DDoS_attack"' )
 
 
     def test_UDP_Attack( self ):
         puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
-        udpAt=UDP_attack( '200.7.4.7', '56.145.96.4', 37599, puertos, 13, 25, 300, 9, 0.13, False, 2 )
-        packAt=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 300, 9, 0.13, False, 2, 1 )
+        udpAt=UDP_attack( '200.7.4.7', '56.145.96.4', 37599, puertos, 13, 25, 300, 9, False, 2 )
+        packAt=PacketCreator( '200.7.4.7', ['56.145.96.4'], [37599], puertos, 13, 25, 300, 9, False, 2, 1 )
         self.assertEqual( udpAt, packAt, 'error en la funcion "UDP_attack"' )
 
 
@@ -97,9 +101,6 @@ class PacketCreatorTest( unittest.TestCase ):
         self.assertEqual( ans[1].dst, '56.145.96.4', 'error en la direccion de destino del paquete IP: Script "PacketCreator", funcion "UDPgen"' )
         self.assertEqual( ans[2].type, 3, 'error en el campo "type" en el paquete ICMP: Script "PacketCreator", funcion "UDPgen"' )
         self.assertEqual( ans[2].code, 3, 'error en el campo "code" en el paquete ICMP: Script "PacketCreator", funcion "UDPgen"' )
-
-
-
 
 
 if __name__ == '__main__':

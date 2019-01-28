@@ -1,11 +1,12 @@
 from PacketCreator import *
+from pprint import pprint
 import unittest
 
 class PacketCreatorTest( unittest.TestCase ):
 
     def test_PacketCreator_Dom_Attack( self ):
         domList = ['a.cl', 'b.cl', 'c.cl']
-        ataque = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0.003, 0, 0, 2 )
+        ataque = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
         self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
 
         for i in range( len( ataque ) ):
@@ -13,22 +14,24 @@ class PacketCreatorTest( unittest.TestCase ):
             self.assertTrue( ataque[i][1] in domList, 'error en el dominio de la pregunta: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
             self.assertEqual( ataque[i][2], '190.34.123.200', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
             self.assertEqual( ataque[i][3], '200.7.4.7', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
-            self.assertTrue( ataque[i][4] <=  15 and ataque[i][4] >=  10-0.003, 'error en el tiempo del ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
+            self.assertTrue( ataque[i][4] <=  15 and ataque[i][4] >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
 
 
 
     def test_generadorParesPortScanningDom( self ):
         domList = ['a.cl', 'b.cl', 'c.cl']
-        args = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0.003, 0, 0, 2 )
-        ataque = generadorParesPortScanningDom( args )
+        args = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
+        ataque = []
+        for i in range( len( args ) ):
+            ataque.append( generadorParesPortScanningDom( args[i] ) )
         self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
 
         numPkts = 0
         for i in range( len( ataque ) ):
             numPkts += len( ataque[i] )
             self.assertEqual( len( ataque[i] ), 2, 'error en el largo del array pregunta respuesta: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
-            self.assertTrue( ataque[i][0].time <=  15 and ataque[i][0].time >=  10-0.003, 'error en el tiempo del ataque: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
-            self.assertTrue( ataque[i][1].time <=  15.003 and ataque[i][1].time >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
+            self.assertTrue( ataque[i][0].time <=  15 and ataque[i][0].time >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
+            self.assertTrue( ataque[i][1].time <=  16 and ataque[i][1].time >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
             self.assertEqual( ataque[i][0][1].src, '190.34.123.200', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
             self.assertEqual( ataque[i][1][1].src, '200.7.4.7', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
             self.assertEqual( ataque[i][0][1].dst, '200.7.4.7', 'error en la direccion IP de destino en el paquete IP: Script "PacketCreator", funcion "generadorParesPortScanningDom"' )
@@ -40,7 +43,7 @@ class PacketCreatorTest( unittest.TestCase ):
 
 
     def test_Domain_DDoS_attack( self ):
-        domAt = Domain_DDoS_attack( 35, '200.7.4.7', 0, 0.5, 60, 7, 0.01 )
+        domAt = Domain_DDoS_attack( 35, '200.7.4.7', 0, 0.5, 60, 7 )
         ips = randomIP( 35, 7, 1 )
         ports = randomSourcePorts( 35, 7 )
         domsFile = 'ultimos-dominios-1m.txt'
@@ -55,12 +58,12 @@ class PacketCreatorTest( unittest.TestCase ):
                 bool = 0
                 break
         f.close()
-        packAt = PacketCreator( '200.7.4.7', ips, ports, domsList, 0, 0.5, 60, 7, 0.01, 0, 0, 2 )
+        packAt = PacketCreator( '200.7.4.7', ips, ports, domsList, 0, 0.5, 60, 7, 0, 0, 2 )
         self.assertEqual( domAt, packAt, 'error en la funcion "Domain_DDoS_attack"' )
 
 
     def test_Domain_attack( self ):
-        domAtaque = Domain_attack( '200.7.4.7', '190.34.123.200', 10240, 10, 25, 50, 9, 0.003 )
+        domAtaque = Domain_attack( '200.7.4.7', '190.34.123.200', 10240, 10, 25, 50, 9 )
         domsFile = 'ultimos-dominios-1m.txt'
         f  =  open( domsFile, "r" )
         domsList = []
@@ -73,7 +76,7 @@ class PacketCreatorTest( unittest.TestCase ):
                 bool = 0
                 break
         f.close()
-        PackAt = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domsList, 10, 25, 50, 9, 0.003, 0, 0, 2 )
+        PackAt = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domsList, 10, 25, 50, 9, 0, 0, 2 )
         self.assertEqual( domAtaque, PackAt, 'error en la funcion "Domain_attack"' )
 
 
@@ -116,17 +119,12 @@ class PacketCreatorTest( unittest.TestCase ):
 
 
     def test_pickDelayResp_intervalo_aleatorio( self ):
-        interResp = -1
-        new0_interResp = pickDelayResp( interResp, 0 )
-        new1_interResp = pickDelayResp( interResp, 1 )
-        new2_interResp = pickDelayResp( interResp, 2 )
-
-        self.assertFalse( interResp == new0_interResp )
-        self.assertFalse( interResp == new1_interResp )
-        self.assertFalse( interResp == new2_interResp )
+        new0_interResp = pickDelayResp( 0 )
+        new1_interResp = pickDelayResp( 1 )
+        new2_interResp = pickDelayResp( 2 )
 
         self.assertTrue( new0_interResp <=  ( 0.0324164173995+( 0.661281423818*4 ) ) and new0_interResp >=  0 )
-        self.assertTrue( new1_interResp <=  ( 0.0001868+( 0.0000297912738902*4 ) ) and new1_interResp >=  0 )
+        self.assertTrue( new1_interResp <=  ( 0.000322919547395+( 0.018900697143*4 ) ) and new1_interResp >=  0 )
         self.assertTrue( new2_interResp <=  ( 0.000322919547395+( 0.018900697143*4 ) ) and new0_interResp >=  0 )
 
 

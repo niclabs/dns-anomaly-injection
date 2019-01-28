@@ -9,7 +9,7 @@ from ipGenerator import *
 
 def main():
     ###################### Manejo de valores por consola ######################
-    parser  =  argparse.ArgumentParser( description = 'UDP Flood attack simulator' )
+    parser = argparse.ArgumentParser( description = 'UDP Flood attack simulator' )
     parser.add_argument( "-i", "--input_file", help = "Input file name and directory" )
     parser.add_argument( "-o", "--output_file", help = "Output file name and directory" )
     parser.add_argument( "-d", "--duration", help = "Duration of the attack ( d: 60s )", type = float, default = 60 )
@@ -30,22 +30,20 @@ def main():
     parser.add_argument( "-cpl", "--closed_port_list", help = "List of closed ports, ejemplo:1 2 3 ( d: [] )" )
     parser.add_argument( "-al", "--activate_icmp_limit", help = "Activate the limit of ICMP responses per second ( activar para simular servidor con linux o solaris )", action = "store_true" )
     parser.add_argument( "-il", "--icmp_limit", help = "Limit of ICMP responses per second ( d: 2 )", type = int, default = 2 )
-    args  =  parser.parse_args()
+    args = parser.parse_args()
 
     #################### Manejo de los nombres de archivos ####################
-    if not( args.output_file ):
+    if not( args.output_file ) or not( args.input_file ):
         print( '\nName or directory of the output file invalid' )
         return
-    finalDir  =  args.output_file
-    if finalDir[-5:] ! =  '.pcap':
-        finalDir  +=   '.pcap'
-    iniDir  =  args.input_file
-    if not( os.path.exists( iniDir ) ):
-        print( '\nName or directory of the input file invalid' )
-        return
+    finalDir = args.output_file
+    if finalDir[-5:] != '.pcap':
+        finalDir += '.pcap'
+    iniDir = args.input_file
+
     ###########################################################################
 
-    paquete = sniff( offline = finalDir, count = 1 )
+    paquete = sniff( offline = iniDir, count = 1 )
     tInicial = paquete[0].time + args.initial_time
     duracion = args.duration
     numPaquetesAEnviar = int( ( args.num_packet )*duracion )
@@ -57,7 +55,7 @@ def main():
     Seed = time.time
     if totalInfectados>1:
         IPsrcList = randomIP( totalInfectados, Seed, 0 )
-        PortSrcList = randomSourcePorts( totalIPs, Seed )
+        PortSrcList = randomSourcePorts( totalInfectados, Seed )
     elif args.src_ip:
         IPsrcList = [args.src_ip]
     else:
@@ -112,30 +110,28 @@ def main():
         raise Exception( 'The number of packets accepted per window must be greater than 0' )
     ############################################################################
     ####################### Creacion de puertos a atacar #######################
-    if abiertos! = 20 and cerrados! = 500:
+    if abiertos and cerrados:
         puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, abiertos, cerrados, Seed )
-    elif abiertos! = 20:
+    elif abiertos:
         puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, abiertos, -1, Seed )
-    elif cerrados! = 500:
+    elif cerrados:
         puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, -1, cerrados, Seed )
     else:
         puertos = randomPortsGen( puertoInicial, puertoFinal, intervaloPuertos, Seed )
 
-    if args.activate_limit_rate:
+    if args.activate_icmp_limit:
         print( 'Limit of ICMP responses per second enabled' )
 
-    attack = udpFloodAttack( IPservidor, IPsrcList, PortSrcList, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, interResp, args.activate_limit_rate, args.limit_rate )
-    print( 'Attack packets created successfully' )
-    ins  =  PacketInserter()
-    operation  =  ins.withPackets( attack )\
-                .withInputDir( "input/" )\
-                .withPcapInput( nombrePktIni )\
-                .withOutputDir( "output/" )\
-                .withPcapOutput( nombrePktFin )\
+    attack = udpFloodAttack( IPservidor, IPsrcList, PortSrcList, puertos,  tInicial, tInicial+duracion, numPaquetesAEnviar, Seed, args.activate_icmp_limit, args.icmp_limit )
+    print( 'Arguments for packets created successfully' )
+    ins = PacketInserter()
+    operation = ins.withArgs(attack)\
+                .withPcapInput(iniDir)\
+                .withPcapOutput(finalDir)\
                 .withServerIp( IPservidor )\
                 .withTimestamp( uTiempo )\
                 .withServerTolerance( tolerancia )\
-                .insert()
+                .insert(generadorParesUDPflood)
     if operation:
         print( "Packages inserted successfully" )
     ############################################################################
