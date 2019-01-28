@@ -3,7 +3,7 @@
 import sys
 import argparse
 sys.path.append('..')
-    
+
 ##### Libraries and module to use, created by us or scapy
 from scapy.all import *
 from PacketInserter import *
@@ -15,7 +15,15 @@ import randFloats as rnd
 import RandomSubdomain.randomSubdomain as rndSb
 import ipGenerator as ipgen
 
-
+def createInserterPackets(args: list):
+    assert len(args) >= 6
+    numberOfIp = args[0]
+    destIp = args[1]
+    duration = args[2]
+    ti = args[3]
+    pps = args[4]
+    despps = args[5]
+    return createPackateNXDomain(numberOfIp,destIp,duration,ti,pps,despps)
 def createFalseDomains(number: int):
     """
         :param number:int: the number of fake domains to make
@@ -35,8 +43,8 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
         variable and depends of the pps and despps that is the mean of the packets per second of the attack and it's
         standard desviation.
         :param numberOfIp:int: is the number of spoofed ip's of the attack to generate, it will not necesarily choose
-        every one. 
-        :param destIp:str: is the destiny ip which will be attacked 
+        every one.
+        :param destIp:str: is the destiny ip which will be attacked
         :param duration:int: the duration of the attack
         :param ti:float: the initial time of the attack
         :param pps:float: the mean of the packets per second
@@ -90,42 +98,45 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
 def main(args,test=""):
     ##### Reading console input from the user, defining it's variables
     inputFileName = args.fileInput
+    outputFileDir = args.outputDirectory
     numberIp = args.numberIp
     initialTime = args.ti
     atckDuration = args.duration
-    outputDir = args.outputDirectory
-    inputDir  = args.inputDirectory
     timestamp = args.timestamp
     tolerance = args.tolerance
     pps = args.pps
-    despps = args.des
+    despps = 250
     destinyIp = args.serverIp
     ##### Creating the right names for the output file
-    fileComponents = inputFileName.split('.pcap')
-    outputFileName = fileComponents[0]+"-modified"+test+".pcap"
+    outputFileName = outputFileDir ## TODO modificar esto
 
     ##### Starting the simulation, setting it's parameters of the initial time
-    first = sniff(offline=inputDir+inputFileName,count=1)
+    first = sniff(offline=inputFileName,count=1)
     if len(first)== 0:
         ti = initialTime
     else:
         ti=first[0].time + initialTime
     ##### Creating the packets and generate it's insertion
-    print("Creating the packets")
-    packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
-    print("Number of packets created: "+str(2*len(packets)))
+    #print("Creating the packets")
+    #packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
+    #print("Number of packets created: "+str(2*len(packets)))
+    ## Creating the arguments
+    i = 0
+    arguments = []
+    while i < atckDuration:
+        anArgument = [numberIp,destinyIp,1,i,pps,despps]
+        arguments.append(anArgument)
+        i+=1
     inserter = PacketInserter()
-    print("Inserting packets on the modified pcap")
-    operation = inserter.withPackets(packets)\
-                .withInputDir(inputDir)\
+    operation = inserter.withArgs(arguments)\
+                .withQuantity(1)\
                 .withPcapInput(inputFileName)\
-                .withOutputDir(outputDir)\
                 .withPcapOutput(outputFileName)\
                 .withResponseDt(0.0066541468651955095)\
                 .withServerIp(destinyIp)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
-                .insert()
+                .insert(createInserterPackets)
     ##### Checking if everything goes ok after the insertion operation.
     if operation:
         print("Packets Inserted")
@@ -133,18 +144,17 @@ def main(args,test=""):
     return 1
 #### Runner of the module
 if __name__ == "__main__":
+    ##
     parser = argparse.ArgumentParser(description = "NXDOMAIN flood attack simulation")
-    parser.add_argument('-di','--directory_input',dest='inputDirectory',action='store',default='input/',help="Directory path to the input, must finish with /",type=str)
-    parser.add_argument('-pps','--packetsPerSecond',dest='pps',default=1500,type=int,help="Mean of the packets per second of the attack")
-    parser.add_argument('-dpps''--desv_packets_per_second',dest='des',default=250,type=int,help="Standard desviation of the packets per second of the attack")
-    parser.add_argument('-fi','--file_input',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
-    parser.add_argument('-ti','--initial_time',dest='ti',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
-    parser.add_argument('-dt','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
-    parser.add_argument('-ipn','--ip_number',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
-    parser.add_argument('-do','--directory_output',dest='outputDirectory',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
-    parser.add_argument('-time','--timestamp',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
-    parser.add_argument('-tol','--tolerance',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
-    parser.add_argument('-sip','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
+    parser.add_argument('-n','--num_packets',dest='pps',default=2500,type=int,help="Mean of the packets per second of the attack")
+    parser.add_argument('-i','--input_file',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
+    parser.add_argument('-it','--initial_time',dest='ti',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
+    parser.add_argument('-d','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
+    parser.add_argument('-z','--zombies',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
+    parser.add_argument('-o','--output',dest='outputDirectory',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
+    parser.add_argument('-w','--window_size',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
+    parser.add_argument('-p','--packets_per_window',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
+    parser.add_argument('-s','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00
