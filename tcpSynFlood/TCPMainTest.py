@@ -35,8 +35,7 @@ class TCPMainTest(unittest.TestCase):
         ok = m.main(self.parser.parse_args(self.six50kArgs),"--test_sixSecond")
         self.assertEqual(0,ok)
     def test_createPackets(self):
-        pkts = m.createPackets("input/test1k.pcap","200.7.4.7",20)
-        self.assertEqual(20,len(pkts))
+        pkts = m.createPackets("input/test1k.pcap","200.7.4.7",20,1.0)
         for (x,y) in pkts:
             self.assertTrue(x.haslayer(Ether))
             self.assertTrue(x.haslayer(IP))

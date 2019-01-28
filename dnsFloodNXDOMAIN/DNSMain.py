@@ -15,6 +15,7 @@ import randFloats as rnd
 import RandomSubdomain.randomSubdomain as rndSb
 import ipGenerator as ipgen
 
+ipsBot = []
 def createInserterPackets(args: list):
     assert len(args) >= 6
     numberOfIp = args[0]
@@ -55,7 +56,9 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
     ## Starting defining the variables that we will use to create and store the packages created
     builder = DNSPacketBuilder()
     pkts = []
-    ips = ipgen.randomIP(numberOfIp,time.time(),True)
+    global ipsBot
+    if len(ipsBot) == 0:
+        ipsBot = ipgen.randomIP(numberOfIp,time.time(),True)
     ta = ti
     ## We defined by every second the number of packets to create
     for i in range(duration):
@@ -74,10 +77,10 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
             ## The port number
             sport = random.randint(1024,65535)
             ## a time and a domain with it's ip
-            k = random.randint(0,len(ips)-1)
+            k = random.randint(0,len(ipsBot)-1)
             packetTime = times[i]
             domainName = names[i]
-            srcIp = ips[k]
+            srcIp = ipsBot[k]
             ## And randomly we generate the response delay of the server
             responseDt = abs(random.gauss(0.00023973491409910548,3.641262394861281e-05))
             z = builder.withSrcIP(srcIp)\

@@ -172,6 +172,7 @@ class PacketInserter:
             from the pcap original file. At the end, the list to append will be empty, so be careful.
             :return: True if the file was succesfully generated, False if a problem happened
         """
+        assert self.__input != self.__output
         try:
             #### Preparing the buffers for insertion
             buffer = [] # normal buffer for the reader of the file

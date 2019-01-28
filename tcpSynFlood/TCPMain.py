@@ -14,7 +14,8 @@ from TCPPacketBuilder import *
 
 ### Scapy librarie
 from scapy.all import *
-
+## arreglo global con las ips
+ipsBot =  []
 def createInserterPackets(args: list):
     assert len(args) >= 7
     fileDir = args[0]
@@ -39,11 +40,13 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
         :return: a list of tuple of representing the attack and the server response.
     """
     assert duration>=1
+    global ipsBot
     #### First we create a list of random ip's
     first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
     pkts = []
-    ips = ipg.randomIP(numberIp,time.time(),True)
+    if len(ipsBot) == 0:
+        ipsBot = ipg.randomIP(numberIp,time.time(),True)
     #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()
     ta = ti
@@ -57,8 +60,8 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
         for i in range(quantity):
             #### Create the random parameters for the attack
             responseTime = abs(random.gauss(0.005931744402515722,0.15624380490520876))
-            k = random.randint(0,len(ips)-1)
-            sip = ips[k]
+            k = random.randint(0,len(ipsBot)-1)
+            sip = ipsBot[k]
             qrIpId = int(RandShort())
             rspIpId = int(RandShort())
             sport = random.randint(1024, 65535)

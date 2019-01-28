@@ -35,10 +35,7 @@ class DNSMainTest(unittest.TestCase):
         ok = m.main(self.parser.parse_args(self.six50kArgs),"--test_sixSecond")
         self.assertEqual(0,ok)
     def test_createPackets(self):
-        times = rnd.genInter(0,0,1,10)
-        dom = m.createFalseDomains(10)
-        packets = m.createPackateNXDomain(1,"200.7.4.7",times,dom)
-        self.assertEqual(10,len(packets))
+        packets = m.createPackateNXDomain(1,"200.7.4.7",1,0.0,20,1.0)
         for (x,y) in packets:
             self.assertTrue(x.haslayer(IP))
             self.assertTrue(x.haslayer(DNS))
