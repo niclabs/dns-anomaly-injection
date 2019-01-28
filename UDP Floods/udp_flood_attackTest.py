@@ -5,7 +5,47 @@ class udp_flood_attackTest(unittest.TestCase):
 
     def test_udpFloodAttack(self):
         puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
-        ataque=udpFloodAttack('200.7.4.7', ['190.34.123.200'], [567], puertos, 0, 10, 140, 4, 0.1)
+        ataque=udpFloodAttack('200.7.4.7', ['190.34.123.200'], [567], puertos, 0, 10, 140, 4, 0.1, 0, 1)
+
+        icmpResp=0
+        for i in range(len(ataque)):
+            if not(ataque[i][2]):
+                icmpResp+=1
+            self.assertEqual(len(ataque[i]), 9, '\nerror en la cantidad de argumentos\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertEqual(ataque[i][3], '190.34.123.200', '\nerror en la IP de origen\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertEqual(ataque[i][4], '200.7.4.7', '\nerror en la IP de destino\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertTrue( ataque[i][5]<=10-0.1 and ataque[i][5]>=0, '\nerror en el tiempo del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertTrue( (ataque[i][1] in puertos[0]) or (ataque[i][1] in puertos[1]), '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+            self.assertEqual(ataque[i][0], 567, '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+
+        self.assertTrue(icmpResp>0, '\nerror en la cantidad de respuestas\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+        self.assertEqual(len(ataque), 140, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+
+
+    def test_udpFloodAttack_icmp( self ):
+        puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
+        ips = ['39.199.1.200', '195.23.145.200']
+        portsrc = [200,145]
+        args = udpFloodAttack( '200.7.4.7', ips, portsrc, puertos, 0, 120, 80, 0, -1, 1, 3 )
+        ataque = generadorParesUDPflood( args )
+
+        t = []
+        c = 0
+        for i in range( len( ataque ) ):
+            if not( args[i][2] ):
+                c += 1
+                t.append( args[i][5] )
+                self.assertEqual( len( ataque[i] ), 2, 'error en el largo del array pregunta-respuesta: Script "PacketCreator", funcion "PacketCreator" seccion "UDP attack"' )
+                if c>=4:
+                    self.assertTrue( ( t[c-1]-t[c-3] )<=60 )
+            else:
+                self.assertEqual( len( ataque[i] ), 1, 'error en el largo del array pregunta-respuesta: Script "PacketCreator", funcion "PacketCreator" seccion "UDP attack"' )
+
+
+    def test_generadorParesUDPflood(self):
+        puertos=[[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
+        args=udpFloodAttack('200.7.4.7', ['190.34.123.200'], [567], puertos, 0, 10, 40, 4, 0.1, 0, 1)
+        ataque=generadorParesUDPflood(args)
 
         numPkts=0
         for i in range(len(ataque)):
@@ -15,8 +55,9 @@ class udp_flood_attackTest(unittest.TestCase):
             self.assertTrue( (ataque[i][0][2].dport in puertos[0]) or (ataque[i][0][2].dport in puertos[1]), '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
             self.assertEqual(ataque[i][0][2].sport, 567, '\nerror en el puerto del paquete\nScript "udp_flood_attack", funcion "udpFloodAttack"')
 
-        self.assertTrue(numPkts>140, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
-        self.assertEqual(len(ataque), 140, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+        self.assertTrue(numPkts>=40, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+        self.assertEqual(len(ataque), 40, '\nerror en la cantidad de paquetes\nScript "udp_flood_attack", funcion "udpFloodAttack"')
+
 
 
     def test_udpPairGen_query(self):
