@@ -15,7 +15,15 @@ import randFloats as rnd
 import RandomSubdomain.randomSubdomain as rndSb
 import ipGenerator as ipgen
 
-
+def createInserterPackets(args: list):
+    assert len(args) >= 6
+    numberOfIp = args[0]
+    destIp = args[1]
+    duration = args[2]
+    ti = args[3]
+    pps = args[4]
+    despps = args[5]
+    return createPackateNXDomain(numberOfIp,destIp,duration,ti,pps,despps)
 def createFalseDomains(number: int):
     """
         :param number:int: the number of fake domains to make
@@ -93,7 +101,7 @@ def main(args,test=""):
     inputFileName = args.fileInput
     outputFileDir = args.outputDirectory
     numberIp = args.numberIp
-    initialTime = args.it
+    initialTime = args.ti
     atckDuration = args.duration
     timestamp = args.timestamp
     tolerance = args.tolerance
@@ -101,7 +109,6 @@ def main(args,test=""):
     despps = 250
     destinyIp = args.serverIp
     ##### Creating the right names for the output file
-    fileComponents = inputFileName.split('.pcap')
     outputFileName = outputFileDir ## TODO modificar esto
 
     ##### Starting the simulation, setting it's parameters of the initial time
@@ -111,21 +118,27 @@ def main(args,test=""):
     else:
         ti=first[0].time + initialTime
     ##### Creating the packets and generate it's insertion
-    print("Creating the packets")
-    packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
-    print("Number of packets created: "+str(2*len(packets)))
+    #print("Creating the packets")
+    #packets = createPackateNXDomain(numberIp,destinyIp,atckDuration,ti,pps,despps)
+    #print("Number of packets created: "+str(2*len(packets)))
+    ## Creating the arguments
+    i = 0
+    arguments = []
+    while i < atckDuration:
+        anArgument = [numberIp,destinyIp,1,i,pps,despps]
+        arguments.append(anArgument)
+        i+=1
+    print("hola2")
     inserter = PacketInserter()
-    print("Inserting packets on the modified pcap")
-    operation = inserter.withPackets(packets)\
-                .withInputDir(inputDir)\
+    operation = inserter.withArgs(arguments)\
+                .withQuantity(1)\
                 .withPcapInput(inputFileName)\
-                .withOutputDir(outputDir)\
                 .withPcapOutput(outputFileName)\
                 .withResponseDt(0.0066541468651955095)\
                 .withServerIp(destinyIp)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
-                .insert()
+                .insert(createInserterPackets)
     ##### Checking if everything goes ok after the insertion operation.
     if operation:
         print("Packets Inserted")

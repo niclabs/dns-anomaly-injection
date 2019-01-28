@@ -9,7 +9,7 @@ Object that test the functions of the TCPMain.py file
 class TCPMainTest(unittest.TestCase):
     def setUp(self):
         self.parser = argparse.ArgumentParser(description = "Simulacion de ataque TCP SYN Flood")
-        self.parser.add_argument('-n','--num_packets',dest='pps',default=2500,type=int,help="Mean of the packets per second of the attack")
+        self.parser.add_argument('-n','--num_packets',dest='pps',default=3500,type=int,help="Mean of the packets per second of the attack")
         self.parser.add_argument('-i','--input_file',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
         self.parser.add_argument('-it','--initial_time',dest='it',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
         self.parser.add_argument('-d','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)

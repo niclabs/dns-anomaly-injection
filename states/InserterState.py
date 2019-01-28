@@ -3,7 +3,7 @@ import sys
 sys.path.append('..')
 import PacketInserter
 """
-    Inserter state class is an super class for all the states that the inserter can have. 
+    Inserter state class is an super class for all the states that the inserter can have.
     It follows the state design pattern
     @author Joaquin Cruz
 """
@@ -50,7 +50,7 @@ class ReadOkState(InserterState):
         super().__init__(inserter)
     def processData(self,bufferFile: list, bufferAttack: list,queryList: list, responseList: list, noResponse: dict,delay: float, data: list,writer: PcapWriter):
         """
-            Process data simulating an server state Ok of the number of queries received, generating responses to them 
+            Process data simulating an server state Ok of the number of queries received, generating responses to them
             :param: bufferFile is the list buffer of packets of the file that is being readed
             :param: bufferAttack is the list buffer of packets of the attack to be introduced, this are tuples which form is (request,response)
             :param: queryList is the list buffer for the packets to be inserted that are queries
@@ -122,7 +122,6 @@ class ReadNOkState(InserterState):
         count = data[0]
         queries = data[1]
         outputDirection = data[2]
-        
         ### we see if we put an file or an attack on our file
         if len(bufferAttack) == 0 or (len(bufferFile) !=0 and bufferFile[0].time <= bufferAttack[0][0].time):
             ta = bufferFile[0].time
@@ -152,7 +151,7 @@ class ReadNOkState(InserterState):
         if dtInsert >= self.getInserter().getTimestamp():
             self.getInserter().changeState(FileInsertState(self.getInserter()))
         if len(queryList) < self.getInserter().getServerTolerance():
-            self.getInserter().changeState(ReadOkState(self.getInserter()))      
+            self.getInserter().changeState(ReadOkState(self.getInserter()))
         return (count,queries,ta,writer)
 
     def __eq__(self,obj):
@@ -192,13 +191,13 @@ class FileInsertState(InserterState):
         queries = data[1]
         outputDirection = data[2]
         ### Calculates the actual time
-        ### Starts to write on the file 
+        ### Starts to write on the file
         writerAux = writer
         while len(queryList) != 0 and len(responseList) != 0:
             if count == 50000:
                 writer.close()
                 del writer
-                writerAux = PcapWriter(outputDirection,append = True,sync=True) 
+                writerAux = PcapWriter(outputDirection,append = True,sync=True)
                 writer = writerAux
                 count = 0
             if queryList[0].time < responseList[0].time:

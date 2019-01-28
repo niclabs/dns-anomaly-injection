@@ -225,7 +225,7 @@ class PacketInserter:
                 #### Processing the data readed and their value.
                 buffer.append(pktRead)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-
+            print("Archivo procesado")
             ## We have readed all the pcap, we eliminate the reader resources
             del reader
             if len(self.__args) != 0 and len(self.__packetsToAppend) == 0:
@@ -281,7 +281,7 @@ class PacketInserter:
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-
+            print("Packetes en los buffers listos")
             ## Writing on the file of the buffers needed
             while len(bufferQueries) != 0 and len(bufferResponse) != 0:
                 if count == 50000:
