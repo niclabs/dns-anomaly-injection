@@ -10,52 +10,31 @@ sys.path.append("../RandomSubdomain")
 from randomSubdomain import checkValidIp
 from randomSubdomain import genIp
 from randomSubdomain import regularResponse
+from randomSubdomain import check_new_tuple_args
 
 
-def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_port, ext, packets, ti, domain, dom_ip, snd_ip, number_botnets, server_tolerance, unit_time):
+def checkArgs(input_file, output_file, server_ip, target_ip, src_port, d, packets, it, domain, zombies, packets_per_window, window_size):
     """
     Check if the arguments are correct
-    Param: +src_file: Name of the source pcap file with extension
-           +dst_file: Name of the new pcap file with extension
-           +src_path: Relative path to the input file, it finishes with '/'
-           +dst_path: Relative path to the output file it finishes with '/'
-           +srv_ip: Server ip
+    Param: +input_file: Path to the input file
+           output_file: Path to the output file
+           +server_ip: Server ip
            +target_ip: Target ip
            +src_port: Source port
-           +ext: Attack extension (seconds)
+           +d: Duration of the attack (seconds)
            +packets: Amount of packets per second
-           +ti: Initial time of the attack
+           +it: Initial time of the attack
            domain: Asked domain
-           +dom_ip: Asked domain ip
-           +snd_ip: Asked domain server ip
-           +number_botnets: Number of botnets
-           +server_tolerance: Amount of packets per unit of time that the server can answer
-           +unit_time: Fraction of time for server tolerance
+           +zombies: Number of computers in the botnet
+           +packets_per_window: Amount of packets per unit of time that the server can answer
+           +window_size: Fraction of time for server tolerance
     """
-    try: #Check structure of the relative path to the input file
-        assert(src_path[len(src_path) - 1] == "/")
-    except:
-        raise Exception("Wrong relative path to the input file, it finishes with '/'")
     try: #Check input file
-        assert(os.path.exists(str(src_path) + str(src_file)))
+        assert(os.path.exists(str(input_file)))
     except:
-        raise Exception("Invalid source path")
-    try: #Check strucuture of the relative path to the output file
-        assert(dst_path[len(dst_path) -1] == "/")
-    except:
-        raise Exception("Relative path to the output file it finishes with '/'")
-    try: #Check relative path to the output file
-        assert(os.path.exists(str(dst_path)))
-    except:
-        raise Exception("Invalid output file path")
-    try: #Check extension of the output file
-        f = dst_file.split(".")
-        assert(len(f) == 2)
-        assert(f[1] == "pcap")
-    except:
-        raise Exception("Wrong output file extension")
+        raise Exception("Invalid path to the input file")
     try: #Check server ip
-        assert(checkValidIp(srv_ip))
+        assert(checkValidIp(server_ip))
     except:
         raise Exception("Invalid server ip")
     try: #Check target ip
@@ -68,7 +47,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     except:
         raise Exception("Source port must be between 0 and 65535")
     try: #Check extension of the attack
-        assert(float(ext) > 0)
+        assert(float(d) > 0)
     except:
         raise Exception("Extension of the attack must be greater than 0")
     try: #Check amount of packets
@@ -76,7 +55,7 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     except:
         raise Exception("Amount of packets per second must be greater than 0")
     try: #Chack initial time of the attack
-        assert(float(ti)>= 0)
+        assert(float(it)>= 0)
     except:
         raise Exception("Initial time of the attack must be greater than or equal to 0")
     try: #Check valid asked domain ip
@@ -88,15 +67,15 @@ def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, target_ip, src_por
     except:
         raise Exception("Invalid domain server ip")
     try: #Check number of botnets
-        assert(int(number_botnets) > 0)
+        assert(int(zombies) > 0)
     except:
         raise Exception("Number of botnets must be greater than 0")
     try: #Check server tolerance
-        assert(int(server_tolerance) > 0)
+        assert(int(packets_per_window) > 0)
     except:
         raise Exception("Server tolerance must be greater than 0")
     try: #Check fraction of time for server tolerance
-        assert(float(unit_time) > 0)
+        assert(float(window_size) > 0)
     except:
         raise Exception("Fraction of time for server tolerance must be greater than 0")
 
@@ -136,39 +115,69 @@ def amplificationResponse(p, dt: float):
     ans.time = p.time + dt #Set the response time
     return ans
 
-def amplificationAttack(serv: string, ip:string, srcport: int, duracion: int, c: int, ti: float, qname : string, ans_type: int, dom_ip = genIp(), dom_srv_ip = genIp()):
+
+def newTuple(l: list):
     """
-    Assuming that the server is giving an amplified response
+    Gives an array that contains a request and response
+    Param: l: List that contains the necessary arguments to create a tuple of request, response
+           l[0]: Target ip
+           l[1]: Server ip
+           l[2]: Source port
+           l[3]: Asked domain
+           l[4]: Request arrival time
+           l[5]: Delay time for response
+           l[6]: Domain ip
+           l[7]: Domain server ip
+           l[8]: Answer type, boolean that specified if the response is amplified
+                    -True: the response is amplified
+                    -False: the response isn't amplified
+    return: An array (request, response)
+    """
+    check_new_tuple_args(l)
+    p = amplificationBuilder(l[0], l[1], l[2], l[3], l[4]) #Request
+    if(l[8]): #If the response is amplified
+        a = amplificationResponse(p, l[5])
+    else: #Regular response
+        a = regularResponse(p, l[3], l[6], l[7], l[5])
+    return [p, a]
+
+
+def argsBuilder(serv: string, ip:string, srcport: int, duration: int, c: int, ti: float, qname : string, ans_type: int, dom_ip = genIp(), dom_srv_ip = genIp()):
+    """
+    Gives an array of arguments to create packets
     Param: serv: Server ip
            ip: Target ip
            srcport: Source port
-           duracion: Attack extension (seconds)
+           duration: Duration of the attack (seconds)
            c: Amount of packets per second
-           ti: Start date TODO: ver en que se medirá (Con respecto al paquete)
-           qname: Domain asked
-           ans_type: int that specified if the response is amplified
-                    - 1: the response is amplified
-                    - 0: the response isn't amplified
+           ti: Initial time of the attack
+           qname: Asked domain
+           ans_type: Boolean that specified if the response is amplified
+                    -True: the response is amplified
+                    -False: the response isn't amplified
            dom_ip: Domain ip
            dom_srv_ip: Domain server ip
-    return: Array of tuples (request, response) of the attack
+    return: Array with the arguments of the packets for the attack
+            Structure of each argument: [Target ip, server ip, source port, asked domain, request arrival time, response delay time, domain ip, domain server ip, answer type]
     """
-
-    tf = ti + duracion #End time of the attack
-    new_packets = []
+    tf = ti + duration #End time of the attack
+    new_packets_args = []
     seed = Time.time() #Seed for randomize
     time = genInter(seed, ti, tf, c) #Array with arrival times for requests
     for t in time:
-        dt = abs(random.gauss(0.0001868, 0.0000297912738902)) #Delay time for response
+        dt = abs(random.gauss(0.000322919547395, 0.018900697143)) #Delay time for response
         while(dt == 0): #Delay time can't be 0
-            dt = abs(random.gauss(0.0001868, 0.0000297912738902))
-        p = amplificationBuilder(ip, serv, srcport, qname, t) #Request
-        if(ans_type == 1): #If the response is amplified
-            a = amplificationResponse(p, dt)
-        else: #Regular response
-            a = regularResponse(p, qname, dom_ip, dom_srv_ip, dt)
-        tuple = []
-        tuple.append(p)
-        tuple.append(a)
-        new_packets.append(tuple)
-    return new_packets
+            dt = abs(random.gauss(0.000322919547395, 0.018900697143))
+        args = [ip, serv, srcport, qname, t, dt, dom_ip, dom_srv_ip, ans_type]
+        new_packets_args.append(args)
+    return new_packets_args
+
+def genPackets(l :list):
+    """
+    Gives an array that contains tuples of requests and responses
+    Param: l: List of arguments for each tuple
+    """
+    packets = []
+    for arg in l:
+        packets.append(newTuple(arg))
+    return packets

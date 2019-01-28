@@ -6,6 +6,8 @@ import os
 sys.path.append("..")
 import time as Time
 from randFloats import *
+from PortsGenerator import randomSourcePorts
+from ipGenerator import randomIP
 
 def checkValidIp(ip : string):
     """
@@ -22,70 +24,50 @@ def checkValidIp(ip : string):
                 return False
     return True
 
-def checkArgs(src_file, dst_file, src_path, dst_path, srv_ip, dom, ext, packets, ti, n_bot, server_tolerance, unit_time):
+def checkArgs(input_file, output_file, server_ip, target_domain, d, num_packets, it, zombies, packets_per_window, window_size):
     """
     Check if the arguments are correct
-    Param: +src_file: Name of the source pcap file with extension
-           +dst_file: Name of the new pcap file with extension
-           +src_path: Relative path to the input file, it finishes with '/'
-           +dst_path: Relative path to the output file, it finishes with '/'
-           +srv_ip: Server ip
-           dom: Target domain
-           +ext: Attack extension (seconds)
-           +packets:  Amount of packets per second
-           +ti: Start date
-           +n_bot : Number of botnets
-           +server_tolerance: Amount of packets per unit of time that the server can answer
-           +unit_time: Fraction of time for server tolerance
+    Param: +input_file: Path to the input file
+           output_file: Path to the output file
+           +server_ip: Server ip
+           target_dom: Target domain
+           +d: Duration of the attack (seconds)
+           +num_packets:  Amount of packets per second
+           +it: Initial time of the attack
+           +zombies : Number of computers in the botnet
+           +packets_per_window: Amount of packets per unit of time that the server can answer
+           +window_size: Fraction of time for server tolerance
     """
     try:
-        assert(src_path[len(src_path) - 1] == "/")
+        assert(os.path.exists(str(input_file)))
     except:
-        raise Exception("Relative path to the input file, it finishes with '/'")
+        raise Exception("Invalid apth to the input file")
     try:
-        assert(os.path.exists(str(src_path) + str(src_file)))
-    except:
-        raise Exception("Invalid source path")
-    try:
-        assert(dst_path[len(dst_path) - 1] == "/")
-    except:
-        raise Exception("Relative path to the output file, it finishes with '/'")
-    try:
-        assert(os.path.exists(str(dst_path)))
-    except:
-        raise Exception("Invalid output file path")
-    try:
-        f = dst_file.split(".")
-        assert(len(f) == 2)
-        assert(f[1] == "pcap")
-    except:
-        raise Exception("Invalid output file extension")
-    try:
-        assert(checkValidIp(srv_ip))
+        assert(checkValidIp(server_ip))
     except:
         raise Exception("Invalid server ip")
     try:
-        assert(int(ext) > 0)
+        assert(int(d) > 0)
     except:
-        raise Exception("Attack extension must be greater than 0")
+        raise Exception("Duration of the attack must be greater than 0")
     try:
-        assert(int(packets) > 0)
+        assert(int(num_packets) > 0)
     except:
-        raise Exception("Amoount of packets per second must be greater than 0")
+        raise Exception("Amount of packets per second must be greater than 0")
     try:
-        assert(float(ti) >= 0)
+        assert(float(it) >= 0)
     except:
-        raise Exception("Start date must be greater than or equal to 0")
+        raise Exception("Initial time of the attack must be greater than or equal to 0")
     try:
-        assert(int(n_bot) > 0)
+        assert(int(zombies) > 0)
     except:
-        raise Exception("Number of botnets must be greater than 0")
+        raise Exception("Number of computers in the botnet must be greater than 0")
     try:
-        assert(int(server_tolerance) > 0)
+        assert(int(packets_per_window) > 0)
     except:
         raise Exception("Server tolerance must be greater than 0")
     try:
-        assert(float(unit_time) > 0)
+        assert(float(window_size) > 0)
     except:
         raise Exception("Fraction of time for server tolerance must be greater than 0")
 
@@ -145,20 +127,74 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ans.time = p.time + dt #Set arrival time
     return ans
 
-def newTuple(dom: string, src_ip:string, serv:string, srcport:int, t:float, seed:float, dom_ip:string, snd_ip:string, dt:float):
+def check_new_tuple_args(l:list):
+    """
+    Check if the arguments for newTuple(l) are correct
+    """
+    try:
+        assert(len(l) == 9)
+    except:
+        raise Exception("Wrong number of given arguments for newTuple(l)")
+
+
+def newTuple(l: list):
     """
     Gives an array that contains a request and response
-    Param: dom: Target domain
-           src_ip: Source ip
-           serv: Server ip
-           srcport: Source port
-           t: Request arrival time
-           seed: Seed for randomize
-           dom_ip: Asked domain ip
-           snd_ip: Asked domain server ip
-           dt: Response delay time
+    Param: l: List that contains the necessary arguments to create a tuple of request, response
+           l[0]: Target domain
+           l[1]: Source ip
+           l[2]: Server ip
+           l[3]: Source port
+           l[4]: Request arrival time
+           l[5]: Seed for randomize
+           l[6]: Asked domain ip
+           l[7]: Asked domain server ip
+           l[8]: Response delay time
     return: An array (request, response)
     """
-    req = randomSubBuilder(dom, src_ip, serv, srcport, t, seed)
-    res = regularResponse(req, dom, dom_ip, snd_ip, dt)
+    check_new_tuple_args(l)
+    req = randomSubBuilder(l[0], l[1], l[2], l[3], l[4], l[5])
+    res = regularResponse(req, l[0], l[6], l[7], l[8])
     return [req, res]
+
+def argsBuilder(target_dom:string, server_ip: string, domain_ip:string, server_dom_ip:string, ti:float, d:int, packets:int,  n_bot:int):
+    """
+    Gives an array of arguments to create packets
+    Param: target_dom: Taget domain
+           server_ip: Server ip
+           domain_ip: Asked domain ip
+           server_dom_ip: Asked domain server ip
+           ti: Initial time of the attack
+           d: Duration of the attack
+           packets: Packets per second
+           n_bot: Number of computers in the botnet for the DDoS attack
+    return: Array with the arguments of the packets for the attack
+            Structure of each argument: [target domain, source ip, server ip, source port, request arrival time, seed, domain ip, domain server ip, response delay time]
+    """
+    tf =  ti + d #End time of the attack
+    new_packets_args = []
+    if n_bot == 1: #If dos attack
+        ips = randomIP(n_bot, Time.time(), False)
+    else: #If ddos attack
+        ips = randomIP(n_bot, Time.time(), True)
+    ips = randomIP(n_bot, Time.time(), n_bot) #Array with source ip
+    ports = randomSourcePorts(n_bot, Time.time()) #Array with source ports
+    time = genInter(Time.time(), ti, tf, packets * n_bot) #Arrival time of the requests
+    for t in time:
+        n = random.randint(0, n_bot - 1)
+        dt = abs(random.gauss(0.0001868, 0.0000297912738902)) #Delay time for the response
+        while(dt == 0): #Delay time can't be 0
+            dt = abs(random.gauss(0.0001868, 0.0000297912738902))
+        args = [target_dom, ips[n], server_ip, ports[n], t, Time.time(), domain_ip, server_dom_ip, dt]
+        new_packets_args.append(args)
+    return new_packets_args
+
+def genPackets(l :list):
+    """
+    Gives an array that contains tuples of requests and responses
+    Param: l: List of arguments for each tuple
+    """
+    packets = []
+    for arg in l:
+        packets.append(newTuple(arg))
+    return packets
