@@ -183,7 +183,7 @@ class PacketInserter:
             ta = ti #Time of the last package received
             queries = 0 # number of queries without response
 
-            #### Preparing variables to insert the packets  
+            #### Preparing variables to insert the packets
             inputDirection = self.__input
             outputDirection = self.__output
             count = 0 #Counter, resets the writer in order to not persue a memory failure of writing
@@ -194,23 +194,20 @@ class PacketInserter:
             ti = first.time
             ta = ti
             buffer.append(first)
-            pkts = [] ## buffer for the attack packets of it's attack
+            self.__packetsToAppend = [] ## buffer for the attack packets of it's attack
             i = 0
             #### Loop for the slow reading and writing of the packet
             while True:
-                if len(pkts) == 0:
-                    tc = ta
-                    dt_create = math.ceil(tc-ti) ## Ver este calculo
-                    while dt_create <= self.__timestamp or i < self.__quantity:
-                        pkt_created = f(self.__args[i])
-                        if len(pkt_created) <= 2:
-                            pkts +=[pkt_created]
+                if len(self.__args) != 0 and len(self.__packetsToAppend) == 0:
+                    while len(self.__args) != 0 and i < self.__quantity:
+                        pkts = f(self.__args[0])
+                        del self.__args[0]
+                        if len(pkts) <= 2:
+                            self.__packetsToAppend += [pkts]
                         else:
-                            pkts += pkt_created
+                            self.__packetsToAppend += pkts
                         i+=1
-                        tc = pkts[i][0].time
-                        dt_create = math.ceil(tc-ti)
-
+                    i = 0
 
                 #### Calculating the delay of the response
                 dt = math.ceil(ta-ti)
@@ -231,9 +228,28 @@ class PacketInserter:
 
             ## We have readed all the pcap, we eliminate the reader resources
             del reader
-
+            if len(self.__args) != 0 and len(self.__packetsToAppend) == 0:
+                while len(self.__args) != 0 and i < self.__quantity:
+                    pkts = f(self.__args[0])
+                    del self.__args[0]
+                    if len(pkts) <= 2:
+                        self.__packetsToAppend += [pkts]
+                    else:
+                        self.__packetsToAppend += pkts
+                    i+=1
+                i = 0
             ### Processing the data that have not been written on the pcap file and it's still in the buffer
-            while len(buffer) != 0 and len(self.__packetsToAppend) != 0:
+            while len(buffer) != 0 and len(self.__args) != 0:
+                if len(self.__packetsToAppend) == 0:
+                    while len(self.__args) != 0 and i < self.__quantity:
+                        pkts = f(self.__args[0])
+                        del self.__args[0]
+                        if len(pkts) == 2:
+                            self.__packetsToAppend += [pkts]
+                        else:
+                            self.__packetsToAppend += pkts
+                        i+=1
+                    i = 0
                 dt = math.ceil(ta-ti)
                 if dt == 0:
                     dt = 1
@@ -248,7 +264,16 @@ class PacketInserter:
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-
+            while len(self.__args) !=0:
+                while i < self.__quantity:
+                    pkts = f(self.__args[0])
+                    del self.__args[0]
+                    if len(pkts) <= 2:
+                        self.__packetsToAppend += [pkts]
+                    else:
+                        self.__packetsToAppend += pkts
+                    i+=1
+                i = 0
             while len(self.__packetsToAppend) != 0:
                 dt = math.ceil(ta-ti)
                 if dt == 0:
@@ -256,6 +281,7 @@ class PacketInserter:
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
+
             ## Writing on the file of the buffers needed
             while len(bufferQueries) != 0 and len(bufferResponse) != 0:
                 if count == 50000:

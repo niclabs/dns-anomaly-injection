@@ -15,6 +15,16 @@ from TCPPacketBuilder import *
 ### Scapy librarie
 from scapy.all import *
 
+def createInserterPackets(args: list):
+    assert len(args) >= 7
+    fileDir = args[0]
+    dip = args[1]
+    pps = args[2]
+    despps = args[3]
+    ti = args[4]
+    dt = args[5]
+    nip = args[6]
+    return createPackets(fileDir,dip,pps,despps,ti,dt,nip)
 
 def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initialTime=0,duration = 1,numberIp = 1):
     """
@@ -33,7 +43,6 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
     first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
     pkts = []
-    print("Creating Ip's of the attack")
     ips = ipg.randomIP(numberIp,time.time(),True)
     #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()
@@ -104,22 +113,27 @@ def main(args,test=""):
     output = outNameDir
 
     ##### Getting prepared for generating the attack
-    pkts=createPackets(direction,destinyIP,pps,despps,initialTime,duration,numberOfIp)
-    print("Number of attack packets: "+str(len(pkts)))
-    print("Number of packets created: "+str(2*len(pkts)))
+    #pkts=createPackets(direction,destinyIP,pps,despps,initialTime,duration,numberOfIp)
+    #print("Number of attack packets: "+str(len(pkts)))
+    #print("Number of packets created: "+str(2*len(pkts)))
+    arguments = []
+    i = 0
+    while i < duration:
+        anArgument = [direction,destinyIP,pps,despps,i,1,numberOfIp]
+        arguments.append(anArgument)
+        i+=1
     ##### Insertion of the packets generated
     print("Inserting packets on the modified pcap")
     ins = PacketInserter()
-    operation = ins.withPackets(pkts)\
-                .withInputDir(inputdir)\
-                .withPcapInput(fileName)\
-                .withOutputDir(outputdir)\
+    operation = ins.withArgs(arguments)\
+                .withQuantity(1)\
+                .withPcapInput(direction)\
                 .withPcapOutput(output)\
                 .withServerIp(destinyIP)\
                 .withResponseDt(0.0066541468651955095)\
                 .withTimestamp(timestamp)\
                 .withServerTolerance(tolerance)\
-                .insert(createPackets)
+                .insert(createInserterPackets)
     ####Seeing that everything is ok
     if operation:
         print("Packets Inserted")
@@ -129,7 +143,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "TCP-SYN Flood attack simulation")
     parser.add_argument('-n','--num_packets',dest='pps',default=2500,type=int,help="Mean of the packets per second of the attack")
     parser.add_argument('-i','--input_file',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
-    parser.add_argument('-it','--initial_time',dest='ti',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
+    parser.add_argument('-it','--initial_time',dest='it',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
     parser.add_argument('-d','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
     parser.add_argument('-z','--zombies',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
     parser.add_argument('-o','--output',dest='fileOutput',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
