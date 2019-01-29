@@ -29,6 +29,7 @@ def createInserterPackets(args: list):
     ti = args[3]
     pps = args[4]
     despps = args[5]
+    print("Creating Packets")
     return createPackateNXDomain(numberOfIp,destIp,duration,ti,pps,despps)
 def createFalseDomains(number: int):
     """
