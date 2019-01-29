@@ -17,6 +17,11 @@ import ipGenerator as ipgen
 
 ipsBot = []
 def createInserterPackets(args: list):
+    """
+        Adapter to the arguments for creating packets on the inserter
+        :param: args is a list of at least 6 parameters to create the packets of the nx domain
+        :return: a list of packets given the arguments
+    """
     assert len(args) >= 6
     numberOfIp = args[0]
     destIp = args[1]
@@ -63,7 +68,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
     ## We defined by every second the number of packets to create
     for i in range(duration):
         ta +=1
-        rate = int(abs(random.gauss(pps,despps)))
+        rate = int(abs(random.gauss(pps,desp:param: delayResponse is the delays of the response time of the serverps)))
         while rate == 0:
             rate = int(abs(random.gauss(pps,despps)))
         times = rnd.genInter(time.time(),ti,ta,rate)

@@ -17,6 +17,10 @@ from scapy.all import *
 ## arreglo global con las ips
 ipsBot =  []
 def createInserterPackets(args: list):
+    """
+        Adapter for the inserter argument to create the packets of the tcp syn attack of one second
+        :param: args: list: the arguments to pass for the function to create the packets
+    """
     assert len(args) >= 7
     fileDir = args[0]
     dip = args[1]

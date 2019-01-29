@@ -18,9 +18,11 @@ class PacketInserter:
             will be added to the pcap file
             :param: input is the name of the pcap file with it's extension
             :param: output is the of the output pcap file with it's extension
-            :param: inputDir is the relative path to the input file, it finishes with /
-            :param: outputDir is the relative path to the output file directory, it also finishes with /
-            :param: delayResponse is the delays of the response time of the server
+            :param: serverIp is the ip of the server to be attacked
+            :param: state is the state of the server simulated
+            :param: responseDt is the difference of time to be applied on the response of the server
+            :param: args is the arguments of the function to create packets
+            :param: quantity is the number of arguments to read when creating the packets
             :param: timestamp is the time period where the buffer will be measuring
             :param: serverTolerance is the number of querie's by the timestamp defined that the server
                                     can handle
@@ -112,7 +114,10 @@ class PacketInserter:
         self.__output=output
         return self
     def withServerIp(self,ip: str):
-
+        """
+            Setter for the server ip for the delay
+            :param: ip: str: the ip of the server
+        """
         self.__serverIp = ip
         return self
     def withResponseDt(self,dt: float):
@@ -140,11 +145,17 @@ class PacketInserter:
         self.__serverTolerance = tolerance
         return self
     def withArgs(self,args: list):
-
+        """
+            Establishes the arguments of the function for creating the packets.
+            :param: args: list: a matrix of arguments to give it to the function that create the packets
+        """
         self.__args = args
         return self
     def withQuantity(self,quantity: int):
-
+        """
+            Establishes the quantity of arguments to read when the inserter querie for creating the packets
+            :param: quantity: int: the number of arguments to
+        """
         self.__quantity = quantity
         return self
     def _calculateDelay(self,pktsPerSecond: float):
@@ -169,7 +180,10 @@ class PacketInserter:
         """
             Insert the packages given to the pcap file mentioned, (if the output
             file exists already, it will be overwritten)
-            from the pcap original file. At the end, the list to append will be empty, so be careful.
+            from the pcap original file. At the end, the list to append will be empty, so be careful. Also, generate
+            packets in order to inser to the attack, it does a querie to the f function to create the package while the
+            arguments field of the inserter is not empty
+            :param: f: a function to create the packets, it must receive a list
             :return: True if the file was succesfully generated, False if a problem happened
         """
         assert self.__input != self.__output
@@ -226,7 +240,7 @@ class PacketInserter:
                 #### Processing the data readed and their value.
                 buffer.append(pktRead)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-            print("Archivo procesado")
+            print("Original File processed")
             ## We have readed all the pcap, we eliminate the reader resources
             del reader
             if len(self.__args) != 0 and len(self.__packetsToAppend) == 0:
@@ -282,7 +296,7 @@ class PacketInserter:
                 pps = queries / dt
                 delay = self._calculateDelay(pps)
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
-            print("Packetes en los buffers listos")
+            print("Buffers of packets ready")
             ## Writing on the file of the buffers needed
             while len(bufferQueries) != 0 and len(bufferResponse) != 0:
                 if count == 50000:
