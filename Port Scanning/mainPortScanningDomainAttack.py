@@ -58,12 +58,7 @@ def main():
     check( numPaquetesAEnviar, lambda x: x>0 and ( x%1 ) == 0 , "The number of packets per second to send must be greater than 0" )
     check( totalInfectados, lambda x: x >= 1 , 'The number of pcs zombies must be greater than or equal to 1' )
     check( tolerancia, lambda x: x>0 , 'The number of packets accepted per window must be greater than 0' )
-    check( intervaloPuertos, lambda x: x>0 and ( x%1 ) == 0 , 'The interval between each port must be greater than 0' )
     check( PortSrc, lambda x: ( x >= 0 ) and ( x<=65535 ), "Source port must be between 0 and 65535" )
-    try:
-        assert( puertoInicial <=  puertoFinal )
-    except:
-        raise Exception( 'The lesser port to attack must be less than the major port to attack' )
     ############################################################################
     if totalInfectados>1:
         attack = Domain_DDoS_attack( totalInfectados, IPservidor, tInicial, tInicial+duracion, numPaquetesAEnviar, Seed )

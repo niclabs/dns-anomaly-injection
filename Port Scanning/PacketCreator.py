@@ -70,10 +70,10 @@ def generadorParesPortScanningUDP( args ):
     IPsrc = args[3]
     IPservidor = args[4]
     list( map( lambda a: check( a, lambda x: checkValidIp( x ), mensaje ), [IPsrc, IPservidor] ) )
-    tiempo = args[5]
+    t = args[5]
     dt = args[6]
-    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [tiempoPregunta, dt] ))
-    return UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, dt )
+    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [t, dt] ))
+    return UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, t, dt )
 
 
 """Author @Javi801
