@@ -61,17 +61,18 @@ def UDP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, 
  Return: paquetes -> ( list() ) Array of packets that will be insert
 """
 def generadorParesPortScanningUDP( args ):
-    paquetes = []
+    mensaje='Error in the parameters to create the packets'
     PortSrc = args[0]
     PortDst = args[1]
+    list( map( lambda a: check( a, lambda x: ( x >= 0 ) and ( x<=65535 ), mensaje ), [PortSrc, PortDst] ) )
     icmpResp = args[2]
     IPsrc = args[3]
     IPservidor = args[4]
+    list( map( lambda a: check( a, lambda x: checkValidIp( x ), mensaje ), [IPsrc, IPservidor] ) )
     tiempo = args[5]
-    interResp = args[6]
-    par = UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp )
-    paquetes += par
-    return paquetes
+    dt = args[6]
+    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [tiempoPregunta, dt] ))
+    return UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, dt )
 
 
 """Author @Javi801
@@ -177,16 +178,18 @@ def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDom
  Return: paquetes -> ( list() ) Array of packets that will be insert
 """
 def generadorParesPortScanningDom( args ):
-    paquetes = []
+    mensaje='Error in the parameters to create the packets'
     PortSrc = args[0]
+    check( PortSrc, lambda x: ( x >= 0 ) and ( x<=65535 ), mensaje )
     dom = args[1]
     IPsrc = args[2]
     IPservidor = args[3]
+    list( map( lambda a: check( a, lambda x: checkValidIp( x ), mensaje ), [IPsrc, IPservidor] ) )
     t = args[4]
-    interResp = args[5]
-    par = DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp )
-    paquetes += par
-    return paquetes
+    dt = args[5]
+    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [t, dt] ))
+    return DomainGen( PortSrc, dom, IPsrc, IPservidor, t, dt )
+
 
 
 """ Author @Javi801
@@ -274,17 +277,19 @@ def TCP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, 
  Return: paquetes -> ( list() ) Array of packets that will be insert
 """
 def generadorParesPortScanningTCP( args ):
-    paquetes = []
+    mensaje='Error in the parameters to create the packets'
     PortSrc = args[0]
     PortDst = args[1]
+    list( map( lambda a: check( a, lambda x: ( x >= 0 ) and ( x<=65535 ), mensaje ), [PortSrc, PortDst] ) )
     open = args[2]
     IPsrc = args[3]
     IPservidor = args[4]
+    list( map( lambda a: check( a, lambda x: checkValidIp( x ), mensaje ), [IPsrc, IPservidor] ) )
     t = args[5]
-    interResp = args[6]
-    par = TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp )
-    paquetes += ( par )
-    return paquetes
+    dt = args[6]
+    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [t, dt] ))
+    return TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, dt )
+
 
 
 """ Author @Javi801
@@ -415,3 +420,18 @@ def pickDelayResp( attackType ):
         else:
             dt = abs( random.gauss( 0.000322919547395, 0.018900697143 ) )
     return dt
+
+
+""" @Javi801
+ Check if "fun" returns true when using "valor" as an argument, otherwise it
+ displays the given message
+
+ Params: valor -> an argument for "fun" function
+         fun -> a lambda function that returns a boolean
+         mensaje -> (str) error message
+"""
+def check( valor, fun, mensaje ):
+    try:
+        assert( fun( valor ) )
+    except:
+        raise Exception( mensaje )

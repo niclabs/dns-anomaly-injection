@@ -36,12 +36,14 @@ def randomIP(total, Seed, ddos):
         ips+=[ip]
     return ips
 
-def checkValidIp(ip : string):
-    """
-    Check if an ip is valid
-    Param: ip: String
-    return: Boolean
-    """
+"""
+Check if an ip is valid
+
+Param: ip: String
+
+return: Boolean
+"""
+def checkValidIp(ip):
     values = ip.split(".")
     if(len(values) != 4):
         return False

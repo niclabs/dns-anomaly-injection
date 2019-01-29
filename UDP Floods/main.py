@@ -77,24 +77,24 @@ def main():
     try:
         assert( '.pcap' in iniDir )
     except:
-        raise Exception( '\nThe file format must be included in the file name to open' )
+        raise Exception( 'The file format must be included in the file name to open' )
     try:
         assert( duracion>0 )
     except:
-        raise Exception( '\nThe duration of the attack must be greater than 0' )
+        raise Exception( 'The duration of the attack must be greater than 0' )
     try:
         assert( PortSrc <=  65535 )
         assert( PortSrc >=  0 )
     except:
-        raise Exception( "\nSource port must be between 0 and 65535" )
+        raise Exception( "Source port must be between 0 and 65535" )
     try:
         assert( numPaquetesAEnviar>0 )
     except:
-        raise Exception( "\nThe number of packets per second to send must be greater than 0" )
+        raise Exception( "The number of packets per second to send must be greater than 0" )
     try:
         assert( totalInfectados >=  1 )
     except:
-        raise Exception( '\nThe number of pcs zombies must be greater than or equal to 1' )
+        raise Exception( 'The number of pcs zombies must be greater than or equal to 1' )
 
     try:
         assert( puertoInicial <=  puertoFinal )

@@ -9,6 +9,7 @@ try:
     import sys
     sys.path.append( ".." )
     import randFloats as rF
+    from ipGenerator import *
 except:
     raise Exception( "randFloat error" )
 
@@ -75,19 +76,21 @@ def udpFloodAttack( IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados,
  Return: paquetes -> ( list() ) Array of packets that will be insert
 """
 def generadorParesUDPflood( args ):
-    SetPaquetes = []
+    mensaje='Error in the parameters to create the packets'
     PortSrc = args[0]
     puertoTarget = args[1]
+    list( map( lambda a: check( a, lambda x: ( x >= 0 ) and ( x<=65535 ), mensaje ), [PortSrc, puertoTarget] ) )
     icmpResp = args[2]
     IPsrc = args[3]
     IPservidor = args[4]
+    list( map( lambda a: check( a, lambda x: checkValidIp( x ), mensaje ), [IPsrc, IPservidor] ) )
     tiempoPregunta = args[5]
     dt = args[6]
+    list( map( lambda a: check( a, lambda x: x >= 0, mensaje ), [tiempoPregunta, dt] ))
     contador = args[7]
+    check( contador, lambda x: ( x%1 ) == 0 and x >= 0 , mensaje )
     Seed = args[8]
-    Par = udpPairGen( PortSrc, puertoTarget, icmpResp, IPsrc, IPservidor, tiempoPregunta, dt, contador, Seed )
-    SetPaquetes += Par
-    return SetPaquetes
+    return udpPairGen( PortSrc, puertoTarget, icmpResp, IPsrc, IPservidor, tiempoPregunta, dt, contador, Seed )
 
 
 """Author @Javi801
@@ -139,3 +142,18 @@ def pickDelayResp():
     while dt == 0:
             dt = abs( random.gauss( 0.000322919547395, 0.018900697143 ) )
     return dt
+
+
+""" @Javi801
+ Check if "fun" returns true when using "valor" as an argument, otherwise it
+ displays the given message
+
+ Params: valor -> an argument for "fun" function
+         fun -> a lambda function that returns a boolean
+         mensaje -> (str) error message
+"""
+def check( valor, fun, mensaje ):
+    try:
+        assert( fun( valor ) )
+    except:
+        raise Exception( mensaje )
