@@ -8,21 +8,8 @@ import time as Time
 from randFloats import *
 from PortsGenerator import randomSourcePorts
 from ipGenerator import randomIP
+from ipGenerator import checkValidIp
 
-def checkValidIp(ip : string):
-    """
-    Check if an ip is valid
-    Param: ip: String
-    return: Boolean
-    """
-    values = ip.split(".")
-    if(len(values) != 4):
-        return False
-    else:
-        for v in values:
-            if(int(v) < 0 or int(v) > 255):
-                return False
-    return True
 
 def checkArgs(input_file, output_file, server_ip, target_domain, d, num_packets, it, zombies, packets_per_window, window_size):
     """
