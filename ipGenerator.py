@@ -34,3 +34,18 @@ def randomIP(total, Seed, ddos):
             ip=str(j)+'.'+str(k)+'.'+str(l)+'.'+str(m)
         ips+=[ip]
     return ips
+
+def checkValidIp(ip : string):
+    """
+    Check if an ip is valid
+    Param: ip: String
+    return: Boolean
+    """
+    values = ip.split(".")
+    if(len(values) != 4):
+        return False
+    else:
+        for v in values:
+            if(int(v) < 0 or int(v) > 255):
+                return False
+    return True
