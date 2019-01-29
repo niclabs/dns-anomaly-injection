@@ -142,18 +142,3 @@ def pickDelayResp():
     while dt == 0:
             dt = abs( random.gauss( 0.000322919547395, 0.018900697143 ) )
     return dt
-
-
-""" @Javi801
- Check if "fun" returns true when using "valor" as an argument, otherwise it
- displays the given message
-
- Params: valor -> an argument for "fun" function
-         fun -> a lambda function that returns a boolean
-         mensaje -> (str) error message
-"""
-def check( valor, fun, mensaje ):
-    try:
-        assert( fun( valor ) )
-    except:
-        raise Exception( mensaje )
