@@ -23,16 +23,16 @@ class DNSMainTest(unittest.TestCase):
         self.one50kArgs = ['-i',"input/test50k.pcap",'-z',"3",'-o',"output/test50k-modified--test_oneSecond.pcap"]
         self.six50kArgs = ['-i',"input/test50k.pcap",'-z',"7",'-d',"6",'-o',"output/test50k-modified--test_sixSecond.pcap"]
     def test_basic(self):
-        ok = m.main(self.parser.parse_args(self.basicArgs),"--test_basic")
+        ok = m.main(self.parser.parse_args(self.basicArgs))
         self.assertEqual(0,ok)
     def test_sixSecond(self):
-        ok = m.main(self.parser.parse_args(self.sixSecondsArgs),"--test_sixSeconds")
+        ok = m.main(self.parser.parse_args(self.sixSecondsArgs))
         self.assertEqual(0,ok)
     def test_oneSecond_50k(self):
-        ok = m.main(self.parser.parse_args(self.one50kArgs),"--test_oneSecond")
+        ok = m.main(self.parser.parse_args(self.one50kArgs))
         self.assertEqual(0,ok)
     def test_sixSecond_50k(self):
-        ok = m.main(self.parser.parse_args(self.six50kArgs),"--test_sixSecond")
+        ok = m.main(self.parser.parse_args(self.six50kArgs))
         self.assertEqual(0,ok)
     def test_createPackets(self):
         packets = m.createPackateNXDomain(1,"200.7.4.7",1,0.0,20,1.0)
