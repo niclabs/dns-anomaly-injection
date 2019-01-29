@@ -28,7 +28,7 @@ if __name__ == '__main__':
     p0 = sniff(offline = args.input_file, count = 1) #Read the first packet of the input file
     t0 = p0[0].time #Arrival time of the first packet of the input file
     print("Creating packets...")
-    new_packets_args = argsBuilder(args.target_domain, args.server_ip, genIp(), genIp(), args.initial_time + t0, args.duration, args.num_packets, args.number_botnets)
+    new_packets_args = argsBuilder(args.target_domain, args.server_ip, genIp(), genIp(), args.initial_time + t0, args.duration, args.num_packets, args.zombies)
 
     if(args.window_size > 1): #unit time is between 0 and 1
         window_size = 1
@@ -43,5 +43,5 @@ if __name__ == '__main__':
               .withServerIp(args.server_ip)\
               .withTimestamp(window_size)\
               .withServerTolerance(args.packets_per_window)\
-              .insert()
+              .insert(genPackets)
     print("Packets successfully inserted")

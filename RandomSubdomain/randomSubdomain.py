@@ -127,9 +127,9 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ans.time = p.time + dt #Set arrival time
     return ans
 
-def check_new_tuple_args(l:list):
+def check_gen_packets_args(l:list):
     """
-    Check if the arguments for newTuple(l) are correct
+    Check if the arguments for genPackets(l) are correct
     """
     try:
         assert(len(l) == 9)
@@ -137,7 +137,7 @@ def check_new_tuple_args(l:list):
         raise Exception("Wrong number of given arguments for newTuple(l)")
 
 
-def newTuple(l: list):
+def genPackets(l: list):
     """
     Gives an array that contains a request and response
     Param: l: List that contains the necessary arguments to create a tuple of request, response
@@ -152,7 +152,7 @@ def newTuple(l: list):
            l[8]: Response delay time
     return: An array (request, response)
     """
-    check_new_tuple_args(l)
+    check_gen_packets_args(l)
     req = randomSubBuilder(l[0], l[1], l[2], l[3], l[4], l[5])
     res = regularResponse(req, l[0], l[6], l[7], l[8])
     return [req, res]
@@ -188,13 +188,3 @@ def argsBuilder(target_dom:string, server_ip: string, domain_ip:string, server_d
         args = [target_dom, ips[n], server_ip, ports[n], t, Time.time(), domain_ip, server_dom_ip, dt]
         new_packets_args.append(args)
     return new_packets_args
-
-def genPackets(l :list):
-    """
-    Gives an array that contains tuples of requests and responses
-    Param: l: List of arguments for each tuple
-    """
-    packets = []
-    for arg in l:
-        packets.append(newTuple(arg))
-    return packets

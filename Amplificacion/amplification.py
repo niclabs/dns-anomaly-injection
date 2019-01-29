@@ -10,8 +10,7 @@ sys.path.append("../RandomSubdomain")
 from randomSubdomain import checkValidIp
 from randomSubdomain import genIp
 from randomSubdomain import regularResponse
-from randomSubdomain import check_new_tuple_args
-
+from randomSubdomain import check_gen_packets_args
 
 def checkArgs(input_file, output_file, server_ip, target_ip, src_port, d, packets, it, domain, zombies, packets_per_window, window_size):
     """
@@ -58,14 +57,6 @@ def checkArgs(input_file, output_file, server_ip, target_ip, src_port, d, packet
         assert(float(it)>= 0)
     except:
         raise Exception("Initial time of the attack must be greater than or equal to 0")
-    try: #Check valid asked domain ip
-        assert(checkValidIp(dom_ip))
-    except:
-        raise Exception("Invalid domain ip")
-    try: #Check valid asked domain server ip
-        assert(checkValidIp(snd_ip))
-    except:
-        raise Exception("Invalid domain server ip")
     try: #Check number of botnets
         assert(int(zombies) > 0)
     except:
@@ -116,7 +107,7 @@ def amplificationResponse(p, dt: float):
     return ans
 
 
-def newTuple(l: list):
+def genPackets(l: list):
     """
     Gives an array that contains a request and response
     Param: l: List that contains the necessary arguments to create a tuple of request, response
@@ -133,7 +124,8 @@ def newTuple(l: list):
                     -False: the response isn't amplified
     return: An array (request, response)
     """
-    check_new_tuple_args(l)
+
+    check_gen_packets_args(l)
     p = amplificationBuilder(l[0], l[1], l[2], l[3], l[4]) #Request
     if(l[8]): #If the response is amplified
         a = amplificationResponse(p, l[5])
@@ -171,13 +163,3 @@ def argsBuilder(serv: string, ip:string, srcport: int, duration: int, c: int, ti
         args = [ip, serv, srcport, qname, t, dt, dom_ip, dom_srv_ip, ans_type]
         new_packets_args.append(args)
     return new_packets_args
-
-def genPackets(l :list):
-    """
-    Gives an array that contains tuples of requests and responses
-    Param: l: List of arguments for each tuple
-    """
-    packets = []
-    for arg in l:
-        packets.append(newTuple(arg))
-    return packets
