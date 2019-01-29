@@ -41,6 +41,7 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
     """
     assert duration>=1
     global ipsBot
+    print("Creating Packets")
     #### First we create a list of random ip's
     first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
@@ -91,13 +92,11 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
             #### Append the packages of request and response on a tuple
             pkts.append((npkt,rpkt))
     return pkts
-def main(args,test=""):
+def main(args):
     """
     Main function of the program, generates the output file on the
     output folder.
     :param args:list :  the arguments given by console.
-    :param: test: is an extension to the output file name for the test, do not use if
-    not testing
     :return: 0 if everything goes ok!, 1 otherwise
     """
     ##### Reading the inputs from the user

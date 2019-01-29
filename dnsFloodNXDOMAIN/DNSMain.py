@@ -98,7 +98,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
     return pkts
 
 
-def main(args,test=""):
+def main(args):
     ##### Reading console input from the user, defining it's variables
     inputFileName = args.fileInput
     outputFileDir = args.outputDirectory
