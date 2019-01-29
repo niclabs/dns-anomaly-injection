@@ -74,40 +74,17 @@ def main():
         uTiempo = 1
     ############################################################################
     #################### Verificacion de valores ingresados ####################
-    try:
-        assert( '.pcap' in iniDir )
-    except:
-        raise Exception( 'The file format must be included in the file name to open' )
-    try:
-        assert( duracion>0 )
-    except:
-        raise Exception( 'The duration of the attack must be greater than 0' )
-    try:
-        assert( PortSrc <=  65535 )
-        assert( PortSrc >=  0 )
-    except:
-        raise Exception( "Source port must be between 0 and 65535" )
-    try:
-        assert( numPaquetesAEnviar>0 )
-    except:
-        raise Exception( "The number of packets per second to send must be greater than 0" )
-    try:
-        assert( totalInfectados >=  1 )
-    except:
-        raise Exception( 'The number of pcs zombies must be greater than or equal to 1' )
-
+    check( iniDir, lambda x: '.pcap' in x , 'The file format must be included in the file name to open' )
+    check( duracion, lambda x: x>0 , 'The duration of the attack must be greater than 0' )
+    check( numPaquetesAEnviar, lambda x: x>0 and ( x%1 ) == 0 , "The number of packets per second to send must be greater than 0" )
+    check( totalInfectados, lambda x: x >= 1 , 'The number of pcs zombies must be greater than or equal to 1' )
+    check( tolerancia, lambda x: x>0 , 'The number of packets accepted per window must be greater than 0' )
+    list( map( lambda a: check( a, lambda x: ( x >= 0 ) and ( x<=65535 ), "Any port must be between 0 and 65535" ), [PortSrc, puertoInicial, puertoFinal] ) )
+    check( intervaloPuertos, lambda x: x>0 and ( x%1 ) == 0 , 'The interval between each port must be greater than 0' )
     try:
         assert( puertoInicial <=  puertoFinal )
     except:
         raise Exception( 'The lesser port to attack must be less than the major port to attack' )
-    try:
-        assert( intervaloPuertos>0 )
-    except:
-        raise Exception( 'The interval between each port must be greater than 0' )
-    try:
-        assert( tolerancia>0 )
-    except:
-        raise Exception( 'The number of packets accepted per window must be greater than 0' )
     ############################################################################
     ####################### Creacion de puertos a atacar #######################
     if abiertos and cerrados:
