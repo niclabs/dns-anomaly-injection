@@ -41,6 +41,9 @@ def main():
     if finalDir[-5:] != '.pcap':
         finalDir += '.pcap'
     iniDir = args.input_file
+    if not( os.path.exists( iniDir ) ):
+        print( '\nName or directory of the input file invalid' )
+        return
 
     ###########################################################################
 

@@ -386,9 +386,9 @@ def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicia
                     if len( last_icmpResp )>icmpTasa:
                         last_icmpResp.pop( 0 )
             else:
-                icmpResp = True
+                icmpResp = datoAInsertar in datosMultiples[1]
             argumentosSetPaquetes = [PortSrc, datoAInsertar, not( icmpResp ), IPsrc, IPservidor, tiempos[i], dt]
-            if icmpResp and datoAInsertar in datosMultiples[1]:
+            if icmpResp and (datoAInsertar in datosMultiples[1]) and IPlist==1:
                 copia_seguridad.remove( datoAInsertar )
         else: #Si el ataque es dirigido a otro servidor pero pasa por este
             argumentosSetPaquetes = [PortSrc, datoAInsertar, IPsrc, IPservidor, tiempos[i], pickDelayResp( attackType )]

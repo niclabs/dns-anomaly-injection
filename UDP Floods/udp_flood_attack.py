@@ -60,9 +60,7 @@ def udpFloodAttack( IPservidor, IPsrcList, PortSrcList, puertosAbiertosCerrados,
                 if len( last_icmpResp )>icmpTasa:
                     last_icmpResp.pop( 0 )
         else:
-            icmpResp = True
-        if icmpResp and puertoTarget in puertosAbiertosCerrados[1]:
-            copia_seguridad.remove( puertoTarget )
+            icmpResp = ( puertoTarget in puertosAbiertosCerrados[1] )
         argumentosSetPaquetes = [PortSrc, puertoTarget, not( icmpResp ), IPsrc, IPservidor, tiempos[i], dt, len( SetPaquetesEnviados ), Seed]
         SetPaquetesEnviados.append( argumentosSetPaquetes )
     return SetPaquetesEnviados
