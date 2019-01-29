@@ -1,4 +1,5 @@
 import random
+import string
 
 """@Javi801
  Gives an array of random IP addresses, without the IP 200.7.4.7

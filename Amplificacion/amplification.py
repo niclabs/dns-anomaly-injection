@@ -4,10 +4,11 @@ sys.path.append("..")
 import os
 import random
 from randFloats import *
+from ipGenerator import checkValidIp
 import time as Time
 import string
 sys.path.append("../RandomSubdomain")
-from randomSubdomain import checkValidIp
+
 from randomSubdomain import genIp
 from randomSubdomain import regularResponse
 from randomSubdomain import check_gen_packets_args

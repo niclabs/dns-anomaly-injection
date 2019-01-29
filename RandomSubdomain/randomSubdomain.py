@@ -10,7 +10,6 @@ from PortsGenerator import randomSourcePorts
 from ipGenerator import randomIP
 from ipGenerator import checkValidIp
 
-
 def checkArgs(input_file, output_file, server_ip, target_domain, d, num_packets, it, zombies, packets_per_window, window_size):
     """
     Check if the arguments are correct
