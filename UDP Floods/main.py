@@ -5,6 +5,7 @@ sys.path.append( ".." )
 from PacketInserter import *
 from PortsGenerator import *
 from ipGenerator import *
+from assertFunctions import *
 
 
 def main():

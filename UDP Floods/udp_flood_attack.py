@@ -10,6 +10,7 @@ try:
     sys.path.append( ".." )
     import randFloats as rF
     from ipGenerator import *
+    from assertFunctions import *
 except:
     raise Exception( "randFloat error" )
 

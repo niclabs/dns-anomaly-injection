@@ -4,6 +4,7 @@ import sys
 sys.path.append( ".." )
 from PacketInserter import *
 from PortsGenerator import *
+from assertFunctions import *
 
 
 def main():

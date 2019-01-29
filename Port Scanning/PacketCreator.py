@@ -9,6 +9,7 @@ try:
     import randFloats as rF
     from ipGenerator import *
     from PortsGenerator import *
+    from assertFunctions import *
 except:
     raise Exception( "randFloat or ipGenerator error" )
 
