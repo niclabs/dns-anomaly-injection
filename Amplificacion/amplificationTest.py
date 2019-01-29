@@ -59,7 +59,7 @@ class responseTest(unittest.TestCase):
         self.assertTrue(len(self.response)/len(self.request) > 37, "Small amplification factor")
         self.assertEqual(self.response.time, self.ti + self.dt, "Wrong response arrival time")
 
-class newTupleTest(unittest.TestCase):
+class genPacketsTest(unittest.TestCase):
     def setUp(self):
         self.target_ip = "8.8.8.8"
         self.serv = "200.7.4.7"
@@ -71,10 +71,10 @@ class newTupleTest(unittest.TestCase):
         self.srv_dom_ip = "200.200.200.200"
         self.amplified = True
         self.regular = False
-        self.amplifiedTuple = newTuple([self.target_ip, self.serv, self.sport, self.dom, self.t, self.dt, self.dom_ip, self.srv_dom_ip, self.amplified])
-        self.regularTuple = newTuple([self.target_ip, self.serv, self.sport, self.dom, self.t, self.dt, self.dom_ip, self.srv_dom_ip, self.regular])
+        self.amplifiedTuple = genPackets([self.target_ip, self.serv, self.sport, self.dom, self.t, self.dt, self.dom_ip, self.srv_dom_ip, self.amplified])
+        self.regularTuple = genPackets([self.target_ip, self.serv, self.sport, self.dom, self.t, self.dt, self.dom_ip, self.srv_dom_ip, self.regular])
 
-    def test_new_tuple_len(self):
+    def test_len(self):
         self.assertEqual(len(self.amplifiedTuple), 2, "Wrong len of amplified tuple")
         self.assertEqual(len(self.regularTuple), 2, "Wrong len of regular tuple")
 
@@ -198,7 +198,7 @@ class argsBuilderTest(unittest.TestCase):
         for c in n_regular:
             self.assertEqual(c, self.c, "Wrong amount of packets per second, error: regular response")
 
-class genPacketsTest(unittest.TestCase):
+class genMultiplePacketsTest(unittest.TestCase):
     def setUp(self):
         self.serv = "200.7.4.7"
         self.target_ip = "8.8.8.8"
@@ -213,8 +213,14 @@ class genPacketsTest(unittest.TestCase):
         self.serv_dom_ip = "200.200.200.200"
         self.amplifiedArgs = argsBuilder(self.serv, self.target_ip, self.sport, self.d, self.c, self.ti, self.domain, self.amplifiedResponse, self.dom_ip, self.serv_dom_ip)
         self.regularArgs = argsBuilder(self.serv, self.target_ip, self.sport, self.d, self.c, self.ti, self.domain, self.regularResponse, self.dom_ip, self.serv_dom_ip)
-        self.amplifiedPackets = genPackets(self.amplifiedArgs)
-        self.regularPackets = genPackets(self.regularArgs)
+        self.amplifiedPackets = []
+        self.regularPackets = []
+        for arg in self.amplifiedArgs:
+            tuple = genPackets(arg)
+            self.amplifiedPackets.append(tuple)
+        for arg in self.regularArgs:
+            tuple = genPackets(arg)
+            self.regularPackets.append(tuple)
 
     def test_amount_generated_packets(self):
         n_amplified = 0

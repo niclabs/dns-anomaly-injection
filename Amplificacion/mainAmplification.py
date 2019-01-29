@@ -1,11 +1,13 @@
 import argparse
+import os
 from amplification import *
 import sys
 sys.path.append("..")
 from PacketInserter import *
+from assertFunctions import check
+from ipGenerator import checkValidIp
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description = "Amplification attack")
     parser.add_argument('-p', '--packets_per_window', help='Server tolerance, packets per unit of time that the server can answer, default:100', type=int, default=100)
     parser.add_argument('-w', '--window_size', help= 'Fraction of time for server tolerance, default: 0.01', type=float, default=0.01)
@@ -23,13 +25,23 @@ if __name__ == '__main__':
     requiredNamed.add_argument('-dom','--domain', help= 'Asked domain', required=True)
     args = parser.parse_args()
 
-    checkArgs(args.input_file, args.output_file, args.server_ip, args.target_ip, args.source_port, args.duration, args.num_packets, args.initial_time, args.domain, args.zombies, args.packets_per_window, args.window_size)
+    #Check arguments
+    check(args.input_file, lambda x: os.path.exists(x), "Invalid path to the input file")
+    check(args.server_ip, lambda x: checkValidIp(x), "Invalid server ip")
+    check(args.target_ip, lambda x: checkValidIp(x), "Invalid target ip")
+    check(args.source_port, lambda x: int(x) >= 0 and int(x) <= 65535, "Source port must be between 0 and 65535")
+    check(args.duration, lambda x: x > 0, "Duration of the attack must be greater than 0")
+    check(args.num_packets, lambda x: x > 0 and x%1 == 0, "Amount of packets per second must be greater than 0")
+    check(args.initial_time, lambda x: x>=0, "Initial time of the attack must be greater than or equal to 0")
+    check(args.zombies, lambda x: x>=1, "Number of botnets must be greater than or equal to 1")
+    check(args.packets_per_window, lambda x: x>0 and x%1==0, "Packets per window must be greater than 0")
+    check(args.window_size, lambda x: x>0, "Window size must be greater than 0")
+
     p0 = sniff(offline = args.input_file, count = 1) #Read the first packet of the input file
     t0 = p0[0].time #Arrival time of the first packet of the input file
-    print("Creating packets...")
-    new_packets_args = argsBuilder(args.server_ip, args.target_ip, args.source_port, args.duration, args.num_packets * args.zombies, args.initial_time + t0, args.domain, args.response_type, genIp(), genIp())
+    new_packets_args = argsBuilder(args.server_ip, args.target_ip, args.source_port, args.duration, args.num_packets * args.zombies, args.initial_time + t0, args.domain, args.response_type)
     if(args.window_size > 1): #unit time is between 0 and 1
-        print("Fraction of time for server tolerance can't be greater than 1, set to 1")
+        print("Window size can't be greater than 1, set to 1")
         window_size = 1
     else:
         window_size = args.window_size

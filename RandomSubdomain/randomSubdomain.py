@@ -8,54 +8,7 @@ import time as Time
 from randFloats import *
 from PortsGenerator import randomSourcePorts
 from ipGenerator import randomIP
-from ipGenerator import checkValidIp
-
-def checkArgs(input_file, output_file, server_ip, target_domain, d, num_packets, it, zombies, packets_per_window, window_size):
-    """
-    Check if the arguments are correct
-    Param: +input_file: Path to the input file
-           output_file: Path to the output file
-           +server_ip: Server ip
-           target_dom: Target domain
-           +d: Duration of the attack (seconds)
-           +num_packets:  Amount of packets per second
-           +it: Initial time of the attack
-           +zombies : Number of computers in the botnet
-           +packets_per_window: Amount of packets per unit of time that the server can answer
-           +window_size: Fraction of time for server tolerance
-    """
-    try:
-        assert(os.path.exists(str(input_file)))
-    except:
-        raise Exception("Invalid apth to the input file")
-    try:
-        assert(checkValidIp(server_ip))
-    except:
-        raise Exception("Invalid server ip")
-    try:
-        assert(int(d) > 0)
-    except:
-        raise Exception("Duration of the attack must be greater than 0")
-    try:
-        assert(int(num_packets) > 0)
-    except:
-        raise Exception("Amount of packets per second must be greater than 0")
-    try:
-        assert(float(it) >= 0)
-    except:
-        raise Exception("Initial time of the attack must be greater than or equal to 0")
-    try:
-        assert(int(zombies) > 0)
-    except:
-        raise Exception("Number of computers in the botnet must be greater than 0")
-    try:
-        assert(int(packets_per_window) > 0)
-    except:
-        raise Exception("Server tolerance must be greater than 0")
-    try:
-        assert(float(window_size) > 0)
-    except:
-        raise Exception("Fraction of time for server tolerance must be greater than 0")
+from assertFunctions import check
 
 def randomSub(seed: float):
     """
@@ -113,16 +66,6 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ans.time = p.time + dt #Set arrival time
     return ans
 
-def check_gen_packets_args(l:list):
-    """
-    Check if the arguments for genPackets(l) are correct
-    """
-    try:
-        assert(len(l) == 9)
-    except:
-        raise Exception("Wrong number of given arguments for newTuple(l)")
-
-
 def genPackets(l: list):
     """
     Gives an array that contains a request and response
@@ -138,7 +81,7 @@ def genPackets(l: list):
            l[8]: Response delay time
     return: An array (request, response)
     """
-    check_gen_packets_args(l)
+    check(len(l), lambda x: x== 9, "Wrong number of given arguments for genPackets(l), must be 9")
     req = randomSubBuilder(l[0], l[1], l[2], l[3], l[4], l[5])
     res = regularResponse(req, l[0], l[6], l[7], l[8])
     return [req, res]

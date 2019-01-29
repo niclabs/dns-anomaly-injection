@@ -1,12 +1,13 @@
 import argparse
 from randomSubdomain import *
 import sys
+import os
 sys.path.append("..")
 from PacketInserter import *
 from PortsGenerator import randomSourcePorts
 from ipGenerator import randomIP
-
-
+from assertFunctions import check
+from ipGenerator import checkValidIp
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "DoS Random Subdomain attack")
@@ -23,11 +24,18 @@ if __name__ == '__main__':
     requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain', required=True)
     args = parser.parse_args()
 
-    checkArgs(args.input_file, args.output_file, args.server_ip, args.target_domain, args.duration, args.num_packets, args.initial_time, args.zombies, args.packets_per_window, args.window_size)
+    #Check arguments
+    check(args.input_file, lambda x: os.path.exists(x), "Invalid path to the input file")
+    check(args.server_ip, lambda x: checkValidIp(x), "Invalid server ip")
+    check(args.duration, lambda x: x > 0, "Duration of the attack must be greater than 0")
+    check(args.num_packets, lambda x: x > 0 and x%1 == 0, "Amount of packets per second must be greater than 0")
+    check(args.initial_time, lambda x: x>=0, "Initial time of the attack must be greater than or equal to 0")
+    check(args.zombies, lambda x: x>=1, "Number of botnets must be greater than or equal to 1")
+    check(args.packets_per_window, lambda x: x>0 and x%1==0, "Packets per window must be greater than 0")
+    check(args.window_size, lambda x: x>0, "Window size must be greater than 0")
 
     p0 = sniff(offline = args.input_file, count = 1) #Read the first packet of the input file
     t0 = p0[0].time #Arrival time of the first packet of the input file
-    print("Creating packets...")
     new_packets_args = argsBuilder(args.target_domain, args.server_ip, genIp(), genIp(), args.initial_time + t0, args.duration, args.num_packets, args.zombies)
 
     if(args.window_size > 1): #unit time is between 0 and 1

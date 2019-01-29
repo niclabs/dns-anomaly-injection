@@ -1,16 +1,9 @@
 import unittest
 import numpy as np
 from randomSubdomain import *
-
-
-class checkValidIpTest(unittest.TestCase):
-    def test_checkip(self):
-        self.assertTrue(checkValidIp("200.7.4.7"))
-        self.assertFalse(checkValidIp("200.7.5"))
-        self.assertFalse(checkValidIp("300.7.4.7"))
-        self.assertFalse(checkValidIp("200,7,4,7"))
-        self.assertFalse(checkValidIp(""))
-        self.assertFalse(checkValidIp("200.4.2.3.123"))
+import sys
+sys.path.append("..")
+from ipGenerator import checkValidIp
 
 class randSubTest(unittest.TestCase):
     def setUp(self):
@@ -94,7 +87,7 @@ class regularResponseTest(unittest.TestCase):
     def test_time(self):
         self.assertEqual(self.response.time, self.t + self.dt, "Wrong response arrival time")
 
-class newTupleTest(unittest.TestCase):
+class genPacketsTest(unittest.TestCase):
     def setUp(self):
         self.dom = "domain.cl"
         self.src_ip = "8.8.8.8"
@@ -105,7 +98,7 @@ class newTupleTest(unittest.TestCase):
         self.dom_ip = genIp()
         self.dom_srv_ip = genIp()
         self.dt = 0.0001868
-        self.tuple = newTuple([self.dom, self.src_ip, self.dst_ip, self.src_port, self.t, self.seed, self.dom_ip, self.dom_srv_ip, self.dt])
+        self.tuple = genPackets([self.dom, self.src_ip, self.dst_ip, self.src_port, self.t, self.seed, self.dom_ip, self.dom_srv_ip, self.dt])
 
     def test_len(self):
         self.assertEqual(len(self.tuple), 2, "Len must be 2")
@@ -190,7 +183,7 @@ class argsBuilderTest(unittest.TestCase):
             self.assertTrue(arg[8] >= 0, "Response delay time can't be less than 0")
         self.assertEqual(len(ip), self.n_bot, "Wrong number of computers in the botnet for the DDoS attack")
 
-class genPacketsTest(unittest.TestCase):
+class genMultiplePacketsTest(unittest.TestCase):
     def setUp(self):
         self.target_dom = "domain.cl"
         self.serv = "200.7.4.7"
@@ -202,8 +195,15 @@ class genPacketsTest(unittest.TestCase):
         self.n_bot = 10
         self.arg_ddos = argsBuilder(self.target_dom, self.serv, self.domain_ip, self.server_dom_ip, self.ti, self.d, self.n_packets, self.n_bot)
         self.arg_dos = argsBuilder(self.target_dom, self.serv, self.domain_ip, self.server_dom_ip, self.ti, self.d, self.n_packets, 1)
-        self.dos_packets = genPackets(self.arg_dos)
-        self.ddos_packets = genPackets(self.arg_ddos)
+        self.dos_packets = []
+        for arg in self.arg_dos:
+            tuple = genPackets(arg)
+            self.dos_packets.append(tuple)
+
+        self.ddos_packets = []
+        for arg in self.arg_ddos:
+            tuple = genPackets(arg)
+            self.ddos_packets.append(tuple)
 
     def test_number_generated_packets(self):
         n_dos = 0

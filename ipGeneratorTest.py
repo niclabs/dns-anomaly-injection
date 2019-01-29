@@ -28,5 +28,14 @@ class PortsGeneratorTest(unittest.TestCase):
         prueba=randomIP(10,4,0)
         self.assertEqual(len(pruebaPref24), 10, '\nerror en el largo del array\nScript "ipGenerator", funcion "randomIP"')
 
+class checkValidIpTest(unittest.TestCase):
+    def test_checkip(self):
+        self.assertTrue(checkValidIp("200.7.4.7"))
+        self.assertFalse(checkValidIp("200.7.5"))
+        self.assertFalse(checkValidIp("300.7.4.7"))
+        self.assertFalse(checkValidIp("200,7,4,7"))
+        self.assertFalse(checkValidIp(""))
+        self.assertFalse(checkValidIp("200.4.2.3.123"))
+
 if __name__ == '__main__':
     unittest.main()

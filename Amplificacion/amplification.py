@@ -1,76 +1,14 @@
 from scapy.all import *
 import sys
 sys.path.append("..")
-import os
 import random
 from randFloats import *
-from ipGenerator import checkValidIp
+from assertFunctions import check
 import time as Time
 import string
 sys.path.append("../RandomSubdomain")
-
 from randomSubdomain import genIp
 from randomSubdomain import regularResponse
-from randomSubdomain import check_gen_packets_args
-
-def checkArgs(input_file, output_file, server_ip, target_ip, src_port, d, packets, it, domain, zombies, packets_per_window, window_size):
-    """
-    Check if the arguments are correct
-    Param: +input_file: Path to the input file
-           output_file: Path to the output file
-           +server_ip: Server ip
-           +target_ip: Target ip
-           +src_port: Source port
-           +d: Duration of the attack (seconds)
-           +packets: Amount of packets per second
-           +it: Initial time of the attack
-           domain: Asked domain
-           +zombies: Number of computers in the botnet
-           +packets_per_window: Amount of packets per unit of time that the server can answer
-           +window_size: Fraction of time for server tolerance
-    """
-    try: #Check input file
-        assert(os.path.exists(str(input_file)))
-    except:
-        raise Exception("Invalid path to the input file")
-    try: #Check server ip
-        assert(checkValidIp(server_ip))
-    except:
-        raise Exception("Invalid server ip")
-    try: #Check target ip
-        assert(checkValidIp(target_ip))
-    except:
-        raise Exception("Invalid target ip")
-    try: #Check valid port
-        assert(int(src_port) >= 0)
-        assert(int(src_port) <= 65535)
-    except:
-        raise Exception("Source port must be between 0 and 65535")
-    try: #Check extension of the attack
-        assert(float(d) > 0)
-    except:
-        raise Exception("Extension of the attack must be greater than 0")
-    try: #Check amount of packets
-        assert(int(packets) > 0)
-    except:
-        raise Exception("Amount of packets per second must be greater than 0")
-    try: #Chack initial time of the attack
-        assert(float(it)>= 0)
-    except:
-        raise Exception("Initial time of the attack must be greater than or equal to 0")
-    try: #Check number of botnets
-        assert(int(zombies) > 0)
-    except:
-        raise Exception("Number of botnets must be greater than 0")
-    try: #Check server tolerance
-        assert(int(packets_per_window) > 0)
-    except:
-        raise Exception("Server tolerance must be greater than 0")
-    try: #Check fraction of time for server tolerance
-        assert(float(window_size) > 0)
-    except:
-        raise Exception("Fraction of time for server tolerance must be greater than 0")
-
 
 def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):
     """
@@ -101,7 +39,7 @@ def amplificationResponse(p, dt: float):
     ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ar = DNSRROPT(rclass=4096))
 
     #Create and set the answer
-    n = random.randint(38, 40) #Amplification factor
+    n = random.randint(38, 48) #Amplification factor
     r_data = os.urandom(n*len(p)) #Random data to increase the size of the packet
     ans[DNS].an = DNSRR(type='TXT', rclass=0x8001, rdata = r_data) #Set the answer
     ans.time = p.time + dt #Set the response time
@@ -126,7 +64,7 @@ def genPackets(l: list):
     return: An array (request, response)
     """
 
-    check_gen_packets_args(l)
+    check(len(l), lambda x: x== 9, "Wrong number of given arguments for genPackets(l), must be 9")
     p = amplificationBuilder(l[0], l[1], l[2], l[3], l[4]) #Request
     if(l[8]): #If the response is amplified
         a = amplificationResponse(p, l[5])
