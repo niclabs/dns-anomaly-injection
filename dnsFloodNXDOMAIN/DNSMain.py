@@ -127,7 +127,7 @@ def main(args,test=""):
     i = 0
     arguments = []
     while i < atckDuration:
-        anArgument = [numberIp,destinyIp,1,i,pps,despps]
+        anArgument = [numberIp,destinyIp,1,ti+i,pps,despps]
         arguments.append(anArgument)
         i+=1
     inserter = PacketInserter()
