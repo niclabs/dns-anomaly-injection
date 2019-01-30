@@ -15,7 +15,7 @@ except:
 
 """Author @Javi801
  Port Scan attack simulator, using UDP type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: IPservidor -> ( str ) server IP address
          IPsrc -> ( string ) source IP address
@@ -30,11 +30,11 @@ except:
  Return: NuevoSetPaquetesEnviados -> Array of packets that will be insert
 """
 def UDP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa ):
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
+    return argsPacketsCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
 
 """Author @Javi801
  DDoS Port Scan attack simulator, using UDP type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: totalIPs -> ( int ) total of source IP address
          IPservidor -> ( str ) server IP address
@@ -50,7 +50,7 @@ def UDP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal,
 def UDP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa ):
     IPsrcList = randomIP( totalIPs, Seed, 1 )
     PortSrcList = randomSourcePorts( totalIPs, Seed )
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
+    return argsPacketsCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, 1 )
 
 
 """ Author @Javi801
@@ -108,7 +108,7 @@ def UDPgen( PortSrc, PortDst, icmpResp, IPsrc, IPservidor, tiempo, interResp ):
 
 """Author @Javi801
  Port Scanning attack simulator, using Static Port type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: IPsrc -> ( string ) source IP address
          IPservidor -> ( str ) server IP address
@@ -135,11 +135,11 @@ def Domain_attack( IPservidor, IPsrc, PortSrc, tiempoInicial, tiempoFinal, numDo
             break
     f.close()
     ##################################################################
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
+    return argsPacketsCreator( IPservidor, [IPsrc], [PortSrc], domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
 
 """Author @Javi801
  DDoS Port Scanning attack simulator, using Static Port type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: totalIPs -> ( int ) total of source IP address
          IPservidor -> ( str ) server IP address
@@ -167,7 +167,7 @@ def Domain_DDoS_attack( totalIPs, IPservidor, tiempoInicial, tiempoFinal, numDom
             break
     f.close()
     ##################################################################
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
+    return argsPacketsCreator( IPservidor, IPsrcList, PortSrcList, domsList, tiempoInicial, tiempoFinal, numDominios, Seed, 0, 0, 2 )
 
 
 """ Author @Javi801
@@ -231,7 +231,7 @@ def DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp ):
 
 """ Author @Javi801
  Port Scan attack simulator, using TCP SYN type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: IPservidor -> ( str ) server IP address
          IPsrc -> ( string ) source IP address
@@ -246,11 +246,11 @@ def DomainGen( PortSrc, dom, IPsrc, IPservidor, t, interResp ):
                                      as length
 """
 def TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed ):
-    return PacketCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
+    return argsPacketsCreator( IPservidor, [IPsrc], [PortSrc], puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
 
 """ Author @Javi801
  DDoS Port Scan attack simulator, using TCP SYN type.
- Creates an array of packets with given values using PacketCreator function.
+ Creates an array of packets with given values using argsPacketsCreator function.
 
  Params: totalIPs -> ( int ) total of source IP address
          IPservidor -> ( str ) server IP address
@@ -266,7 +266,7 @@ def TCP_attack( IPservidor, IPsrc, PortSrc, puertos, tiempoInicial, tiempoFinal,
 def TCP_DDoS_attack( totalIPs, IPservidor, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed ):
     IPsrcList = randomIP( totalIPs, Seed, 1 )
     PortSrcList = randomSourcePorts( totalIPs, Seed )
-    return PacketCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
+    return argsPacketsCreator( IPservidor, IPsrcList, PortSrcList, puertos, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, 0, 0, 0 )
 
 
 """ Author @Javi801
@@ -351,7 +351,7 @@ def TCPgen( PortSrc, PortDst, open, IPsrc, IPservidor, t, interResp ):
 
  Return: SetArgumentos -> List of arguments to create the pairs of packets to send
 """
-def PacketCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, attackType ):
+def argsPacketsCreator( IPservidor, IPlist, PortSrcList, datosMultiples, tiempoInicial, tiempoFinal, numPaquetesAEnviar, Seed, UDP_ICMP_Limit, icmpTasa, attackType ):
     random.seed( Seed )
     datos = datosMultiples[:]
     if attackType == 0 or attackType == 1:

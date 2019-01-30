@@ -97,6 +97,15 @@ def main():
         puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, abiertos, -1, Seed )
     elif cerrados:
         puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, -1, cerrados, Seed )
+    elif args.open_port_list and args.closed_port_list:
+        abiertos = string2numList( args.open_port_list, ' ' )
+        cerrados = string2numList( args.closed_port_list, ' ' )
+        puertos = [abiertos, cerrados]
+    elif args.open_port_list or args.closed_port_list:
+        if args.open_port_list:
+            puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, string2numList( args.open_port_list, ' ' ), [], Seed )
+        if args.closed_port_list:
+            puertos = arrayPortsGen( puertoInicial, puertoFinal, intervaloPuertos, [], string2numList( args.closed_port_list, ' ' ), Seed )
     else:
         puertos = randomPortsGen( puertoInicial, puertoFinal, intervaloPuertos, Seed )
 
@@ -117,5 +126,22 @@ def main():
         print( "Packages inserted successfully" )
     ############################################################################
 
+""" @Javi801
+ Gives an array of ints with a given string, transforming the string into a int list
+
+ Params: string -> ( str ) string to transform
+         separador -> ( str ) string to use as separator between each number
+
+ Return: final -> ( list( int ) ) list of ints in the inicial string
+"""
+def string2numList( string, separador ):
+    strList = s.split( separador )
+    final = []
+    for i in range( len( strList ) ):
+        if strList[i] == '':
+            continue
+        num = int( strList[i] )
+        final +=  [num]
+    return final
 
 main()

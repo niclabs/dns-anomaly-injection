@@ -15,13 +15,13 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--window-size', help= 'Fraction of time for server tolerance, default:0.01', type=float, default= 0.01)
     parser.add_argument('-s', '--server_ip', help = 'Server ip, default: 200.7.4.7', default='200.7.4.7')
     parser.add_argument('-d', '--duration', help = 'Duration of the attack (seconds), default: 300 sec.', type=float, default= 300)
-    parser.add_argument('-n', '--num_packets', help ='Amount of packets per second default: 2500', type=int, default=2500)
+    parser.add_argument('-n', '--num_packets', help ='Amount of packets per second per zombie, default: 2500', type=int, default=2500)
     parser.add_argument('-it', '--initial_time', help = 'Initial time of the attack, default:0', type=float, default= 0)
     parser.add_argument('-z', '--zombies', help='Number of computers in the botnet for the DDoS attack, default:1', type=int, default = 1)
     requiredNamed = parser.add_argument_group('Required arguments')
     requiredNamed.add_argument('-i', '--input_file', help='Path to the input file.', required=True)
     requiredNamed.add_argument('-o','--output_file', help='Path to the output file.', required=True)
-    requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain', required=True)
+    requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain, ex: "niclabs.cl"', required=True)
     args = parser.parse_args()
 
     #Check arguments

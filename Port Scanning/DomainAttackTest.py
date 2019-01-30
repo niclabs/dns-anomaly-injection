@@ -4,27 +4,27 @@ import unittest
 
 class PacketCreatorTest( unittest.TestCase ):
 
-    def test_PacketCreator_Dom_Attack( self ):
+    def test_argsPacketsCreator_Dom_Attack( self ):
         domList = ['a.cl', 'b.cl', 'c.cl']
-        ataque = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
-        self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
+        ataque = argsPacketsCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
+        self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
 
         for i in range( len( ataque ) ):
-            self.assertEqual( ataque[i][0], 10240, 'error en el puerto de origen: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
-            self.assertTrue( ataque[i][1] in domList, 'error en el dominio de la pregunta: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
-            self.assertEqual( ataque[i][2], '190.34.123.200', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
-            self.assertEqual( ataque[i][3], '200.7.4.7', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
-            self.assertTrue( ataque[i][4] <=  15 and ataque[i][4] >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
+            self.assertEqual( ataque[i][0], 10240, 'error en el puerto de origen: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
+            self.assertTrue( ataque[i][1] in domList, 'error en el dominio de la pregunta: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
+            self.assertEqual( ataque[i][2], '190.34.123.200', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
+            self.assertEqual( ataque[i][3], '200.7.4.7', 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
+            self.assertTrue( ataque[i][4] <=  15 and ataque[i][4] >=  10, 'error en el tiempo del ataque: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
 
 
 
     def test_generadorParesPortScanningDom( self ):
         domList = ['a.cl', 'b.cl', 'c.cl']
-        args = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
+        args = argsPacketsCreator( '200.7.4.7', ['190.34.123.200'], [10240], domList, 10, 15, 20, 9, 0, 0, 2 )
         ataque = []
         for i in range( len( args ) ):
             ataque.append( generadorParesPortScanningDom( args[i] ) )
-        self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "Domain attack"' )
+        self.assertEqual( len( ataque ), 20, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "argsPacketsCreator" seccion "Domain attack"' )
 
         numPkts = 0
         for i in range( len( ataque ) ):
@@ -58,7 +58,7 @@ class PacketCreatorTest( unittest.TestCase ):
                 bool = 0
                 break
         f.close()
-        packAt = PacketCreator( '200.7.4.7', ips, ports, domsList, 0, 0.5, 60, 7, 0, 0, 2 )
+        packAt = argsPacketsCreator( '200.7.4.7', ips, ports, domsList, 0, 0.5, 60, 7, 0, 0, 2 )
         self.assertEqual( domAt, packAt, 'error en la funcion "Domain_DDoS_attack"' )
 
 
@@ -76,7 +76,7 @@ class PacketCreatorTest( unittest.TestCase ):
                 bool = 0
                 break
         f.close()
-        PackAt = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], domsList, 10, 25, 50, 9, 0, 0, 2 )
+        PackAt = argsPacketsCreator( '200.7.4.7', ['190.34.123.200'], [10240], domsList, 10, 25, 50, 9, 0, 0, 2 )
         self.assertEqual( domAtaque, PackAt, 'error en la funcion "Domain_attack"' )
 
 
