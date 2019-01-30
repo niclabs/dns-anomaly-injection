@@ -52,12 +52,12 @@ def createPackets(fileDirectionName: str,dip: str,pps: float,despps: float,initi
     """
     assert duration>=1
     global ipsBot
-    print("Creating Packets")
     #### First we create a list of random ip's
     first = sniff(offline=fileDirectionName,count=1)
     ti = first[0].time + initialTime
     pkts = []
     if len(ipsBot) == 0:
+        print("Creating bots for the attack")
         ipsBot = ipg.randomIP(numberIp,time.time(),True)
     #### Then we start to build with our builder
     pktFactory = TCPPacketBuilder()

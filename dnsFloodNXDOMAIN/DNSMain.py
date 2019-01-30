@@ -20,6 +20,12 @@ def createInserterPackets(args: list):
     """
         Adapter to the arguments for creating packets on the inserter
         :param: args is a list of at least 6 parameters to create the packets of the nx domain
+        args[0] is the number of ip of the botnet available
+        args[1] is the destiny ip of the packet to create
+        args[2] is the duration of the attack
+        args[3] is the initial time of the attack
+        args[4] is the mean of packet per second of the attack
+        args[5] is the standard desviation of packet per second
         :return: a list of packets given the arguments
     """
     assert len(args) >= 6
@@ -29,7 +35,6 @@ def createInserterPackets(args: list):
     ti = args[3]
     pps = args[4]
     despps = args[5]
-    print("Creating Packets")
     return createPackateNXDomain(numberOfIp,destIp,duration,ti,pps,despps)
 def createFalseDomains(number: int):
     """
@@ -64,6 +69,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
     pkts = []
     global ipsBot
     if len(ipsBot) == 0:
+        print("Creating bots for the attack")
         ipsBot = ipgen.randomIP(numberOfIp,time.time(),True)
     ta = ti
     ## We defined by every second the number of packets to create
