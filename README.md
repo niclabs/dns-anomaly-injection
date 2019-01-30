@@ -25,3 +25,29 @@ For running the attack, all the attack have this same input (some optional) vari
 +  In the IP direction of the server that is going to be attacked on the simulation, now this can be set by the argument --server_ip or -s. The default value is the DNS server of blanco that it's IP is 200.7.4.7
 
 + The original port of the queries, that can be set by the argument -source_port and it's shortcut -sp. Some attack may not have it.
+
+## Port scanning special arguments
+
+For the port scanning attacks, there are some additional arguments to submit at the moment of doing a simulation.
+
+#### TCP SYN scanning and Udp scanning
+For this port scanning are this common arguments:
+* An initial port to scan given by the -initial_port or it's shortcut -ip. By default it's value is 0
+* The final port to scan, which can be set by the argument -final_port or -fp, with default value 40000
+* An port stamp to investigate that can be set by -inter_port or -inp, with default value of 1 port.
+
+* The number of open and closed ports can be established by the arguments -open_port or -op for the open ports and -closed_port or -cp for the closed ones. They do not have a default value.
+
+## Udp Flood arguments
+
+- The ip direction of the source of the attack can be set by the argument -src_ip or -sip. By default is an random one.
+
+- To limit the number of responses of ICMP type per second can be activated by the command -activate_icmp_limit or -al and to establish the number of ICMP responses by second with the argument  -icmp_limit or -il. The value by default is 2.
+
+- All the extra arguments are the same of port scanning described before.
+## More Port scanning arguments
+- For the source ip on the one domain scanning you can establish by putting the argument --src_ip or the -sip
+
+- The udp port scanning, receive also all the arguments of the udp flood attack.
+
+- The tcp syn port scanning in addition receive first extra argument of the udp flood attack.
