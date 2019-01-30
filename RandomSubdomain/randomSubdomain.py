@@ -43,7 +43,7 @@ def randomSubBuilder(dom: string, src_ip: string, dst_ip: string, src_port: int,
     id_DNS = int(RandShort()) #id for DNS layer
     sub = randomSub(seed) #Random subdomain
     q_name = sub + '.' + dom #Complete domain request
-    ans = Ether()/IP(src = src_ip, dst = dst_ip, id = id_IP)/UDP(sport = src_port)/DNS(rd = 0, id= id_DNS, qd=DNSQR(qname=str(q_name)))
+    ans = Ether(src= '18:66:da:e6:36:56', dst= '18:66:da:4d:c0:08')/IP(src = src_ip, dst = dst_ip, id = id_IP)/UDP(sport = src_port)/DNS(rd = 0, id= id_DNS, qd=DNSQR(qname=str(q_name)))
     ans.time = t #Set time
     return ans
 
@@ -62,7 +62,7 @@ def regularResponse(p, dom: string, ip_dom: string, ip_srv: string,  dt: float):
     ar_ext = DNSRROPT(rclass=4096) #Extension
     an_ans = DNSRR(rrname = dom, rdata = ip_srv) #Domain server answer
     ns_ans = DNSRR(rrname = dom, type = 2, rdata = dom) #Name server answer
-    ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ns = ns_ans, an = an_ans,ar= ar_ans/ar_ext)
+    ans = Ether(dst= '18:66:da:e6:36:56', src= '18:66:da:4d:c0:08')/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ns = ns_ans, an = an_ans,ar= ar_ans/ar_ext)
     ans.time = p.time + dt #Set arrival time
     return ans
 

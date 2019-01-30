@@ -22,7 +22,7 @@ def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: s
     """
     id_IP = int(RandShort()) #id for IP layer
     id_DNS = int(RandShort()) #id for DNS layer
-    p = Ether()/IP(dst=ip_dst, src=ip_src, id = id_IP)/UDP(sport=src_port)/DNS(rd=0, id= id_DNS, qd=DNSQR(qname=str(q_name), qtype = "ALL"),ar=DNSRROPT(rclass=4096))
+    p = Ether(src= '18:66:da:e6:36:56', dst= '18:66:da:4d:c0:08')/IP(dst=ip_dst, src=ip_src, id = id_IP)/UDP(sport=src_port)/DNS(rd=0, id= id_DNS, qd=DNSQR(qname=str(q_name), qtype = "ALL"),ar=DNSRROPT(rclass=4096))
     p.time = t #Set arrival time
     return p
 
@@ -36,7 +36,7 @@ def amplificationResponse(p, dt: float):
     """
     id_IP = int(RandShort()) #id for IP layer
     #Create the answer with EDNS0 extension
-    ans = Ether()/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ar = DNSRROPT(rclass=4096))
+    ans = Ether(dst= '18:66:da:e6:36:56', src= '18:66:da:4d:c0:08')/IP(dst = p[IP].src, src = p[IP].dst, id = id_IP)/UDP(dport = p[UDP].sport, sport = p[UDP].dport)/DNS(id = p[DNS].id, qr = 1, rd = 0, cd = 1, qd = p[DNS].qd, ar = DNSRROPT(rclass=4096))
 
     #Create and set the answer
     n = random.randint(38, 48) #Amplification factor
