@@ -36,7 +36,7 @@ class PacketInserter:
         self.__responseDt= 0.006
         self.__state = state.ReadOkState(self)
         self.__timestamp = 0.01
-        self.__serverTolerance = 42
+        self.__serverTolerance = 100
     def getTimestamp(self):
         """
             Getter for the timestamp field of the object

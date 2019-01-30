@@ -19,6 +19,13 @@ ipsBot =  []
 def createInserterPackets(args: list):
     """
         Adapter for the inserter argument to create the packets of the tcp syn attack of one second
+        args[0] is the file directory
+        args[1] is the destination ip of the packet
+        args[2] is the mean of the number of packets per second of the attack
+        args[3] is the standard desviation of the packets per second
+        args[4] is the initial time of the time window that the packets will be created
+        args[5] is the window time size for the packets to create
+        args[6] is the number of ip's to generate
         :param: args: list: the arguments to pass for the function to create the packets
     """
     assert len(args) >= 7
@@ -158,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument('-z','--zombies',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
     parser.add_argument('-o','--output',dest='fileOutput',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
     parser.add_argument('-w','--window_size',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
-    parser.add_argument('-p','--packets_per_window',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
+    parser.add_argument('-p','--packets_per_window',dest='tolerance',action='store',default=100,help='Server number of packets per the time of measure window, by default is 100',type=int)
     parser.add_argument('-s','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
