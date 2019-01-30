@@ -3,26 +3,26 @@ import unittest
 
 class PacketCreatorTest( unittest.TestCase ):
 
-    def test_PacketCreator_TCP_Attack( self ):
+    def test_argsPacketsCreator_TCP_Attack( self ):
         puertos = [[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
         ip = ['190.34.123.200','56.145.96.4']
         port = [10240,6799]
-        ataque = PacketCreator( '200.7.4.7', ip, port, puertos, 0, 5, 11, 9, 0, 0, 0 )
-        self.assertEqual( len( ataque ), 11, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "PacketCreator" seccion "TCP attack"' )
+        ataque = argsPacketsCreator( '200.7.4.7', ip, port, puertos, 0, 5, 11, 9, 0, 0, 0 )
+        self.assertEqual( len( ataque ), 11, 'error en la cantidad de paquetes en el ataque: Script "PacketCreator", funcion "argsPacketsCreator" seccion "TCP attack"' )
 
         for i in range( len( ataque ) ):
             self.assertTrue( ataque[i][0] in port )
-            self.assertTrue( ( ataque[i][1] in puertos[0] ) or ( ataque[i][1] in puertos[1] ), 'error en el puerto del paquete: Script "PacketCreator", funcion "PacketCreator" seccion "TCP attack"' )
+            self.assertTrue( ( ataque[i][1] in puertos[0] ) or ( ataque[i][1] in puertos[1] ), 'error en el puerto del paquete: Script "PacketCreator", funcion "argsPacketsCreator" seccion "TCP attack"' )
 
-            self.assertTrue( ataque[i][3] in ip, 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "TCP attack"' )
-            self.assertEqual( ataque[i][4], '200.7.4.7', 'error en la direccion IP de destino en el paquete IP: Script "PacketCreator", funcion "PacketCreator" seccion "TCP attack"' )
-            self.assertTrue( ataque[i][5] <=  5-0.3 and ataque[i][5] >=  0, 'error en el tiempo del paquete: Script "PacketCreator", funcion "PacketCreator" seccion "TCP attack"' )
+            self.assertTrue( ataque[i][3] in ip, 'error en la direccion IP de origen en el paquete IP: Script "PacketCreator", funcion "argsPacketsCreator" seccion "TCP attack"' )
+            self.assertEqual( ataque[i][4], '200.7.4.7', 'error en la direccion IP de destino en el paquete IP: Script "PacketCreator", funcion "argsPacketsCreator" seccion "TCP attack"' )
+            self.assertTrue( ataque[i][5] <=  5-0.3 and ataque[i][5] >=  0, 'error en el tiempo del paquete: Script "PacketCreator", funcion "argsPacketsCreator" seccion "TCP attack"' )
 
     def test_generadorParesPortScanningTCP( self ):
         puertos = [[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
         ip = ['190.34.123.200','56.145.96.4']
         port = [10240,6799]
-        args = PacketCreator( '200.7.4.7', ip, port, puertos, 0, 5, 11, 9, 0, 0, 0 )
+        args = argsPacketsCreator( '200.7.4.7', ip, port, puertos, 0, 5, 11, 9, 0, 0, 0 )
         ataque = []
         for i in range( len( args ) ):
             ataque.append( generadorParesPortScanningTCP( args[i] ) )
@@ -45,14 +45,14 @@ class PacketCreatorTest( unittest.TestCase ):
         tcpAt = TCP_DDoS_attack( 25, '200.7.1.7', [[],list( range( 0,80,5 ) )], 12, 15.5, 20, 9 )
         ips = randomIP( 25, 9, 1 )
         ports = randomSourcePorts( 25, 9 )
-        packAt = PacketCreator( '200.7.1.7', ips, ports, [[],list( range( 0,80,5 ) )], 12, 15.5, 20, 9, 0, 0, 0 )
+        packAt = argsPacketsCreator( '200.7.1.7', ips, ports, [[],list( range( 0,80,5 ) )], 12, 15.5, 20, 9, 0, 0, 0 )
         self.assertEqual( tcpAt, packAt, 'error en la funcion "TCP_DDoS_attack"' )
 
 
     def test_TCP_attack( self ):
         puertos = [[80,25,137,1024,53],[161,123,111,500,69,28960,19,9987,5353,12203,2049,9915,63392,520]]
         tcpAt = TCP_attack( '200.7.4.7', '190.34.123.200', 10240, puertos, 0, 25, 50, 9 )
-        PackAt = PacketCreator( '200.7.4.7', ['190.34.123.200'], [10240], puertos, 0, 25, 50, 9, 0, 0, 0 )
+        PackAt = argsPacketsCreator( '200.7.4.7', ['190.34.123.200'], [10240], puertos, 0, 25, 50, 9, 0, 0, 0 )
         self.assertEqual( tcpAt, PackAt, 'error en la funcion "TCP_attack"' )
 
 
