@@ -21,7 +21,7 @@ if __name__ == '__main__':
     requiredNamed = parser.add_argument_group('Required arguments')
     requiredNamed.add_argument('-i', '--input_file', help='Path to the input file.', required=True)
     requiredNamed.add_argument('-o','--output_file', help='Path to the output file.', required=True)
-    requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain', required=True)
+    requiredNamed.add_argument('-target', '--target_domain', help = 'Target domain, ex: "niclabs.cl"', required=True)
     args = parser.parse_args()
 
     #Check arguments

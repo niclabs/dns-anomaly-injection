@@ -22,7 +22,7 @@ if __name__ == '__main__':
     requiredNamed.add_argument('-i', '--input_file', help='Path to the input file.', required=True)
     requiredNamed.add_argument('-o','--output_file', help='Path to the output file.',required=True)
     requiredNamed.add_argument('-target', '--target_ip', help= 'Target ip', required=True)
-    requiredNamed.add_argument('-dom','--domain', help= 'Asked domain', required=True)
+    requiredNamed.add_argument('-dom','--domain', help= 'Asked domain, ex: "niclabs.cl"', required=True)
     args = parser.parse_args()
 
     #Check arguments
