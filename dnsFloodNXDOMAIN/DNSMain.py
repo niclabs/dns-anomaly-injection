@@ -75,7 +75,7 @@ def createPackateNXDomain(numberOfIp: int,destIp:str,duration: int,ti:float,pps:
     ## We defined by every second the number of packets to create
     for i in range(duration):
         ta +=1
-        rate = int(abs(random.gauss(pps,desp:param: delayResponse is the delays of the response time of the serverps)))
+        rate = int(abs(random.gauss(pps,despps)))
         while rate == 0:
             rate = int(abs(random.gauss(pps,despps)))
         times = rnd.genInter(time.time(),ti,ta,rate)

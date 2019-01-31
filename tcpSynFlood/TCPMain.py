@@ -126,17 +126,17 @@ def main(args):
     output = outNameDir
 
     ##### Getting prepared for generating the attack
-    first = sniff(offline=inputNameDir,count=1)
-    if len(first)== 0:
-        ti = initialTime
-    else:
-        ti=first[0].time + initialTime #pkts=createPackets(direction,destinyIP,pps,despps,initialTime,duration,numberOfIp)
+    #first = sniff(offline=inputNameDir,count=1)
+    #if len(first)== 0:
+    #    ti = initialTime
+    #else:
+    #    ti=first[0].time + initialTime #pkts=createPackets(direction,destinyIP,pps,despps,initialTime,duration,numberOfIp)
     #print("Number of attack packets: "+str(len(pkts)))
     #print("Number of packets created: "+str(2*len(pkts)))
     arguments = []
     i = 0
     while i < duration:
-        anArgument = [direction,destinyIP,pps,despps,ti+i,1,numberOfIp]
+        anArgument = [direction,destinyIP,pps,despps,i,1,numberOfIp]
         arguments.append(anArgument)
         i+=1
     ##### Insertion of the packets generated
