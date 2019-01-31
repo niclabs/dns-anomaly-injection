@@ -161,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument('-n','--num_packets',dest='pps',default=3500,type=int,help="Mean of the packets per second of the attack")
     parser.add_argument('-i','--input_file',dest='fileInput',action='store',default='',help="Input pcap file name with his extension",type=str)
     parser.add_argument('-it','--initial_time',dest='it',action='store',default=0,help='Initial time of the attack, when the first attack packet will be introduced, measured in seconds and by default is 0',type=int)
-    parser.add_argument('-d','--duration',dest='duration',action='store',default=1,help='The time duration of the attack, also measured in second and by default is 1',type=int)
+    parser.add_argument('-d','--duration',dest='duration',action='store',default=60,help='The time duration of the attack, also measured in second and by default is 1',type=int)
     parser.add_argument('-z','--zombies',dest='numberIp',action='store',default=1,help="Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.",type=int)
     parser.add_argument('-o','--output',dest='fileOutput',action='store',default='output/',help='Path to the output directory of modified pcap file',type=str)
     parser.add_argument('-w','--window_size',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
