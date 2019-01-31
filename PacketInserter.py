@@ -2,7 +2,7 @@ from scapy.all import *
 import math
 import sys
 import states.InserterState as state
-
+import gzip
 
 
 """
@@ -333,6 +333,12 @@ class PacketInserter:
 
             #### We close the writer and return true because everything goes as planned
             writer.close()
+            in_file = outputDirection
+            out_file = outputDirection + ".gz"
+            in_data = open(in_file,'rb').read()
+            gzf = gzip.open(out_file,'wb')
+            gzf.write(in_data)
+            gzf.close()
             return True
         except FileNotFoundError:
             #### If the file does not exist, we return false because something went wrong
