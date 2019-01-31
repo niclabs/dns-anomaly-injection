@@ -17,19 +17,19 @@ def main():
     parser.add_argument( "-z","--num_zombies", help = "Number of computers in the botnet for the DDoS attack ( d: 1 )", type = int, default = 1 )
     parser.add_argument( "-it", "--initial_time", help = "Seconds of delay to begin the attack ( d: 0 )", type = int, default = 0 )
     parser.add_argument( "-n", "--num_packet", help = "Total domains per second to attack ( d: 5000 )", type = int, default = 5000 )
-    parser.add_argument( "-p", "--packets_per_window", help = 'Packets per window that the server accepts ( d: 100 per centesima of second )', type = int, default = 100 )
-    parser.add_argument( "-w","--window_size", help = 'Window size for server tolerance ( d: centesima of second )', type = float, default = 0.01 )
+    parser.add_argument( "-p", "--packets_per_window", help = 'Packets per window that the server accepts ( d: 100 )', type = int, default = 100 )
+    parser.add_argument( "-w","--window_size", help = 'Window size for server tolerance ( d: 0.01s )', type = float, default = 0.01 )
     parser.add_argument( "-s","--server_ip", help = "IP address of the target server ( d: 200.7.4.7 )", default = '200.7.4.7' )
     parser.add_argument( "-sp", "--sport", help = "Source port ( d: 1280 )", type = int, default = 1280 )
     parser.add_argument( "-sip", "--src_ip", help = "Source IP ( d: random )" )
     parser.add_argument( "-ip", "--initial_port", help = "Initial port to attack ( d: 0 )", type = int, default = 0 )
     parser.add_argument( "-fp", "--final_port", help = "Final port to attack ( d: 40000 )", type = int, default = 40000 )
     parser.add_argument( "-inp", "--inter_port", help = "Interval between ports ( d: 1 )", type = int, default = 1 )
-    parser.add_argument( "-op", "--open_port", help = "Total open ports ( d: aleatorio )", type = int )
-    parser.add_argument( "-cp", "--closed_port", help = "Total closed ports ( d: aleatorio )", type = int )
+    parser.add_argument( "-op", "--open_port", help = "Total open ports ( d: random )", type = int )
+    parser.add_argument( "-cp", "--closed_port", help = "Total closed ports ( d: random )", type = int )
     parser.add_argument( "-opl", "--open_port_list", help = "List of open ports, ej:1 2 3 ( d: [] )" )
     parser.add_argument( "-cpl", "--closed_port_list", help = "List of closed ports, ejemplo:1 2 3 ( d: [] )" )
-    parser.add_argument( "-al", "--activate_icmp_limit", help = "Activate the limit of ICMP responses per second ( activar para simular servidor con linux o solaris )", action = "store_true" )
+    parser.add_argument( "-al", "--activate_icmp_limit", help = "Activate the limit of ICMP responses per second ( Enable to simulate server with Linux or Solaris )", action = "store_true" )
     parser.add_argument( "-il", "--icmp_limit", help = "Limit of ICMP responses per second ( d: 2 )", type = int, default = 2 )
     args = parser.parse_args()
 
@@ -38,8 +38,6 @@ def main():
         print( '\nName or directory of the output file invalid' )
         return
     finalDir = args.output_file
-    if finalDir[-5:] != '.pcap':
-        finalDir += '.pcap'
     iniDir = args.input_file
     if not( os.path.exists( iniDir ) ):
         print( '\nName or directory of the input file invalid' )
@@ -123,7 +121,7 @@ def main():
                 .withServerTolerance( tolerancia )\
                 .insert(generadorParesUDPflood)
     if operation:
-        print( "Packages inserted successfully" )
+        print( "Packets inserted successfully" )
     ############################################################################
 
 """ @Javi801
