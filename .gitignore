@@ -113,7 +113,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# Joaco Things
-input/
-output/
