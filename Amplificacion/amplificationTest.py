@@ -5,9 +5,9 @@ from amplification import *
 class amplificationBuilderTest(unittest.TestCase):
     def setUp(self):
         self.target_ip = "8.8.8.8"
-        self.serv_ip = "200.7.4.7"
+        self.serv_ip = "117.122.125.80"
         self.src_port = 31175
-        self.q_name = "domain.cl"
+        self.q_name = "vnnic.vn"
         self.ti = 10
         self.request = amplificationBuilder(self.target_ip, self.serv_ip, self.src_port, self.q_name, self.ti)
 
@@ -32,7 +32,7 @@ class amplificationBuilderTest(unittest.TestCase):
 class responseTest(unittest.TestCase):
     def setUp(self):
         self.target_ip = "8.8.8.8"
-        self.serv_ip = "200.7.4.7"
+        self.serv_ip = "117.122.125.80"
         self.src_port = 31175
         self.q_name = "domain.cl"
         self.ti = 10
