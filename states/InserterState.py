@@ -65,20 +65,6 @@ class ReadOkState(InserterState):
         outputDirection = data[2]
 
 
-        try:
-            bufferAttack[0][0].time
-            bufferFile[0].time
-
-        except AttributeError:
-            print(bufferAttack[0])
-            print("-----------")
-            print(bufferAttack[0][0])
-            print("-----------")
-            print(bufferAttack[0][0][0])
-        except IndexError:
-            print('index_error')
-            print(bufferAttack)
-            print(bufferAttack[0])
 
         if len(bufferAttack) == 0 or (len(bufferFile) !=0 and bufferFile[0].time <= bufferAttack[0][0].time):
             ta = bufferFile[0].time
