@@ -63,9 +63,30 @@ class ReadOkState(InserterState):
         count = data[0]
         queries = data[1]
         outputDirection = data[2]
+
+
+        try:
+            bufferAttack[0][0].time
+            bufferFile[0].time
+
+        except AttributeError:
+            print(bufferAttack[0])
+            print("-----------")
+            print(bufferAttack[0][0])
+            print("-----------")
+            print(bufferAttack[0][0][0])
+        except IndexError:
+            print('index_error')
+            print(bufferAttack)
+            print(bufferAttack[0])
+
         if len(bufferAttack) == 0 or (len(bufferFile) !=0 and bufferFile[0].time <= bufferAttack[0][0].time):
             ta = bufferFile[0].time
-            if bufferFile[0].getlayer(IP).src == self.getInserter().getServerIp():
+            if bufferFile[0].haslayer(IP):
+                src_tmp = bufferFile[0].getlayer(IP).src
+            else:
+                src_tmp = bufferFile[0].getlayer(IPv6).src
+            if src_tmp == self.getInserter().getServerIp():
                 bufferFile[0].time += delay
                 if (not bufferFile[0].haslayer(DNS)) or (bufferFile[0].getlayer(DNS).id not in noResponse):
                     responseList.append(bufferFile[0])
@@ -74,6 +95,7 @@ class ReadOkState(InserterState):
                 queryList.append(bufferFile[0])
                 bufferFile.pop(0)
                 queries+=1
+            del src_tmp
         elif len(bufferAttack)!=0:
             ta = bufferAttack[0][0].time
             queryList.append(bufferAttack[0][0])
@@ -125,7 +147,11 @@ class ReadNOkState(InserterState):
         ### we see if we put an file or an attack on our file
         if len(bufferAttack) == 0 or (len(bufferFile) !=0 and bufferFile[0].time <= bufferAttack[0][0].time):
             ta = bufferFile[0].time
-            if bufferFile[0].getlayer(IP).src == self.getInserter().getServerIp():
+            if bufferFile[0].haslayer(IP):
+                src_tmp = bufferFile[0].getlayer(IP).src
+            else:
+                src_tmp = bufferFile[0].getlayer(IPv6).src
+            if  src_tmp == self.getInserter().getServerIp():
                 bufferFile[0].time += delay
                 if (not bufferFile[0].haslayer(DNS)) or (bufferFile[0].getlayer(DNS).id not in noResponse):
                     responseList.append(bufferFile[0])
@@ -136,6 +162,7 @@ class ReadNOkState(InserterState):
                     noResponse[bufferFile[0].getlayer(DNS).id] = bufferFile[0].time
                 bufferFile.pop(0)
                 queries += 1
+            del src_tmp
         elif len(bufferAttack) != 0:
             ta = bufferAttack[0][0].time
             queryList.append(bufferAttack[0][0])

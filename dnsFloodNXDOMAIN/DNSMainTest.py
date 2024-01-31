@@ -18,10 +18,10 @@ class DNSMainTest(unittest.TestCase):
         self.parser.add_argument('-w','--window_size',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
         self.parser.add_argument('-p','--packets_per_window',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
         self.parser.add_argument('-s','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
-        self.basicArgs = ['-i',"input/test1k.pcap",'--duration','1','-o',"output/test1k-modified--test_basic.pcap"]
-        self.sixSecondsArgs = ['-i',"input/test1k.pcap",'-z','4','-d','6','-o',"output/test1k-modified--test_sixSeconds.pcap"]
-        self.one50kArgs = ['-i',"input/test50k.pcap",'-z',"3",'-o',"output/test50k-modified--test_oneSecond.pcap"]
-        self.six50kArgs = ['-i',"input/test50k.pcap",'-z',"7",'-d',"6",'-o',"output/test50k-modified--test_sixSecond.pcap"]
+        self.basicArgs = ['-i',"./input/dns-hdns-02_2024-01-07_00_01.pcap",'--duration','1','-o',"output/test1k-modified--test_basic.pcap"]
+        self.sixSecondsArgs = ['-i',"./input/dns-hdns-02_2024-01-07_00_01.pcap",'-z','4','-d','6','-o',"output/test1k-modified--test_sixSeconds.pcap"]
+        self.one50kArgs = ['-i',"./input/dns-hdns-02_2024-01-07_00_01.pcap",'-z',"3",'-o',"output/test50k-modified--test_oneSecond.pcap"]
+        self.six50kArgs = ['-i',"input/dns-hdns-02_2024-01-07_00_01.pcap",'-z',"7",'-d',"6",'-o',"output/test50k-modified--test_sixSecond.pcap"]
     def test_basic(self):
         ok = m.main(self.parser.parse_args(self.basicArgs))
         self.assertEqual(0,ok)

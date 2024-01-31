@@ -217,10 +217,14 @@ class PacketInserter:
                     while len(self.__args) != 0 and i < self.__quantity:
                         pkts = f(self.__args[0])
                         del self.__args[0]
-                        if len(pkts) <= 2:
-                            self.__packetsToAppend.append(pkts)
-                        else:
-                            self.__packetsToAppend += pkts
+                        # if len(pkts) <= 2:                          #check list pkts: from build packet (requestPacket, responsePacket) before append
+                        #     print(len(pkts))
+                        #     print(pkts)
+                        #     self.__packetsToAppend.append(pkts)
+                        # else:
+                        #
+                        #     self.__packetsToAppend += pkts
+                        self.__packetsToAppend += pkts
                         i+=1
                     i = 0
 
@@ -232,7 +236,10 @@ class PacketInserter:
                 delay = self._calculateDelay(pps)
 
                 #### Reading one packet from the original file
-                pktRead = reader.read_packet()
+                try:
+                    pktRead = reader.read_packet()
+                except EOFError:
+                    pktRead = None
                 #### Checking the condition to reset the writer for overflow bug or
                 #### ending the loop
                 if pktRead == None:
@@ -242,15 +249,17 @@ class PacketInserter:
                 (count,queries,ta,writer) = self.__state.processData(buffer,self.__packetsToAppend,bufferQueries,bufferResponse,noResponse,delay,[count,queries,outputDirection], writer)
             print("Original File processed")
             ## We have readed all the pcap, we eliminate the reader resources
+            reader.close()
             del reader
             if len(self.__args) != 0 and len(self.__packetsToAppend) == 0:
                 while len(self.__args) != 0 and i < self.__quantity:
                     pkts = f(self.__args[0])
                     del self.__args[0]
-                    if len(pkts) <= 2:
-                        self.__packetsToAppend.append(pkts)
-                    else:
-                        self.__packetsToAppend += pkts
+                    # if len(pkts) <= 2:
+                    #     self.__packetsToAppend.append(pkts)
+                    # else:
+                    #     self.__packetsToAppend += pkts
+                    self.__packetsToAppend += pkts
                     i+=1
                 i = 0
             ### Processing the data that have not been written on the pcap file and it's still in the buffer
@@ -259,10 +268,11 @@ class PacketInserter:
                     while len(self.__args) != 0 and i < self.__quantity:
                         pkts = f(self.__args[0])
                         del self.__args[0]
-                        if len(pkts) <= 2:
-                            self.__packetsToAppend.append(pkts)
-                        else:
-                            self.__packetsToAppend += pkts
+                        # if len(pkts) <= 2:
+                        #     self.__packetsToAppend.append(pkts)
+                        # else:
+                        #     self.__packetsToAppend += pkts
+                        self.__packetsToAppend += pkts
                         i+=1
                     i = 0
                 dt = math.ceil(ta-ti)
@@ -283,10 +293,11 @@ class PacketInserter:
                 while i < self.__quantity:
                     pkts = f(self.__args[0])
                     del self.__args[0]
-                    if len(pkts) <= 2:
-                        self.__packetsToAppend.append(pkts)
-                    else:
-                        self.__packetsToAppend += pkts
+                    # if len(pkts) <= 2:
+                    #     self.__packetsToAppend.append(pkts)
+                    # else:
+                    #     self.__packetsToAppend += pkts
+                    self.__packetsToAppend += pkts
                     i+=1
                 i = 0
             while len(self.__packetsToAppend) != 0:

@@ -124,6 +124,7 @@ def main(args):
     destinyIp = args.serverIp
     ##### Creating the right names for the output file
     outputFileName = outputFileDir ## TODO modificar esto
+    print(str(inputFileName))
 
     ##### Starting the simulation, setting it's parameters of the initial time
     first = sniff(offline=inputFileName,count=1)
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument('-o','--output',dest='outputDirectory',action='store',default='output/',help='Path and name of the output file with the attack inserted',type=str)
     parser.add_argument('-w','--window_size',dest='timestamp',action='store',default=0.01,help='Time for the measure window when the server is going or not to be down, this time is on seconds, for default is 0.01',type=float)
     parser.add_argument('-p','--packets_per_window',dest='tolerance',action='store',default=42,help='Server number of packets per the time of measure window, by default is 42',type=int)
-    parser.add_argument('-s','--server_ip',dest='serverIp',action='store',default="200.7.4.7",help="DNS server's ip, by default is 200.7.4.7",type=str)
+    parser.add_argument('-s','--server_ip',dest='serverIp',action='store',default="117.122.125.80",help="DNS server's ip, by default is 200.7.4.7",type=str)
     arguments = parser.parse_args()
     if arguments.timestamp >= 1.00:
         arguments.timestamp = 1.00

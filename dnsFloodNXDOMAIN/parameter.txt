@@ -1,0 +1,20 @@
+ Parameters:
+ "Mean of the packets per second of the attack":
+        '-n','--num_packets',dest='pps',default=2500,type=int
+ "Input pcap file name with his extension":
+        '-i','--input_file',dest='fileInput',action='store',default='',type=str
+ 'Initial time of the attack from the first attack packet will be introduced, measured in seconds':
+        '-it','--initial_time',dest='ti',action='store',default=0,type=int
+ 'The time duration of the attack, also measured in second and by default is 1':
+        '-d','--duration',dest='duration',action='store',default=60, type=int
+ "Number of ip's of the botnet, if it's 1 the type of attack is DOS. By default is 1.":
+        '-z','--zombies',dest='numberIp',action='store',default=1, type=int
+'Path and name of the output file with the attack inserted':
+        '-o','--output',dest='outputDirectory',action='store',default='output/',type=str
+'Time for the measure window when the server is going or not to be down (seconds) - ':
+        '-w','--window_size',dest='timestamp',action='store',default=0.01,type = float
+'Server number of packets per the time of measure window, by default is 42':
+        '-p','--packets_per_window',dest='tolerance',action='store',default=42,type=int
+    #For example if the window is 0.001 seconds, and the -p is 10, then it's interpretation is 10 packets per 0.001 seconds.
+"DNS server's ip going to be attacked:
+        '-s','--server_ip',dest='serverIp',action='store',default="117.122.125.80", type = str

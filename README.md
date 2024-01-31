@@ -10,7 +10,7 @@ For running the attack, all the attack have this same input (some optional) vari
 
 + The number of computers on the botnet can be setted by the parameter --num_zombies or the shortcut -z. The value that is setted by default is 1, hence the type of the attack by default is a DOS.
 
-+ The initial time of the attack, which is measured in order of the initial time of the first packet of the input file, can be submitted by the argument --initial_time (or -it). This is measure in seconds and it's default value is 0.
++ The initial time of the attack (from the first arrival packet), which is measured in order of the initial time of the first packet of the input file, can be submitted by the argument --initial_time (or -it). This is measure in seconds and it's default value is 0.
 
 + The number of packets to send during each second of the attack (the rate of packets per second) is setted by the argument --num_packet or -n. The default value it's determined by the attack to simulate.
 

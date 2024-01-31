@@ -7,8 +7,8 @@ from assertFunctions import check
 import time as Time
 import string
 sys.path.append("../RandomSubdomain")
-from randomSubdomain import genIp
-from randomSubdomain import regularResponse
+from RandomSubdomain.randomSubdomain import genIp
+from RandomSubdomain.randomSubdomain import regularResponse
 
 def amplificationBuilder(ip_src: string,ip_dst: string, src_port: int, q_name: string, t: float):
     """
